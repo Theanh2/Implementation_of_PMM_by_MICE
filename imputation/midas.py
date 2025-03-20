@@ -1,8 +1,8 @@
 #by chatgpt
-
+#https://rdrr.io/cran/mice/src/R/mice.impute.midastouch.R
 import numpy as np
 
-
+#Auxiliary
 def bootfunc_plain(n):
     random = np.random.choice(n, size=n, replace=True)
     weights, _ = np.histogram(random, bins=np.arange(1, n + 2))
