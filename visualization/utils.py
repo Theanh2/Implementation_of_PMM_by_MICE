@@ -61,7 +61,7 @@ def md_pattern_like(df):
 
     return summary_df
 
-def plot_missing_data_pattern(pattern_df, figsize=(8, 5), title="Missing Data Pattern"):
+def plot_missing_data_pattern(pattern_df, figsize=(8, 5), title="Missing Data Pattern", rotate_names=False):
     """
     Plots the missing data pattern from a pattern dataframe.
     
@@ -73,11 +73,13 @@ def plot_missing_data_pattern(pattern_df, figsize=(8, 5), title="Missing Data Pa
         Figure size in inches (width, height). Default is (8, 5)
     title : str, optional
         Title for the plot. Default is "Missing Data Pattern"
+    rotate_names : bool, optional
+        Whether to rotate column names 90 degrees. Default is False
         
     Returns:
     --------
-    None
-        Displays the plot
+    pandas.DataFrame
+        The pattern matrix with counts, similar to R's md.pattern output
     """
     data_only = pattern_df.iloc[:-1, :-1]
     row_counts = pattern_df.index[:-1]
@@ -89,27 +91,47 @@ def plot_missing_data_pattern(pattern_df, figsize=(8, 5), title="Missing Data Pa
         (205/255, 100/255, 140/255)   # pink for missing
     ])
 
+    # Create figure with adjusted size based on rotation
+    if rotate_names:
+        figsize = (figsize[0], figsize[1] + 0.5)  # Add extra height for rotated labels
     plt.figure(figsize=figsize)
+    
+    # Create the heatmap
     ax = sns.heatmap(1 - data_only.astype(int), cmap=cmap, cbar=False,
                      linewidths=0.5, linecolor='black', square=True)
 
+    # Add row counts on the left
     for i, count in enumerate(row_counts):
-        ax.text(-1.0, i + 0.5, f"{count}", va='center', ha='right', fontsize=10)
+        ax.text(-0.7, i + 0.5, f"{count}", va='center', ha='right', fontsize=10)
 
+    # Add missing counts on the right
     for i, miss in enumerate(row_miss):
         ax.text(data_only.shape[1] + 0.1, i + 0.5, f"{int(miss)}", va='center', ha='left', fontsize=10)
 
+    # Add column missing counts at the bottom
     for j, miss in enumerate(col_miss):
-        ax.text(j + 0.5, data_only.shape[0] + 1.6, f"{int(miss)}", ha='center', va='bottom', fontsize=10)
+        ax.text(j + 0.5, data_only.shape[0] + 0.5, f"{int(miss)}", ha='center', va='top', fontsize=10)
 
-    ax.set_xticks([i + 0.5 for i in range(data_only.shape[1])])
-    ax.set_xticklabels(data_only.columns, rotation=0)
-    ax.set_yticks([i + 0.5 for i in range(data_only.shape[0])])
-    ax.set_yticklabels([''] * len(row_counts))
+    # Add column names on top
+    for j, col_name in enumerate(data_only.columns):
+        if rotate_names:
+            ax.text(j + 0.5, -0.5, col_name, ha='right', va='top', rotation=90, fontsize=10)
+        else:
+            ax.text(j + 0.5, -0.5, col_name, ha='center', va='top', fontsize=10)
 
-    plt.subplots_adjust(bottom=0.2)
-    plt.ylabel("Missing Pattern Count")
-    plt.title(title)
+    # Remove default x and y axis labels
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
+
+    # Add total missing count at bottom right
+    ax.text(data_only.shape[1] + 0.1, data_only.shape[0] + 0.5, 
+            f"{int(pattern_df.loc['#miss_col'].iloc[-1])}", 
+            ha='left', va='top', fontsize=10)
 
     plt.tight_layout(pad=0.4)
     plt.show()
+
+    # Return the pattern matrix for textual output
+    return pattern_df
