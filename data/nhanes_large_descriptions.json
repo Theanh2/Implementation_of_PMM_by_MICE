@@ -1,0 +1,246 @@
+[
+  {
+    "name": "ALQ_J",
+    "vars": {
+      "ALQ111": "The next questions are about drinking alcoholic beverages. Included are liquor (such as whiskey or gin), beer, wine, wine cooler",
+      "ALQ121": "During the past 12 months, about how often did {you/SP} drink any type of alcoholic beverage?\r\nPROBE: How many days per week, pe",
+      "ALQ130": "During the past 12 months, on those days that {you/SP} drank alcoholic beverages, on the average, how many drinks did {you/he/sh",
+      "ALQ142": "During the past 12 months, about how often did {you/SP} have {DISPLAY NUMBER} or more drinks of any alcoholic beverage?\r\nPROBE: ",
+      "ALQ151": "Was there ever a time or times in {your/SP's} life when {you/he/she} drank {DISPLAY NUMBER} or more drinks of any kind of alcoho",
+      "ALQ170": "Considering all types of alcoholic beverages, during the past 30 days, how many times did you have {5/4} or more drinks on an oc",
+      "ALQ270": "During the past 12 months, about how often did {you/SP} have {DISPLAY NUMBER} or more drinks in a period of two hours or less?",
+      "ALQ280": "During the past 12 months, about how often did {you/SP} have 8 or more drinks in a single day?",
+      "ALQ290": "During the past 12 months, about how often did {you/SP} have 12 or more drinks in a single day?",
+      "SEQN": "Respondent sequence number."
+    }
+  },
+  {
+    "name": "BMX_J",
+    "vars": {
+      "BMDSTATS": "Body Measures Component status Code",
+      "BMIARMC": "Arm Circumference Comment",
+      "BMIARML": "Upper Arm Length Comment",
+      "BMIHEAD": "Head Circumference Comment",
+      "BMIHIP": "Hip Circumference Comment",
+      "BMIHT": "Standing Height Comment",
+      "BMILEG": "Upper Leg Length Comment",
+      "BMIRECUM": "Recumbent Length Comment",
+      "BMIWAIST": "Waist Circumference Comment",
+      "BMIWT": "Weight Comment",
+      "BMXARMC": "Arm Circumference (cm)",
+      "BMXARML": "Upper Arm Length (cm)",
+      "BMXBMI": "Body Mass Index (kg/m**2)",
+      "BMXHEAD": "Head Circumference (cm)",
+      "BMXHIP": "Hip Circumference (cm)",
+      "BMXHT": "Standing Height (cm)",
+      "BMXLEG": "Upper Leg Length (cm)",
+      "BMXRECUM": "Recumbent Length (cm)",
+      "BMXWAIST": "Waist Circumference (cm)",
+      "BMXWT": "Weight (kg)",
+      "SEQN": "Respondent sequence number."
+    }
+  },
+  {
+    "name": "BPX_J",
+    "vars": {
+      "BPAARM": "Arm selected:",
+      "BPACSZ": "Cuff size (cm) (width X length)",
+      "BPAEN1": "Enhancement used first reading",
+      "BPAEN2": "Enhancement used second reading",
+      "BPAEN3": "Enhancement used third reading",
+      "BPAEN4": "Enhancement used fourth reading",
+      "BPXCHR": "60 sec HR (30 sec HR * 2)",
+      "BPXDI1": "Diastolic:  Blood pressure (first reading) mm Hg",
+      "BPXDI2": "Diastolic: Blood pressure (second reading) mm Hg",
+      "BPXDI3": "Diastolic: Blood pressure (third reading) mm Hg",
+      "BPXDI4": "Diastolic: Blood pressure (fourth reading if necessary) mm Hg",
+      "BPXML1": "MIL: maximum inflation levels (mm Hg)",
+      "BPXPLS": "60 sec. pulse (30 sec. pulse * 2)",
+      "BPXPTY": "Pulse type",
+      "BPXPULS": "Pulse regular or irregular?",
+      "BPXSY1": "Systolic:  Blood pressure (first reading) mm Hg",
+      "BPXSY2": "Systolic:  Blood pressure (second reading) mm Hg",
+      "BPXSY3": "Systolic:  Blood pressure (third reading) mm Hg",
+      "BPXSY4": "Systolic:  Blood pressure (fourth reading if necessary) mm Hg",
+      "PEASCCT1": "Blood Pressure Comment",
+      "SEQN": "Respondent sequence number."
+    }
+  },
+  {
+    "name": "CDQ_J",
+    "vars": {
+      "CDQ001": "{Have you/Has SP} ever had any pain or discomfort in {your/her/his} chest?",
+      "CDQ002": "{Do you/Does she/Does he} get it when {you/she/he} walk uphill or hurry?",
+      "CDQ003": "{Do you/Does she/Does he} get it when {you/she/he} walk at an ordinary pace on level ground?",
+      "CDQ004": "What {do you/does she/does he} do if {you/she/he} get it while {you/she/he} are walking?  {Do you/Does she/Does he} stop or slow",
+      "CDQ005": "If {you/she/he} stand still, what happens to it?  Is the pain or discomfort relieved or not relieved?",
+      "CDQ006": "How soon is the pain relieved?  Would you say...",
+      "CDQ008": "Have {you/she/he} ever had a severe pain across the front of {your/her/his} chest lasting for half an hour or more?",
+      "CDQ009A": "Please look at this card and show me where the pain or discomfort is located.",
+      "CDQ009B": "Please look at this card and show me where the pain or discomfort is located.",
+      "CDQ009C": "Please look at this card and show me where the pain or discomfort is located.",
+      "CDQ009D": "Please look at this card and show me where the pain or discomfort is located.",
+      "CDQ009E": "Please look at this card and show me where the pain or discomfort is located.",
+      "CDQ009F": "Please look at this card and show me where the pain or discomfort is located.",
+      "CDQ009G": "Please look at this card and show me where the pain or discomfort is located.",
+      "CDQ009H": "Please look at this card and show me where the pain or discomfort is located.",
+      "CDQ010": "{Have you/Has SP} had shortness of breath either when hurrying on the level or walking up a slight hill?",
+      "SEQN": "Respondent sequence number."
+    }
+  },
+  {
+    "name": "FERTIN_J",
+    "vars": {
+      "LBDFERSI": "Ferritin (ug/L)",
+      "LBXFER": "Ferritin (ng/mL)",
+      "SEQN": "Respondent sequence number"
+    }
+  },
+  {
+    "name": "FETIB_J",
+    "vars": {
+      "LBDIRNSI": "Iron frozen, Serum (umol/L)",
+      "LBDPCT": "Transferrin Saturation (%)",
+      "LBDTIB": "Total Iron Binding Capacity TIBC (ug/dL)",
+      "LBDTIBSI": "Total Iron Binding Capacity (TIBC) (umol/L)",
+      "LBDUIBLC": "Unsaturated Iron Binding Capacity (UIBC), Serum Comment Code",
+      "LBDUIBSI": "Unsaturated Iron Binding Capacity (UIBC), Serum (umol/L)",
+      "LBXIRN": "Iron frozen, Serum (ug/dL)",
+      "LBXUIB": "Unsaturated Iron Binding Capacity (UIBC), Serum (ug/dL)",
+      "SEQN": "Respondent sequence number."
+    }
+  },
+  {
+    "name": "HEPA_J",
+    "vars": {
+      "LBXHA": "Hepatitis A antibody",
+      "SEQN": "Respondent sequence number"
+    }
+  },
+  {
+    "name": "HEPB_S_J",
+    "vars": {
+      "LBXHBS": "Hepatitis B Surface Antibody",
+      "SEQN": "Respondent sequence number"
+    }
+  },
+  {
+    "name": "HEQ_J",
+    "vars": {
+      "HEQ010": "Has a doctor or other health professional ever told {you/SP} that {you have/s/he/SP has} Hepatitis B? (Hepatitis is a form of li",
+      "HEQ020": "Please look at the drugs on this card that are prescribed for Hepatitis B. {Were you/Was/s/he/SP} ever prescribed any medicine t",
+      "HEQ030": "Has a doctor or other health professional ever told {you/SP} that {you have/s/he/SP has} Hepatitis C? (Hepatitis is a form of li",
+      "HEQ040": "Please look at the drugs on this card that are prescribed for Hepatitis C. {Were you/ Was/s/he/SP} ever prescribed any medicine ",
+      "SEQN": "Respondent sequence number."
+    }
+  },
+  {
+    "name": "IMQ_J",
+    "vars": {
+      "IMQ011": "Hepatitis (Hep-a-ti-tis) A vaccine is given as a two dose series to some children older than 2 years and also to some adults, es",
+      "IMQ020": "Hepatitis (Hep-a-ti-tis) B vaccine is given in three separate doses and has been recommended for all newborn infants since 1991.",
+      "IMQ060": "Human Papillomavirus (HPV) vaccine is given to prevent cervical cancer in girls and women.  The HPV vaccines available are calle",
+      "IMQ070": "Human Papillomavirus (HPV) vaccine is given to prevent HPV infection and genital warts in boys and men.  It is given in 2 or 3 s",
+      "IMQ081A": "Which of the HPV vaccines did {you/SP} receive, Cervarix, Gardasil or Gardasil 9?",
+      "IMQ081B": "Which of the HPV vaccines did {you/SP} receive, Cervarix, Gardasil or Gardasil 9?",
+      "IMQ081C": "Which of the HPV vaccines did {you/SP} receive, Cervarix, Gardasil or Gardasil 9?",
+      "IMQ081D": "Which of the HPV vaccines did {you/SP} receive, Cervarix, Gardasil or Gardasil 9?",
+      "IMQ090": "How old {were you/was SP} when {you/SP} received your first dose of {Cervarix/Gardasil/Gardasil 9/Gardasil or Gardasil 9/the vac",
+      "IMQ100": "How many doses of {Cervarix/Gardasil/Gardasil or Gardasil 9/the vaccine} {have you/has SP} received?",
+      "SEQN": "Respondent sequence number."
+    }
+  },
+  {
+    "name": "INQ_J",
+    "vars": {
+      "IND235": "Monthly family income (reported as a range value in dollars).",
+      "IND310": "Total savings or cash assets at this time for {you/NAMES OF OTHER FAMILY/your family}.",
+      "INDFMMPC": "Family monthly poverty level index categories.",
+      "INDFMMPI": "Family monthly poverty level index, a ratio of monthly family income to the HHS poverty guidelines specific to family size.",
+      "INQ012": "Did {you/you or any family members 16 and older} receive income in {LAST CALENDAR YEAR} from self-employment including business ",
+      "INQ020": "The next questions are about {your/your combined family} income.  When answering these questions, please remember that by {\"inco",
+      "INQ030": "When answering the next questions about different kinds of income members of your family might have received in {LAST CALENDAR Y",
+      "INQ060": "Did {you/you or any family members living here} receive any disability pension [other than Social Security or Railroad Retiremen",
+      "INQ080": "Did {you/you or any family members living here} receive retirement or survivor pension [other than Social Security or Railroad R",
+      "INQ090": "Did {you/you or any family members living here} receive Supplemental Security Income [SSI] in {LAST CALENDAR YEAR}?",
+      "INQ132": "Did {you/you or any family members living here} receive any cash assistance from a state or county welfare program such as {DISP",
+      "INQ140": "Did {you/you or any family members living here} receive interest from savings or other bank accounts or income from dividends re",
+      "INQ150": "Did {you/you or any family members living here} receive income in {LAST CALENDAR YEAR} from child support, alimony, contribution",
+      "INQ300": "Do {you/NAMES OF OTHER FAMILY/you and NAMES OF FAMILY MEMBERS} have more than $20,000 in savings at this time?  Please include m",
+      "INQ320": "Please look at this card. How do {you/you or anyone who lives in the household} usually get to the store (or stores) where you d",
+      "SEQN": "Respondent sequence number."
+    }
+  },
+  {
+    "name": "PAQ_J",
+    "vars": {
+      "PAD615": "How much time {do you/does SP} spend doing vigorous-intensity activities at work on a typical day?",
+      "PAD630": "How much time {do you/does SP} spend doing moderate-intensity activities at work on a typical day?",
+      "PAD645": "How much time {do you/does SP} spend walking or bicycling for travel on a typical day?",
+      "PAD660": "How much time {do you/does SP} spend doing vigorous-intensity sports, fitness or recreational activities on a typical day?",
+      "PAD675": "How much time {do you/does SP} spend doing moderate-intensity sports, fitness or recreational activities on a typical day?",
+      "PAD680": "The following question is about sitting at school, at home, getting to and from places, or with friends including time spent sit",
+      "PAQ605": "Next I am going to ask you about the time {you spend/SP spends} doing different types of physical activity in a typical week. Th",
+      "PAQ610": "In a typical week, on how many days {do you/does SP} do vigorous-intensity activities as part of {your/his/her} work?",
+      "PAQ620": "Does {your/SP's} work involve moderate-intensity activity that causes small increases in breathing or heart rate such as brisk w",
+      "PAQ625": "In a typical week, on how many days {do you/does SP} do moderate-intensity activities as part of {your/his/her} work?",
+      "PAQ635": "The next questions exclude the physical activity at work that you have already mentioned.  Now I would like to ask you about the",
+      "PAQ640": "In a typical week, on how many days {do you/does SP} walk or bicycle for at least 10 minutes continuously to get to and from pla",
+      "PAQ650": "The next questions exclude the work and transport activities that you have already mentioned.  Now I would like to ask you about",
+      "PAQ655": "In a typical week, on how many days {do you/does SP} do vigorous-intensity sports, fitness or recreational activities?",
+      "PAQ665": "In a typical week {do you/does SP} do any moderate-intensity sports, fitness, or recreational activities that cause a small incr",
+      "PAQ670": "In a typical week, on how many days {do you/does SP} do moderate-intensity sports, fitness or recreational activities?",
+      "SEQN": "Respondent sequence number."
+    }
+  },
+  {
+    "name": "SMQ_J",
+    "vars": {
+      "SEQN": "Respondent sequence number.",
+      "SMAQUEX2": "Questionnaire Mode Flag",
+      "SMD030": "How old {were you/was SP} when {you/s/he} first started to smoke cigarettes fairly regularly?",
+      "SMD057": "At that time, about how many cigarettes did {you/SP} usually smoke per day?",
+      "SMD093": "May I please see the pack for the brand of cigarettes {you usually smoke/SP usually smokes}.",
+      "SMD100BR": "BRAND OF CIGARETTES SMOKED BY SP (SUB-BRAND INCLUDED IF APPLICABLE AND AVAILABLE)",
+      "SMD100CO": "CIGARETTE CARBON MONOXIDE CONTENT",
+      "SMD100FL": "CIGARETTE PRODUCT FILTERED OR NON-FILTERED",
+      "SMD100LN": "CIGARETTE PRODUCT LENGTH",
+      "SMD100MN": "CIGARETTE PRODUCT MENTHOLATED OR NON-MENTHOLATED",
+      "SMD100NI": "CIGARETTE NICOTINE CONTENT",
+      "SMD100TR": "CIGARETTE TAR CONTENT",
+      "SMD630": "How old were you when you smoked a whole cigarette for the first time?",
+      "SMD641": "On how many of the past 30 days did {you/SP} smoke a cigarette?",
+      "SMD650": "During the past 30 days, on the days that {you/SP} smoked, about how many cigarettes did {you/s/he} smoke per day?",
+      "SMDUPCA": "Cigarette 12-digit Universal Product Code (UPC)",
+      "SMQ020": "These next questions are about cigarette smoking and other tobacco use. {Have you/Has SP} smoked at least 100 cigarettes in {you",
+      "SMQ040": "{Do you/Does SP} now smoke cigarettes?",
+      "SMQ050Q": "How long has it been since {you/SP} quit smoking cigarettes?",
+      "SMQ050U": "UNIT OF MEASURE",
+      "SMQ078": "How soon after you wake up do you smoke?  Would you say . . .",
+      "SMQ621": "The following questions are about cigarette smoking and other tobacco use.  Do not include cigars or marijuana.  About how many ",
+      "SMQ661": "During the past 30 days, on the days that you smoked, which brand of cigarettes did you usually smoke?",
+      "SMQ665A": "Please select the Marlboro pack that looks most like the brand that you smoke. If the pack you smoke is not shown, select 'other",
+      "SMQ665B": "Please select the Camel pack that looks most like the brand that you smoke. If the pack you smoke is not shown, select 'other Ca",
+      "SMQ665C": "Please select the Newport pack that looks most like the brand that you smoke. If the pack you smoke is not shown, select 'other ",
+      "SMQ665D": "Please select the pack that looks most like the brand that you smoke. If the pack you smoke is not shown, select 'other brand of",
+      "SMQ670": "During the past 12 months, have you stopped smoking for one day or longer because you were trying to quit smoking?",
+      "SMQ848": "During the past 12 months, how many times {have you/has SP} stopped smoking cigarettes because {you were/he was/she was} trying ",
+      "SMQ852Q": "The last time {you/SP} tried to quit, how long {were you/was he/was she} able to stop smoking?",
+      "SMQ852U": "The last time {you/SP} tried to quit, how long {were you/was he/was she} able to stop smoking?",
+      "SMQ890": "{Have you/Has SP} ever smoked a regular cigar, cigarillo or little filtered cigar even one time? This hand card shows examples o",
+      "SMQ895": "During the past 30 days, on how many days did {you/SP} smoke a regular cigar, cigarillo or little filtered cigar?",
+      "SMQ900": "The next question is about e-cigarettes. These are battery-powered devices that usually contain liquid nicotine, and don't produ",
+      "SMQ905": "During the past 30 days, on how many days did {you/SP} use e-cigarettes?",
+      "SMQ910": "Smokeless tobacco products are placed in the mouth and nose and include chewing tobacco, snuff, dip, snus (pronounced as \"snoose",
+      "SMQ915": "During the past 30 days, on how many days did {you/SP} use smokeless tobacco?"
+    }
+  },
+  {
+    "name": "TCHOL_J",
+    "vars": {
+      "LBDTCSI": "Total Cholesterol (mmol/L)",
+      "LBXTC": "Total Cholesterol (mg/dL)",
+      "SEQN": "Respondent Sequence Number"
+    }
+  }
+]
