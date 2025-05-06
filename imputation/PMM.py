@@ -3,7 +3,7 @@ import pandas as pd
 from Utils import *
 from sampler import *
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.cross_decomposition import CCA
+from sklearn.cross_decomposition import CCA, PLSSVD
 
 def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
                     quantify = True, trim = 1, ridge = 1e-5, matcher = "NN", **kwargs):
@@ -114,15 +114,13 @@ xd = np.array(x)[ry]
 encoder = OneHotEncoder(sparse_output= False, drop = None)
 yf = encoder.fit_transform(yf.reshape(-1, 1))
 
-cca = CCA(scale = False, n_components = min(xd.shape[1], yf.shape[1]))
+cca = cca(scale = False, n_components = min(xd.shape[1], yf.shape[1]))
 #yf design matrix, xd data
 cca.fit(X = yf, y = xd)
-xd_c, yf_c = cca.transform(X = yf, y = xd)
 
-#returns vector of na with len of y
-ynum = np.full(len(y), np.nan)
+xd_c, yf_c = cca.transform(X = yf, y = xd)
+ynum = y
 #replaces values with scaled coeffs
 ynum[ry] = StandardScaler().fit_transform(yf_c[:, [1]]).flatten()
 
-print(xt)
-#ynum[ry] = scaler.fit_transform(yf_c[:,1].reshape(-1, 1))
+print(ynum)
