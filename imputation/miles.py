@@ -1,17 +1,14 @@
 import numpy as np
 from scipy.spatial import cKDTree
 
-
 def bootfunc(n):
     random_values = np.random.rand(n - 1)
     sorted_values = np.sort(np.concatenate(([0], random_values, [1])))
     weights = np.diff(sorted_values) * n
     return weights
 
-
 def removecons(X):
     return np.where(np.apply_along_axis(lambda col: np.unique(col).size > 1, axis=0, arr=X))[0]
-
 
 def rescale_quartiles(X, weight=None):
     def wiqr(x, w=None):
@@ -77,3 +74,5 @@ def mice_impute_li(y, ry, x, boot=True, kgran=6, rgran=3, rescale=1, midastouch=
     model_tab = modeltable(X[donind], X[recind], k)
     matchind = model_tab[:, 1][recind] if k == 1 else model_tab[:, 1]
     return y[matchind]
+
+

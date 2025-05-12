@@ -27,7 +27,7 @@ def norm_draw(y, ry, x, rank_adjust=True, **kwargs):
     """
     #Draw from estimice
     p = estimice(x[ry, :], y[ry], **kwargs)
-    #sqrt(sum((p$r)^2) / rchisq(n = 1,df = p$df)) #one random variate with p$df
+    #sqrt(sum((p$r)^2) / rchisq(n = 1,df = p$df)) #one random variate with p$df normal noise
     #sqrt because we need sigma not sigma^2 for beta later
     sigma_star = np.sqrt(np.sum(p["r"] ** 2) / chi2.rvs(df = p["df"], size = 1))
     # #cholesky needs matrix to be symmetrical, must be positive definite -> use sym() (A+A.T)/2

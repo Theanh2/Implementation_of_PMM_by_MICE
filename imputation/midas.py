@@ -72,6 +72,7 @@ def mice_impute_midastouch(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = 
     xmis = x[wy, :]
 
     omega = bootfunc_plain(nobs)
+    #for testing omega = np.array([2, 1, 1, 0])
 
     CX = omega.reshape(-1, 1) * xobs
     XCX = xobs.T @ CX
@@ -81,7 +82,7 @@ def mice_impute_midastouch(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = 
         XCX[diag0, diag0] = max(sminx, ridge)
 
     Xy = CX.T @ yobs
-    #numpy.linalg.LinAlgError: Singular matrix when XCX is not inversible
+    #numpy.linalg.LinAlgError: Singular matrix when XCX is not inversible maybe throw error and return?
     #CX = observed data * bootstrap frequencies
     #XCX = observed data * CX
     beta = np.linalg.solve(XCX, Xy)
@@ -91,12 +92,17 @@ def mice_impute_midastouch(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = 
         mean_y = np.dot(yobs, omega) / nobs
         eps = yobs - yhat_obs
         r2 = 1 - (np.dot(omega, eps ** 2) / np.dot(omega, (yobs - mean_y) ** 2))
-        # slight deviation from the paper to ensure real results paper: a tiny
-        # delta is added to the denominator R Code: min function is used, note
-        # that this correction gets active for r2>.999 only
-        # if r2 cannot be determined (eg zero variance in yhat), use 3 as
-        # suggested by Siddique / Belin
-        midas_kappa = min((50 * r2 / (1 - r2)) ** (3 / 8), 100) if r2 < 0.999 else 3
+        #section 5.3.1
+        # min function is used correction gets active for r2>.999 only because division by 0
+        # if r2 cannot be determined (eg zero variance in yhat), use 3 as suggested by Siddique / Belin
+        #if taking delta as in the paper there are numerical errors needing to be fixed
+        if r2 < 1:
+            midas_kappa = (50 * r2 / (1 - r2))** (3 / 8)
+        else:
+            midas_kappa = 100
+
+        if np.isnan(midas_kappa):
+            midas_kappa = 3
 
     if outout:
         XXarray_pre = np.array([np.outer(xobs[i], xobs[i]).flatten() * omega[i] for i in range(nobs)]).T
@@ -120,18 +126,36 @@ def mice_impute_midastouch(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = 
 
         # distance matrix
         dist_mat = YHATdon - YHATrec
+
+
     #
     # else:
     #     yhat_mis = Xmis @ beta
     #     dist_mat = yhat_obs[:, None] - yhat_mis
     #Test: divide by 0 here -> probs do not sum to 1
     delta_mat = 1 / (np.abs(dist_mat) ** midas_kappa)
+
+    print(dist_mat, midas_kappa)
     delta_mat = minmax(delta_mat)
+
     probs = delta_mat * omega
     csums = minmax(np.nansum(probs, axis=1))
     probs /= csums
 
+
+
     index = np.random.choice(nobs, size=1, replace=False, p=probs.flatten())
     yimp = y[ry][index]
 
+    #PLF correction implemented needs to be saved globally over iterations
+    #mean(1 / rowSums((t(delta.mat) / csums)^2))
+    #consists
+    row_sums = np.sum((delta_mat / csums)**2, axis=1)
+    neff = np.mean(1 / row_sums)
+    print(neff)
     return yimp
+
+y = np.array([7, np.nan, 9,10,11])
+ry = ~np.isnan(y)
+x = np.array([[1, 2], [3, 4], [5, 6], [7, 13], [11, 10]])
+mice_impute_midastouch(y,ry,x)
