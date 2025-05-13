@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-import random
 from predictorMatrix import quickpred
+from mice import *
 
 df = pd.read_csv("/Users/theanh/Library/Mobile Documents/com~apple~CloudDocs/Stats/Master/Thesis/Implementation of PMM by MICE/data/fdgs.csv")
 
@@ -13,4 +13,3 @@ for col in df.columns:
 pm = quickpred(df, mincor= 0.1, minpuc = 0.1)
 
 micobj = mice(df)
-

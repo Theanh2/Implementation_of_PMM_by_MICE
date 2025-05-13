@@ -12,39 +12,12 @@ def mice(data = None,
         random.seed(seed)
 
 
-
-
-
 mice(iris, predictorMatrix = None,formulas = None, blocks = None)
 
-def make_blocks():
-    print("make_blocks")
-
-
-def construct_blocks():
-    print("construct_blocks")
-
-def make_predictorMatrix():
-    print("make_predictormatrix")
-
-
-def make_formulas(data, blocks, precictormatrix):
-    print("make_formulas")
 
 def check_blocks():
     print("check_blocks")
 
-def check_predictorMatrix():
-    print("check_predictorMatrix")
-
-def check_formulas():
-    print("check_formulas")
-
-def check_cluster():
-    print("check_cluster")
-
-def check_dataform():
-    print("check_dataform")
 
 def check_m(m):
     if isinstance(m, (list, tuple)):
