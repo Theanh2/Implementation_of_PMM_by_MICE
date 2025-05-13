@@ -105,22 +105,27 @@ def quantify(y, ry, x):
 
 
 ##TEST
-y = pd.Series(["age", np.nan, "what", "w", "b", "b"])
-ry = ~pd.isna(y)
-x = np.array([[1, 2], [3, 4], [5, 6], [5, 4], [5, 6], [9, 6]])
+# y = pd.Series(["age", np.nan, "what", "w", "b", "b"])
+# ry = ~pd.isna(y)
+# x = np.array([[1, 2], [3, 4], [5, 6], [5, 4], [5, 6], [9, 6]])
+#
+# yf = np.array(y)[ry]
+# xd = np.array(x)[ry]
+# encoder = OneHotEncoder(sparse_output= False, drop = None)
+# yf = encoder.fit_transform(yf.reshape(-1, 1))
+#
+# cca = cca(scale = False, n_components = min(xd.shape[1], yf.shape[1]))
+# #yf design matrix, xd data
+# cca.fit(X = yf, y = xd)
+#
+# xd_c, yf_c = cca.transform(X = yf, y = xd)
+# ynum = y
+# #replaces values with scaled coeffs
+# ynum[ry] = StandardScaler().fit_transform(yf_c[:, [1]]).flatten()
 
-yf = np.array(y)[ry]
-xd = np.array(x)[ry]
-encoder = OneHotEncoder(sparse_output= False, drop = None)
-yf = encoder.fit_transform(yf.reshape(-1, 1))
 
-cca = cca(scale = False, n_components = min(xd.shape[1], yf.shape[1]))
-#yf design matrix, xd data
-cca.fit(X = yf, y = xd)
-
-xd_c, yf_c = cca.transform(X = yf, y = xd)
-ynum = y
-#replaces values with scaled coeffs
-ynum[ry] = StandardScaler().fit_transform(yf_c[:, [1]]).flatten()
-
-print(ynum)
+y = np.array([7, np.nan, 9, 10, 11])
+ry = ~np.isnan(y)
+x = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [11, 10]])
+p = pmm(x=x, ry=ry, y=y, matcher="NN", donors=3)
+print(p)

@@ -152,7 +152,6 @@ def mice_impute_midastouch(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = 
     #consists
     row_sums = np.sum((delta_mat / csums)**2, axis=1)
     neff = np.mean(1 / row_sums)
-    print(neff)
     return yimp
 
 y = np.array([7, np.nan, 9,10,11])
