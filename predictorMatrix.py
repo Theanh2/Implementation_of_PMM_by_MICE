@@ -1,16 +1,6 @@
 #Mimics quickpred() function from mice package in R
 import numpy as np
 import pandas as pd
-
-##test data only numerical values from nhanes
-df = pd.read_csv("/Users/theanh/Desktop/nhanes.csv")
-df = df.iloc[0:20,[4,6,12,13]]
-
-for col in df.columns:
-    df['null'] = np.random.choice([0, 1], size=df.shape[0], p=[1-0.5, 0.5])
-    df.loc[df['null'] == 1, col] = np.nan
-
-df.drop(columns=['null'], inplace=True)
 #---
 def all(data):
     """
@@ -98,4 +88,3 @@ def md_pairs(data):
 
     return {'rr': rr, 'rm': rm, 'mr': mr, 'mm': mm}
 
-quickpred(df, mincor= 0.1, exclude = "AgeMonths", include = "Age", minpuc = 0.1)
