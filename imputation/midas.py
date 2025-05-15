@@ -24,7 +24,7 @@ def compute_beta(x, m):
     b = x[m**2:]
     return np.linalg.solve(A, b)
 
-def mice_impute_midastouch(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = True):
+def midas(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = True):
     """
     R documentation van burren: change later on #https://rdrr.io/cran/mice/src/R/mice.impute.midastouch.R
     1. Draw a bootstrap sample from the donor pool.
@@ -53,7 +53,7 @@ def mice_impute_midastouch(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = 
     y = np.array([7, np.nan, 9,10,11])
     ry = ~np.isnan(y)
     x = np.array([[1, 2], [3, 4], [5, 6], [7, 13], [11, 10]])
-    print(mice_impute_midastouch(y,ry,x))
+    print(midas(y,ry,x))
     """
     wy = ~ry
     #machine epsilon
@@ -150,8 +150,8 @@ def mice_impute_midastouch(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = 
     row_sums = np.sum((delta_mat / csums)**2, axis=1)
     neff = np.mean(1 / row_sums)
     return yimp, neff
-
-y = np.array([7, np.nan, 9,10,11])
-ry = ~np.isnan(y)
-x = np.array([[1, 2], [3, 4], [5, 6], [7, 13], [11, 10]])
-mice_impute_midastouch(y,ry,x)
+#
+# y = np.array([7, np.nan, 9,10,11])
+# ry = ~np.isnan(y)
+# x = np.array([[1, 2], [3, 4], [5, 6], [7, 13], [11, 10]])
+# midas(y,ry,x)

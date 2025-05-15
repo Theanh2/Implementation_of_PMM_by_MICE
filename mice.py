@@ -1,22 +1,21 @@
 import pandas as pd
 import numpy as np
 from pandas.api.types import is_numeric_dtype
+from imputation.PMM import pmm
+from imputation.midas import midas
+from imputation.predictorMatrix import quickpred
 
 class mice:
-    def __init__(self, data = None, m = 5, predictorMatrix = None, seed = None, parallel = False, initial = "meanobs"):
+    def __init__(self, data = None, m = 5, predictorMatrix = None, seed = None, initial = "meanobs"):
+        #drop empty rows and copy
+        self.data = data.dropna(how='all').reset_index(drop=True)
+        self.history = {}
         #dict for method for each variable
         self.meth = {}
 
         #check m and pm
         self._check_m(m)
         self._check_pm(predictorMatrix)
-
-        #drop empty rows and copy
-        self.data = data.dropna(how='all').reset_index(drop=True)
-
-        #sets multiprocessing (not implemented yet)
-        self.parallel = parallel
-
         #sets seed
         if seed is not None:
             random.seed(seed)
@@ -43,13 +42,15 @@ class mice:
         self._initial_imputation(initial)
 
     def _check_pm(self, predictorMatrix):
-        self.predictorMatrix = predictorMatrix
+        if predictorMatrix is None:
+            self.predictorMatrix = quickpred(self.data, mincor= 0.1, minpuc = 0.1)
+        #self.predictorMatrix = predictorMatrix
 
     def _check_m(self, m):
         #takes int of m for user error
         if m < 1:
             raise Exception("Number of imputations is lower than 1")
-        m = int(m)
+        self.m = int(m)
         return m
 
     #def _initial(self):
@@ -92,7 +93,7 @@ class mice:
         :param d: dictionary of methods
         :return raise exception if invalid method
         """
-        supported = ["pmm", "miles", "midas", "cart"]
+        supported = ["pmm", "midas"]
 
         if not isinstance(d, dict):
             raise ValueError("d not dict")
@@ -105,7 +106,7 @@ class mice:
     def set_methods(self, d):
         """
         :param d: dictionary of methods
-        sets imputation methods for each variable. If not set uses default
+        sets imputation methods for each variable. If not set uses default based on variable type
         :return:
         """
         self.check_d(d)
@@ -124,12 +125,48 @@ class mice:
         #need predictormatrix for
 
 
-    def fit(self):
-        #if method == "pmm":
-            print("...")
+    def fit(self, HMI = False, cv = 0.05, alpha = 0.05, **kwargs):
+        """
+
+        Parameters
+        ----------
+        HMI: bool uses HowManyImputations from Hippel with default 5 pilot imputations. Overwrites m from mice() call
+
+        Returns
+        -------
+
+        """
+        supp_meth = {"pmm": pmm, "midas": midas}
+        for i in range(self.m):
+            for col, method in self.meth.items():
+                #pass into function call
+                #y needs to be masked
+                #x needs to be subset by predictormatrix
+                y = self.data[col]
+                y[self.id_mis[col]] = np.nan
+                ry = ~np.isnan(y)
+                xid = self.predictorMatrix[col]
+                x = self.data[xid[xid == 1].index]
+                #from pandas to numpy
+                y = np.array(y)
+                print(y)
+                ry = np.array(ry)
+                x = np.array(x)
+                self.data[col] = supp_meth[method](y = y, ry = ry, x = x, **kwargs)
+            #Fix updating and save for history
+            temp_data = self.data
+            self.history.update({i: temp_data})
+
+        print(self.history)
+
+
+
 
     #What I need for pmm:
     #def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
     #quantify = True, trim = 1, ridge = 1e-5, matcher = "NN", **kwargs):
 
-
+#intended use:
+#1. mice()
+#2. optional: mice.set_imputer()
+#3. mice.fit()
