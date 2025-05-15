@@ -12,9 +12,15 @@ for col in testdf.columns:
 
 
 pm = quickpred(testdf, mincor= 0.1, minpuc = 0.1)
-obj = mice(data = testdf, m=3)
-print(testdf)
-print(obj.data)
+obj = mice(data = testdf, m=3, initial = "random")
+obj.set_methods(d = {"age": "pmm"})
+print(obj.meth.values())
+supported = ["pmm", "miles", "midas", "cart"]
+
+for x in obj.meth.values():
+    if x not in supported:
+        methods = f"Imputation Method: {x} is not supported"
+        raise ValueError(methods)
 #ry = id_obs
 #x = regular data subset by predictormatrix = 1
 #y = variable to be imputed replaced ry to na.nan

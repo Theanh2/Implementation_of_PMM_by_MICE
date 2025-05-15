@@ -135,14 +135,11 @@ def mice_impute_midastouch(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = 
     #Test: divide by 0 here -> probs do not sum to 1
     delta_mat = 1 / (np.abs(dist_mat) ** midas_kappa)
 
-    print(dist_mat, midas_kappa)
     delta_mat = minmax(delta_mat)
 
     probs = delta_mat * omega
     csums = minmax(np.nansum(probs, axis=1))
     probs /= csums
-
-
 
     index = np.random.choice(nobs, size=1, replace=False, p=probs.flatten())
     yimp = y[ry][index]
@@ -152,7 +149,7 @@ def mice_impute_midastouch(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = 
     #consists
     row_sums = np.sum((delta_mat / csums)**2, axis=1)
     neff = np.mean(1 / row_sums)
-    return yimp
+    return yimp, neff
 
 y = np.array([7, np.nan, 9,10,11])
 ry = ~np.isnan(y)

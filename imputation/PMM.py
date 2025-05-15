@@ -124,7 +124,7 @@ def quantify(y, ry, x):
 # ynum[ry] = StandardScaler().fit_transform(yf_c[:, [1]]).flatten()
 
 
-y = np.array([7, np.nan, 9, 10, 11])
+    y = np.array([7, np.nan, 9, 10, 11])
 ry = ~np.isnan(y)
 x = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [11, 10]])
 p = pmm(x=x, ry=ry, y=y, matcher="NN", donors=3)
