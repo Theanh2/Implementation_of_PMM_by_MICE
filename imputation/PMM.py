@@ -1,9 +1,10 @@
 import numpy as np
 import pandas as pd
-from Utils import *
-from sampler import *
+from imputation.sampler import *
+from imputation.Utils import *
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.cross_decomposition import CCA, PLSSVD
+
 
 def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
                     quantify = True, trim = 1, ridge = 1e-5, matcher = "NN", **kwargs):
@@ -66,7 +67,6 @@ def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
     elif matchtype == 2:
         yhatobs = np.dot(x[ry, :], p["beta"])
         yhatmis = np.dot(x[wy, :], p["beta"])
-
     idx = matcherid(d = yhatobs, t = yhatmis, matcher = "NN", k = donors)
     #replace y (missing value array) with imputed value from observed values
     y[wy] = yhatobs[idx]
@@ -123,9 +123,9 @@ def quantify(y, ry, x):
 # #replaces values with scaled coeffs
 # ynum[ry] = StandardScaler().fit_transform(yf_c[:, [1]]).flatten()
 
-
-    y = np.array([7, np.nan, 9, 10, 11])
-ry = ~np.isnan(y)
-x = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [11, 10]])
-p = pmm(x=x, ry=ry, y=y, matcher="NN", donors=3)
-print(p)
+#
+# y = np.array([7, np.nan, 9, 10, 11])
+# ry = ~np.isnan(y)
+# x = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [11, 10]])
+# p = pmm(x=x, ry=ry, y=y, matcher="NN", donors=3)
+# print(p)

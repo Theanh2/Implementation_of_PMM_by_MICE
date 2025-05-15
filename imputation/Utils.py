@@ -1,4 +1,5 @@
 from sklearn.neighbors import KDTree
+import numpy as np
 import random
 
 def matcherid(d, t, matcher = "NN", k = 10, radius = 3):
@@ -40,5 +41,3 @@ def matcherid(d, t, matcher = "NN", k = 10, radius = 3):
     #
     else:
         raise ValueError("unknown matcher")
-
-
