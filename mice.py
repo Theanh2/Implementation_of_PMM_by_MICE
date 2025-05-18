@@ -5,6 +5,7 @@ from imputation.PMM import pmm
 from imputation.midas import midas
 from imputation.predictorMatrix import quickpred
 import statsmodels.formula.api as smf
+from statsmodels.base.model import LikelihoodModelResults
 import numpy as np
 from scipy.stats import norm
 from tqdm import tqdm
@@ -150,18 +151,22 @@ class mice:
         #Global variables: makes code easier no passing around **kwargs
         self.hist_bool = history
         self.fml = fml
+
         self.HMI_bool = HMI
         if not HMI:
-            for i in range(self.m):
+            for i in tqdm(range(self.m)):
                 self._analysis(fml, **kwargs)
                 # Save iterations if history True
                 if self.hist_bool:
                     self.history[i] = self.data.copy()
-            self.pool()
+            self.pool(summ = True)
                 # Analysis model
         if self.HMI_bool:
             self.HMI(pilot, alpha, cv)
-        return self.summarize()
+
+        self.exog_names = self.amodel.exog_names
+        self.endog_names = self.amodel.endog_names
+        return self.results
 
     def _analysis(self,fml, **kwargs):
         supp_meth = {"pmm": pmm, "midas": midas}
@@ -184,7 +189,7 @@ class mice:
             self.amodel = smf.ols(fml, data=self.data)
             self.model_results.append(self.amodel.fit())
 
-    def pool(self):
+    def pool(self, summ = False):
         """
         Pools
         Returns: summary of fit
@@ -207,7 +212,6 @@ class mice:
         params = params_list.mean(0)
         # The average of the within-imputation covariances
         cov_within /= len(self.model_results)
-
         # The between-imputation covariance
         cov_between = np.cov(params_list.T)
 
@@ -216,13 +220,22 @@ class mice:
         cov_params = cov_within + f * cov_between
         # Fraction of missing information
         self.fmi = f * np.diag(cov_between) / np.diag(cov_params)
+        scale = np.mean(scale_list)
 
+        if summ:
+            # Set up a results instance
+            self.results = MICEResults(self, params, cov_params / scale)
+            self.results.scale = scale
+            self.results.frac_miss_info = self.fmi
+            # self.results.exog_names = self.exog_names
+            # self.results.endog_names = self.endog_names
 
 
     def HMI(self, pilot, alpha, cv):
         """
         Runs pilot imputation to get fraction of missing information and then runs the remaining iterations so ensure
             point estimates and standard deviation for replicability
+            https://arxiv.org/pdf/1608.05406 chapter 1.2
         Parameters
         ----------
         pilot: Initial pilot imputation to calculate fraction of missing information
@@ -242,25 +255,76 @@ class mice:
             #returns fmi of pilot imputations for calculating second stage
         self.pool()
 
+        #standard normal quantile
         z = norm.ppf(1 - alpha / 2)
-
+        #confidence interval for delta mis by applying the inverse-logit transformation
+        #to the endpoints
         fmiu = self.expit(self.logit(max(self.fmi)) + z * np.sqrt(2 / pilot))
 
+        #upper bound of confidence interval rounded with int
         self.m2 = int(np.ceil(1 + 0.5 * (fmiu / cv)**2))
+
         for i in tqdm(range(self.m2-2), desc = "stage2"):
             self._analysis(self.fml)
             # Save iterations if history True
             if self.hist_bool:
                 self.history[i+ pilot] = self.data.copy()
             #returns fmi of pilot imputations for calculating second stage
-        self.pool()
-
+        self.pool(summ = True)
+    #short util function to not import
     def logit(self,p):
         return np.log(p / (1 - p))
 
     def expit(self,x):
         return 1 / (1 + np.exp(-x))
 
-    def summarize(self):
 
-        return "end"
+
+
+class MICEResults(LikelihoodModelResults):
+
+    def __init__(self, model, params, normalized_cov_params):
+
+        super().__init__(model, params, normalized_cov_params)
+
+    def summary(self, title=None, alpha=.05):
+        """
+        Summarize the results of running MICE.
+
+        Parameters
+        ----------
+        title : str, optional
+            Title for the top table. If not None, then this replaces
+            the default title
+        alpha : float
+            Significance level for the confidence intervals
+
+        Returns
+        -------
+        smry : Summary instance
+            This holds the summary tables and text, which can be
+            printed or converted to various output formats.
+        """
+
+        from statsmodels.iolib import summary2
+
+        smry = summary2.Summary()
+        float_format = "%8.3f"
+
+        info = {}
+        info["Method:"] = "MICE"
+        info["Model:"] = "OLS"
+        info["Dependent variable:"] = self.model.endog_names
+        info["Sample size:"] = "%d" % self.model.data.shape[0]
+        info["Scale"] = "%.2f" % self.scale
+        info["Num. iterations"] = "%d" % (len(self.model.model_results) / 3)
+
+        smry.add_dict(info, align='l', float_format=float_format)
+
+        param = summary2.summary_params(self, alpha=alpha)
+        param["FMI"] = self.frac_miss_info
+
+        smry.add_df(param, float_format=float_format)
+        smry.add_title(title=title, results=self)
+
+        return smry

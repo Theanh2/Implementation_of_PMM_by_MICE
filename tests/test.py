@@ -12,7 +12,7 @@ pm = quickpred(testdf, mincor= 0.1, minpuc = 0.1)
 obj = mice(data = testdf, m=5, initial = "random")
 obj.set_methods(d = {"age": "pmm"})
 x = obj.fit(fml = "age ~ wgt", donors = 5, history = True, HMI = True, pilot = 5)
-print(x)
+print(x.summary())
 #ry = id_obs
 #x = regular data subset by predictormatrix = 1
 #y = variable to be imputed replaced ry to na.nan
