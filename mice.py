@@ -4,6 +4,10 @@ from pandas.api.types import is_numeric_dtype
 from imputation.PMM import pmm
 from imputation.midas import midas
 from imputation.predictorMatrix import quickpred
+import statsmodels.formula.api as smf
+import numpy as np
+from scipy.stats import norm
+from tqdm import tqdm
 
 class mice:
     def __init__(self, data = None, m = 5, predictorMatrix = None, seed = None, initial = "meanobs"):
@@ -12,10 +16,12 @@ class mice:
         self.history = {}
         #dict for method for each variable
         self.meth = {}
-
         #check m and pm
         self._check_m(m)
         self._check_pm(predictorMatrix)
+        self.amodel = {}
+        self.model_results = []
+
         #sets seed
         if seed is not None:
             random.seed(seed)
@@ -125,48 +131,136 @@ class mice:
         #need predictormatrix for
 
 
-    def fit(self, HMI = False, cv = 0.05, alpha = 0.05, **kwargs):
+    def fit(self, fml, history = False, HMI = False, alpha = 0.05, cv = 0.05, pilot = 5, **kwargs):
         """
 
         Parameters
         ----------
-        HMI: bool uses HowManyImputations from Hippel with default 5 pilot imputations. Overwrites m from mice() call
+        :param fml: analysis model formula in patsy format. Takes any patsy, enables transforming variables
+            Note: Patsy does not handle dots in variable names thros Errors
+        :param HMI: HowManyImputations by Hippel (2020) https://doi.org/10.48550/arXiv.1608.05406, pass alpha and cv to HMI() function
+        :param history: bool, if True saves all iterations in a dict, if False only passes metrics for summary
+
+
 
         Returns
         -------
 
         """
+        #Global variables: makes code easier no passing around **kwargs
+        self.hist_bool = history
+        self.fml = fml
+        self.HMI_bool = HMI
+        if not HMI:
+            for i in range(self.m):
+                self._analysis(fml, **kwargs)
+                # Save iterations if history True
+                if self.hist_bool:
+                    self.history[i] = self.data.copy()
+            self.pool()
+                # Analysis model
+        if self.HMI_bool:
+            self.HMI(pilot, alpha, cv)
+        return self.summarize()
+
+    def _analysis(self,fml, **kwargs):
         supp_meth = {"pmm": pmm, "midas": midas}
-        for i in range(self.m):
-            for col, method in self.meth.items():
-                #pass into function call
-                #y needs to be masked
-                #x needs to be subset by predictormatrix
-                y = self.data[col]
-                y[self.id_mis[col]] = np.nan
-                ry = ~np.isnan(y)
-                xid = self.predictorMatrix[col]
-                x = self.data[xid[xid == 1].index]
-                #from pandas to numpy
-                y = np.array(y)
-                print(y)
-                ry = np.array(ry)
-                x = np.array(x)
-                self.data[col] = supp_meth[method](y = y, ry = ry, x = x, **kwargs)
-            #Fix updating and save for history
-            temp_data = self.data
-            self.history.update({i: temp_data})
+        for col, method in self.meth.items():
+            # pass into function call
+            # y needs to be masked
+            # x needs to be subset by predictormatrix
+            y = self.data[col]
+            y[self.id_mis[col]] = np.nan
+            ry = ~np.isnan(y)
+            xid = self.predictorMatrix[col]
+            x = self.data[xid[xid == 1].index]
+            # from pandas to numpy
+            y = np.array(y)
+            ry = np.array(ry)
+            x = np.array(x)
+            self.data[col] = supp_meth[method](y=y, ry=ry, x=x, **kwargs)
 
-        print(self.history)
+            #analysis model specification
+            self.amodel = smf.ols(fml, data=self.data)
+            self.model_results.append(self.amodel.fit())
+
+    def pool(self):
+        """
+        Pools
+        Returns: summary of fit
+        -------
+
+        """
+        params_list = []
+        cov_within = 0.
+        scale_list = []
+        for results in self.model_results:
+            results_uw = results._results
+            params_list.append(results_uw.params)
+            cov_within += results_uw.cov_params()
+            scale_list.append(results.scale)
+            # The estimated parameters for the MICE analysis
+
+        params_list = np.asarray(params_list)
+        scale_list = np.asarray(scale_list)
+
+        params = params_list.mean(0)
+        # The average of the within-imputation covariances
+        cov_within /= len(self.model_results)
+
+        # The between-imputation covariance
+        cov_between = np.cov(params_list.T)
+
+        # The estimated covariance matrix for the MICE analysis
+        f = 1 + 1 / float(len(self.model_results))
+        cov_params = cov_within + f * cov_between
+        # Fraction of missing information
+        self.fmi = f * np.diag(cov_between) / np.diag(cov_params)
 
 
 
+    def HMI(self, pilot, alpha, cv):
+        """
+        Runs pilot imputation to get fraction of missing information and then runs the remaining iterations so ensure
+            point estimates and standard deviation for replicability
+        Parameters
+        ----------
+        pilot: Initial pilot imputation to calculate fraction of missing information
+        cv: desired coefficient of variation
+        alpha: Confidence Interval
+        kwargs
 
-    #What I need for pmm:
-    #def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
-    #quantify = True, trim = 1, ridge = 1e-5, matcher = "NN", **kwargs):
+        Returns
+        -------
 
-#intended use:
-#1. mice()
-#2. optional: mice.set_imputer()
-#3. mice.fit()
+        """
+        for i in tqdm(range(pilot), desc = "pilot "):
+            self._analysis(self.fml)
+            # Save iterations if history True
+            if self.hist_bool:
+                self.history[i] = self.data.copy()
+            #returns fmi of pilot imputations for calculating second stage
+        self.pool()
+
+        z = norm.ppf(1 - alpha / 2)
+
+        fmiu = self.expit(self.logit(max(self.fmi)) + z * np.sqrt(2 / pilot))
+
+        self.m2 = int(np.ceil(1 + 0.5 * (fmiu / cv)**2))
+        for i in tqdm(range(self.m2-2), desc = "stage2"):
+            self._analysis(self.fml)
+            # Save iterations if history True
+            if self.hist_bool:
+                self.history[i+ pilot] = self.data.copy()
+            #returns fmi of pilot imputations for calculating second stage
+        self.pool()
+
+    def logit(self,p):
+        return np.log(p / (1 - p))
+
+    def expit(self,x):
+        return 1 / (1 + np.exp(-x))
+
+    def summarize(self):
+
+        return "end"
