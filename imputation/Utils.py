@@ -4,12 +4,11 @@ import random
 
 def matcherid(d, t, matcher = "NN", k = 10, radius = 3):
     """
-    Return vector of n0 positions in d.
     :param d: Numeric vector with values from observed cases. np.array
     :param t: Numeric vector with values from missing cases. np.array
     :param matcher: matching method: n closest neighbors, every donor based on threshold distance, distance aided
     :param donors: k donors (for n closest neighbors)
-    :return:
+    :return: returns index of chosen match
 
     Example:
     d = np.array([-5, 6, 0, 10, 12])
@@ -35,9 +34,19 @@ def matcherid(d, t, matcher = "NN", k = 10, radius = 3):
             idx.append(random.choice(list))
         #returns indices of one random nearest neighbor
         return idx
-    # elif matcher == "distance": #based on distance of donor to imputed value (midas)
-    # matcher
-    #
-    #
     else:
         raise ValueError("unknown matcher")
+
+def split_dataframe(df, n):
+    """Split DataFrame into n roughly equal parts."""
+    k, m = divmod(len(df), n)
+    parts = [
+        df.iloc[i * k + min(i, m):(i + 1) * k + min(i + 1, m)].reset_index(drop=True)
+        for i in range(n)
+    ]
+    return parts
+
+def logit(p):
+    return np.log(p / (1 - p))
+def expit(x):
+    return 1 / (1 + np.exp(-x))
