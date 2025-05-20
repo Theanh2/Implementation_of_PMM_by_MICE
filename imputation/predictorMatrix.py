@@ -1,23 +1,19 @@
-#Mimics quickpred() function from mice package in R
 import numpy as np
 import pandas as pd
-#---
-def all(data):
-    """
-    creates predictormatrix with using all variables
-    :param data: data
-    :return: predictormatrix
-    """
-    predictormatrix = pd.DataFrame(1, index=data.columns, columns=data.columns, dtype=int)
-    np.fill_diagonal(predictormatrix.values, 0)
-    return predictormatrix
-
-
-
+# def all(data):
+#     """
+#     creates predictormatrix using all variables
+#     :param data: data
+#     :return: predictormatrix
+#     """
+#     predictormatrix = pd.DataFrame(1, index=data.columns, columns=data.columns, dtype=int)
+#     np.fill_diagonal(predictormatrix.values, 0)
+#     return predictormatrix
 
 def quickpred(data, mincor=0.1, minpuc=0, include="", exclude="", method="pearson"):
     """
-
+    Works only if all columns numeric. WIP handle categorical columns, R uses intercal codes maybe factorize or transform
+    all categorical columns to 0 and then you can include it by [include]
     :param data: data frame with incomplete data
     :param mincor: specifying the minimum threshold against which the absolute correlation in the data is compared
     :param minpuc: specifying the minimum threshold for the proportion of usable cases
@@ -34,7 +30,8 @@ def quickpred(data, mincor=0.1, minpuc=0, include="", exclude="", method="pearso
     v = np.abs(pd.DataFrame(data).corr(method=method,numeric_only=True).fillna(0).to_numpy())
     #pairwise correlation and replace NA with 0
     u = np.abs(pd.DataFrame(data).corrwith(pd.DataFrame(r.astype(float)), method=method,numeric_only=True).fillna(0).to_numpy())
-
+    print(v)
+    print(u)
     maxc = np.maximum(v, u)
     predictormatrix[:] = (maxc > mincor).astype(int)
 
@@ -56,7 +53,6 @@ def quickpred(data, mincor=0.1, minpuc=0, include="", exclude="", method="pearso
     if include:
         for col in data.columns:
             if col in include:
-
                 predictormatrix[col].values[:] = 1
 
     #Diagonal = 0
@@ -67,8 +63,6 @@ def quickpred(data, mincor=0.1, minpuc=0, include="", exclude="", method="pearso
     predictormatrix.loc[complete_cases, :] = 0
 
     return predictormatrix
-
-#
 def md_pairs(data):
     """
     mimics md.pairs from mice

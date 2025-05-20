@@ -8,22 +8,20 @@ def sym(x):
     :return: symmetrical matrix
     """
     return (x + x.T) / 2
-
-
 def norm_draw(y, ry, x, rank_adjust=True, **kwargs):
     """
     From R Mice impute.norm norm.draw() function
     Algorithm: https://www.rdocumentation.org/packages/mice/versions/3.17.0/topics/mice.impute.norm (Rubin(1987, p. 167)
     Draws values of beta and sigma by Bayesian linear regression. Uses least squares parameters from estimice()
 
-    :param y: Incomplete data vector of length n
-    :param ry: Vector of missing data pattern
-    :param x: Matrix n x p of complete covariates
+    :param y: Array: Vector to be imputed
+    :param ry: Logical: vector of length(y). ry distinguishes the observed TRUE and missing values FALSE in y.
+    :param x: Array: Numeric design matrix with length(y) rows with predictors for y. Matrix x may have no missing values.
     :param rank_adjust: rank.adjust Argument that specifies whether NA in the coefficients need to be set to zero.
         Only relevant when ls.meth = "qr" AND the predictor matrix is rank-deficient.
-    :param kwargs: Other names arguments, e.g least squares estimation method
-    :return: list containing components coef (least squares estimate), beta (drawn regression weights)
-        and sigma (drawn value of the residual standard deviation.
+    :param kwargs: Other keyword arguments, e.g least squares estimation method
+    :return: list containing coef (least squares estimate), beta (drawn regression weights)
+        and sigma (drawn value of the residual standard deviation).
     """
     #Draw from estimice
     p = estimice(x[ry, :], y[ry], **kwargs)
@@ -51,13 +49,13 @@ def norm_draw(y, ry, x, rank_adjust=True, **kwargs):
 
 def estimice(x, y, ls_meth="qr", ridge=1e-5):
     """
-    This function computes least squares estimates, variance/covariance matrices,
+    Fomputes least squares estimates, variance/covariance matrices,
     residuals and degrees of freedom according to ridge regression, QR decomposition
     or Singular Value Decomposition.
 
-    :param x: Matrix n x p of complete covariates
-    :param y: Incomplete data vector of length n
-    :param ls_meth: least squares method, default QR decomposition, qr, ridge or svd
+    :param y: Array: Vector to be imputed
+    :param x: Array: Numeric design matrix with length(y) rows with predictors for y. Matrix x may have no missing values.
+    :param ls_meth: least squares method, QR decomposition, qr, ridge or svd
     :param ridge: size of ridge The default value ridge = 1e-05 represents a compromise between stability and unbiasedness
     :return: A list containing components
         c (least squares estimate), r (residuals), v (variance/covariance matrix) and df (degrees of freedom).
@@ -83,29 +81,21 @@ def estimice(x, y, ls_meth="qr", ridge=1e-5):
     df = max(len(y) - x.shape[1], 1)
     #QR Decomposition
     if ls_meth == "qr":
-        try:
-            #QR decomposition
-            #
-            qr = np.linalg.qr(x)
-            c = np.linalg.solve(qr.R, (qr.Q).T @ y)
-            f = x @ c
-            r = y - f
-            rr = (qr.R).T @ qr.R
-            v = np.linalg.solve(rr, np.eye(rr.shape[1]))
+        #QR decomposition
+        qr = np.linalg.qr(x)
+        c = np.linalg.solve(qr.R, (qr.Q).T @ y)
+        f = x @ c
+        r = y - f
+        rr = (qr.R).T @ qr.R
+        v = np.linalg.solve(rr, np.eye(rr.shape[1]))
 
-            # missing ridge penalty and check for multicollinearity
-            # catch error in v and calculate v + ridge penalty
-            return {
-                "c": c.flatten(),  # transpose to match R's shape
-                "r": r.flatten(),
-                "v": v,
-                "df": df,
-                "ls_meth": ls_meth
-            }
-
-        except Exception as e:
-            raise RuntimeError(f"QR method failed: {e}")
-
+        return {
+            "c": c.flatten(),  # transpose to match R's shape
+            "r": r.flatten(),
+            "v": v,
+            "df": df,
+            "ls_meth": ls_meth
+        }
     #Ridge Regression
     elif ls_meth == "ridge":
         xx = x.T @ x
@@ -127,8 +117,6 @@ def estimice(x, y, ls_meth="qr", ridge=1e-5):
         f = x @ c
         r = f - y
         v = np.linalg.solve((svd.Vh).T * svd.S ** 2 @ svd.Vh, (np.eye((svd.S).shape[0])))
-        # missing ridge penalty and check for multicollinearity
-        # catch error in v and calculate v + ridge penalty
         return {
             "c": c.flatten(),
             "r": r.flatten(),
