@@ -10,6 +10,8 @@ import numpy as np
 from scipy.stats import norm
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+from tqdm.contrib.concurrent import process_map
+from functools import partial
 class mice:
     def __init__(self, data = None, m = 5, maxit = 5, predictorMatrix = None, initial = "meanobs"):
         #drop empty rows and copy
@@ -96,10 +98,12 @@ class mice:
         self.HMI_bool = HMI
 
         if not HMI:
+            ###Parallelize this block
             for i in tqdm(range(self.m), desc = "M Multiple Imputations"): #runs m times each time returning final dataset and coef
                 iterdata = self.iterate()
                 if self.hist_bool:
                     self.history[i] = iterdata
+            ###
             self.pool()
         if self.HMI_bool:
             self.HMI(pilot, alpha, cv, self.fml)
@@ -205,6 +209,16 @@ class mice:
             iterdata = self._analysis(iterdata=iterdata)
         self.amodel = smf.ols(self.fml, data=iterdata)
         self.model_results.append(self.amodel.fit())
+        return iterdata
+    def complete(self):
+        """
+        Runs imputation step once.
+        Returns: returns a single completed dataset
+        -------
+
+        """
+        iterdata = self._initial_imputation(self.initial)
+        iterdata = self._analysis(iterdata=iterdata)
         return iterdata
     def convergence_plot(self, fml, x = "mean"):
         """

@@ -4,7 +4,6 @@ def _check_pm(data, predictorMatrix):
     if predictorMatrix is None:
         return quickpred(data, mincor=0.1, minpuc=0.1)
 
-
 def _check_m(m):
     # takes int of m for user error
     if m < 1:

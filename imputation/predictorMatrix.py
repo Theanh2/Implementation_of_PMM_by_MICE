@@ -30,8 +30,7 @@ def quickpred(data, mincor=0.1, minpuc=0, include="", exclude="", method="pearso
     v = np.abs(pd.DataFrame(data).corr(method=method,numeric_only=True).fillna(0).to_numpy())
     #pairwise correlation and replace NA with 0
     u = np.abs(pd.DataFrame(data).corrwith(pd.DataFrame(r.astype(float)), method=method,numeric_only=True).fillna(0).to_numpy())
-    print(v)
-    print(u)
+
     maxc = np.maximum(v, u)
     predictormatrix[:] = (maxc > mincor).astype(int)
 

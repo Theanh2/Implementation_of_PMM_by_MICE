@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 #Auxiliary
 def bootfunc_plain(n):
     #random n int with size n from 1:n
@@ -122,8 +121,6 @@ def midas(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = True):
         dist_mat = (yhat_obs[:, np.newaxis] - np.tile(yhat_mis, (nobs, 1))).T
 
     delta_mat = 1 / (np.abs(dist_mat) ** midas_kappa)
-    print(dist_mat)
-    print(midas_kappa)
     delta_mat = minmax(delta_mat)
 
     probs = delta_mat * omega
