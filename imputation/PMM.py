@@ -112,8 +112,3 @@ def quantify_cca(y, ry, x):
     id = pd.DataFrame([y_t], columns=y[ry].values)
     return ynum, id
 
-y = np.array([7, np.nan, 9,10,11])
-ry = ~np.isnan(y)
-x = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]])
-p = pmm(x = x,ry = ry,y = y, matcher = "NN", donors = 3)
-print(p)
