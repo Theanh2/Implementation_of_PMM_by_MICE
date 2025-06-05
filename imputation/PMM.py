@@ -1,10 +1,8 @@
 import pandas as pd
-from imputation.sampler import *
-from imputation.Utils import *
+from .sampler import *
+from .Utils import *
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.cross_decomposition import CCA
-
-
 def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
                     quantify = True, ridge = 1e-5, matcher = "NN", **kwargs):
     """
@@ -30,7 +28,7 @@ def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
     Numerical:
     y = np.array([7, np.nan, 9,10,11])
     ry = ~np.isnan(y)
-    x = np.array([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]])
+    x = np.array([[1, 2], [3, 4], [5, 7], [7, 8], [9, 10]])
     p = pmm(x = x,ry = ry,y = y, matcher = "NN", donors = 3)
 
     Categorical:

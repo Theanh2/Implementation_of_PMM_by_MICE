@@ -12,6 +12,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from tqdm.contrib.concurrent import process_map
 from functools import partial
+
 class mice:
     def __init__(self, data = None, m = 5, maxit = 5, predictorMatrix = None, initial = "meanobs"):
         #drop empty rows and copy
@@ -23,6 +24,7 @@ class mice:
         #check m and pm
         self.m =_check_m(m)
         self.predictorMatrix = _check_pm(self.data, predictorMatrix)
+
         #analysis model
         self.amodel = {}
         self.model_results = []
@@ -121,6 +123,8 @@ class mice:
             y[self.id_mis[col]] = np.nan
             ry = ~np.isnan(y)
             xid = self.predictorMatrix[col]
+            if (xid == 0).all():
+                continue
             x = iterdata[xid[xid == 1].index]
             # from pandas to numpy
             y = np.array(y)
@@ -260,7 +264,7 @@ class mice:
             for m, df in enumerate(out):
                 ax.plot(df.index, df[col], marker='o',markersize = 2, color=colors(m))
             ax.set_title(f'{col}')
-            ax.set_xlabel('Iterations')
+            ax.set_xlabel('Cycles')
             ax.set_ylabel(col)
             ax.grid(True)
         plt.tight_layout()

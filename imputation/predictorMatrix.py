@@ -1,14 +1,6 @@
 import numpy as np
 import pandas as pd
-# def all(data):
-#     """
-#     creates predictormatrix using all variables
-#     :param data: data
-#     :return: predictormatrix
-#     """
-#     predictormatrix = pd.DataFrame(1, index=data.columns, columns=data.columns, dtype=int)
-#     np.fill_diagonal(predictormatrix.values, 0)
-#     return predictormatrix
+
 
 def quickpred(data, mincor=0.1, minpuc=0, include="", exclude="", method="pearson"):
     """
