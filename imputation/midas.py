@@ -124,6 +124,7 @@ def midas(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = True):
     delta_mat = minmax(delta_mat)
 
     probs = delta_mat * omega
+
     csums = minmax(np.nansum(probs, axis=1))
     probs /= csums
 
@@ -137,4 +138,7 @@ def midas(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = True):
     neff = np.mean(1 / row_sums)
     return y
 
-
+# y = np.array([7, np.nan, 9,10,11])
+# ry = ~np.isnan(y)
+# x = np.array([[1], [4], [6], [13], [10]])
+# print(midas(y,ry,x))

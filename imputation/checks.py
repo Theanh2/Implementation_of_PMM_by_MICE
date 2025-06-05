@@ -1,8 +1,11 @@
-from imputation.predictorMatrix import quickpred
+from .predictorMatrix import quickpred
 
 def _check_pm(data, predictorMatrix):
+
     if predictorMatrix is None:
         return quickpred(data, mincor=0.1, minpuc=0.1)
+    if predictorMatrix is not None:
+        return predictorMatrix
 
 def _check_m(m):
     # takes int of m for user error
