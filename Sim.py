@@ -11,6 +11,7 @@ from mice import *
 from imputation.predictorMatrix import quickpred
 import time
 import os
+import time
 def data_norm(n, locY, scaleY, rho):
     """
     data_norm(5000,5,1,0.5)
@@ -316,45 +317,32 @@ def repeat_sim(dist,n, mp, miss,m,k,hmi,pilot,method, tail = None, pmass = None)
     path  = os.path.join('/Users/theanh/Library/Mobile Documents/com~apple~CloudDocs/Stats/Master/Thesis/out', dist + mp + tail + str(int(miss*100)) + ".csv")
     out.to_csv(path, mode="a", index=False, header=False)
 
-# repeat_sim(dist = "norm",
-#        n = 3000,
-#        mp = "MCAR",
-#        miss = 0.2,
-#        m = 5,
-#        k = 5,
-#        hmi = False,
-#        pilot = 5,
-#        method = "pmm",
-#        tail = "right",
-#        pmass = 0.2)
-import time
-
 start_time = time.time()
 
-k_values = [1, 3,5, 10]
+m_values = [5,10,25,40]
 miss_values = [0.1,0.2,0.4]
-#
-# #Loop through all combinations of k and m
-# ex = 0
-# for miss in miss_values:
-#     for k in k_values:
-#         repeat_sim(
-#             dist="norm",
-#             n=3000,
-#             mp="MAR",
-#             miss=miss,
-#             m=5,
-#             k=k,
-#             hmi=True,
-#             pilot=10,
-#             method="pmm",
-#             tail="left",
-#             pmass=0.25
-#         )
-#     ex += 1
-#     print("exit in", ex, "/ 3")
-#
-#
+
+#Loop through all combinations of k and m
+ex = 0
+for miss in miss_values:
+    for m in m_values:
+        repeat_sim(
+            dist="norm",
+            n=3000,
+            mp="MCAR",
+            miss=miss,
+            m=m,
+            k=5,
+            hmi=False,
+            pilot=10,
+            method="midas",
+            tail="right",
+            pmass=0.25
+        )
+    ex += 1
+    print("exit in", ex, "/ 3")
+
+
 
 #Simulate("norm",n = 3000,mp= "MAR", miss = 0.2,m = 2 ,k = 5,hmi= False, pilot = 10 ,method = "midas", tail = "right", pmass = 0.25)
 
