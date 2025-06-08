@@ -171,7 +171,7 @@ def Simulate(dist,n, mp, miss,m,k,hmi,pilot,method, tail = None, pmass = None):
     if dist == "norm":
         Y, X, _ = data_norm(n = n, locY=5, scaleY=1, rho=0.5)
     if dist == "semi":
-        Y, X, _ = data_semi(n = n,loY = 5,scaleY = 1, rho = 0.5, pmass= pmass)
+        Y, X, _ = data_semi(n = n,locY = 5,scaleY = 1, rho = 0.5, pmass= pmass)
     if dist == "pois":
         Y, X, _ = data_pois(n=n, lambda_poisson= 4, rho=0.5)
 
@@ -205,7 +205,6 @@ def Simulate(dist,n, mp, miss,m,k,hmi,pilot,method, tail = None, pmass = None):
     elif method == "midas":
         obj.set_methods(d={"Y": "midas"})
     result = obj.fit(fml="Y ~ X", donors=k, history=False, HMI=hmi, pilot=pilot)
-
     sdBias = result.bse[0]-sdY
     Coverage = bool(result.conf_int()[0][0] <= meanY <= result.conf_int()[0][1])
     Width = result.conf_int()[0][1] - result.conf_int()[0][0]
@@ -215,7 +214,6 @@ def Simulate(dist,n, mp, miss,m,k,hmi,pilot,method, tail = None, pmass = None):
     for i in result.model.model_results:
         MSE_list.append(np.mean(i.resid**2))
     MSE = np.mean(MSE_list)
-
     it = len(result.model.model_results)
     return cBias, Width, MSE, Coverage, sdBias, it, actual_missing, sdY
 def _set_file(name):
@@ -254,7 +252,7 @@ def repeat_sim(dist,n, mp, miss,m,k,hmi,pilot,method, tail = None, pmass = None)
     it_List = []
     actual_missing_List = []
     sdY_List = []
-    for i in range(500):
+    for i in tqdm(range(500)):
         cBias, Width, MSE, Coverage, sdBias, it, actual_missing, sdY = Simulate(dist = dist,
                  n = n,
                  mp = mp,
@@ -332,208 +330,33 @@ def repeat_sim(dist,n, mp, miss,m,k,hmi,pilot,method, tail = None, pmass = None)
 import time
 
 start_time = time.time()
-#_set_file("normMCARright10")
 
-m_values = [5,10,25,40]
 k_values = [1, 3,5, 10]
+miss_values = [0.1,0.2,0.4]
+#
+# #Loop through all combinations of k and m
+# ex = 0
+# for miss in miss_values:
+#     for k in k_values:
+#         repeat_sim(
+#             dist="norm",
+#             n=3000,
+#             mp="MAR",
+#             miss=miss,
+#             m=5,
+#             k=k,
+#             hmi=True,
+#             pilot=10,
+#             method="pmm",
+#             tail="left",
+#             pmass=0.25
+#         )
+#     ex += 1
+#     print("exit in", ex, "/ 3")
+#
+#
 
-# Loop through all combinations of k and m normMCARright10
-for k in k_values:
-    ex = 0
-    i = 0
-    for m in m_values:
-        repeat_sim(
-            dist="norm",
-            n=3000,
-            mp="MCAR",
-            miss=0.1,
-            m=m,
-            k=k,
-            hmi=False,
-            pilot=5,
-            method="pmm",
-            tail="right",
-            pmass=0.2
-        )
-        i += 1
-        print("i:", i , "/ 4")
-    ex += 1
-    print("exit in", ex, "/ 4")
+#Simulate("norm",n = 3000,mp= "MAR", miss = 0.2,m = 2 ,k = 5,hmi= False, pilot = 10 ,method = "midas", tail = "right", pmass = 0.25)
 
-#---
-# Loop through all combinations of k and m normMCARright40
-for k in k_values:
-    ex = 0
-    i = 0
-    for m in m_values:
-        repeat_sim(
-            dist="norm",
-            n=3000,
-            mp="MCAR",
-            miss=0.4,
-            m=m,
-            k=k,
-            hmi=False,
-            pilot=5,
-            method="pmm",
-            tail="right",
-            pmass=0.2
-        )
-        i += 1
-        print("i:", i , "/ 4")
-    ex += 1
-    print("exit in", ex, "/ 4")
-
-
-
-#---
-# Loop through all combinations of k and m normMARright10
-for k in k_values:
-    ex = 0
-    i = 0
-    for m in m_values:
-        repeat_sim(
-            dist="norm",
-            n=3000,
-            mp="MAR",
-            miss=0.1,
-            m=m,
-            k=k,
-            hmi=False,
-            pilot=5,
-            method="pmm",
-            tail="right",
-            pmass=0.2
-        )
-        i += 1
-        print("i:", i , "/ 4")
-    ex += 1
-    print("exit in", ex, "/ 4")
-
-
-#---
-# Loop through all combinations of k and m normMARright20
-for k in k_values:
-    ex = 0
-    i = 0
-    for m in m_values:
-        repeat_sim(
-            dist="norm",
-            n=3000,
-            mp="MAR",
-            miss=0.2,
-            m=m,
-            k=k,
-            hmi=False,
-            pilot=5,
-            method="pmm",
-            tail="right",
-            pmass=0.2
-        )
-        i += 1
-        print("i:", i , "/ 4")
-    ex += 1
-    print("exit in", ex, "/ 4")
-
-
-#---
-# Loop through all combinations of k and m normMARright40
-for k in k_values:
-    ex = 0
-    i = 0
-    for m in m_values:
-        repeat_sim(
-            dist="norm",
-            n=3000,
-            mp="MAR",
-            miss=0.4,
-            m=m,
-            k=k,
-            hmi=False,
-            pilot=5,
-            method="pmm",
-            tail="right",
-            pmass=0.2
-        )
-        i += 1
-        print("i:", i , "/ 4")
-    ex += 1
-    print("exit in", ex, "/ 4")
-
-
-
-#---
-# Loop through all combinations of k and m normMARleft10
-for k in k_values:
-    ex = 0
-    i = 0
-    for m in m_values:
-        repeat_sim(
-            dist="norm",
-            n=3000,
-            mp="MAR",
-            miss=0.1,
-            m=m,
-            k=k,
-            hmi=False,
-            pilot=5,
-            method="pmm",
-            tail="left",
-            pmass=0.2
-        )
-        i += 1
-        print("i:", i , "/ 4")
-    ex += 1
-    print("exit in", ex, "/ 4")
-
-
-#---
-# Loop through all combinations of k and m normMARleft20
-for k in k_values:
-    ex = 0
-    i = 0
-    for m in m_values:
-        repeat_sim(
-            dist="norm",
-            n=3000,
-            mp="MAR",
-            miss=0.2,
-            m=m,
-            k=k,
-            hmi=False,
-            pilot=5,
-            method="pmm",
-            tail="left",
-            pmass=0.2
-        )
-        i += 1
-        print("i:", i , "/ 4")
-    ex += 1
-    print("exit in", ex, "/ 4")
-
-
-#---
-# Loop through all combinations of k and m normMARleft40
-for k in k_values:
-    ex = 0
-    i = 0
-    for m in m_values:
-        repeat_sim(
-            dist="norm",
-            n=3000,
-            mp="MAR",
-            miss=0.4,
-            m=m,
-            k=k,
-            hmi=False,
-            pilot=5,
-            method="pmm",
-            tail="left",
-            pmass=0.2
-        )
-        i += 1
-        print("i:", i , "/ 4")
-    ex += 1
-    print("exit in", ex, "/ 4")
 end_time = time.time()
 print("Computation time:", end_time - start_time, "seconds")

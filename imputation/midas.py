@@ -55,7 +55,6 @@ def midas(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = True):
     nobs = np.sum(ry)
     n = len(ry)
     m = x.shape[1]
-
     yobs = y[ry]
     xobs = x[ry, :]
     xmis = x[wy, :]
@@ -126,19 +125,20 @@ def midas(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = True):
     probs = delta_mat * omega
 
     csums = minmax(np.nansum(probs, axis=1))
-    probs /= csums
+    probs /= csums[:, np.newaxis]
+    probs = probs.T
 
-    index = np.random.choice(nobs, size=1, replace=False, p=probs.flatten())
-    y[wy] = y[index]
+    index = np.array([
+        np.random.choice(nobs, size=1, replace=False, p=probs[:, j])[0]
+        for j in range(probs.shape[1])
+    ])
 
+    y[wy] = yobs[index]
     #PLF correction implemented needs to be saved globally over iterations
     #mean(1 / rowSums((t(delta.mat) / csums)^2))
     #consists
-    row_sums = np.sum((delta_mat / csums)**2, axis=1)
+    row_sums = np.sum((delta_mat / csums[:, np.newaxis])**2, axis=1)
+
+    #mean(1 / rowSums((t(delta.mat) / csums)^2))
     neff = np.mean(1 / row_sums)
     return y
-
-# y = np.array([7, np.nan, 9,10,11])
-# ry = ~np.isnan(y)
-# x = np.array([[1], [4], [6], [13], [10]])
-# print(midas(y,ry,x))

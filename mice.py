@@ -101,7 +101,7 @@ class mice:
 
         if not HMI:
             ###Parallelize this block
-            for i in tqdm(range(self.m), desc = "M Multiple Imputations"): #runs m times each time returning final dataset and coef
+            for i in tqdm(range(self.m), desc = "M Multiple Imputations", disable = True): #runs m times each time returning final dataset and coef
                 iterdata = self.iterate()
                 if self.hist_bool:
                     self.history[i] = iterdata
@@ -187,7 +187,7 @@ class mice:
         -------
 
         """
-        for i in tqdm(range(pilot), desc="pilot "):
+        for i in tqdm(range(pilot), desc="pilot ", disable = True):
             iterdata = self.iterate()
             if self.hist_bool:
                 self.history[i] = iterdata
@@ -202,7 +202,7 @@ class mice:
         #upper bound of confidence interval rounded with int
         self.m2 = int(np.ceil(1 + 0.5 * (fmiu / cv)**2))
 
-        for i in tqdm(range(self.m2-pilot), desc="stage2"):
+        for i in tqdm(range(self.m2-pilot), desc="stage2", disable = True):
             iterdata = self.iterate()
             if self.hist_bool:
                 self.history[i + pilot] = iterdata
@@ -233,7 +233,7 @@ class mice:
         Returns matplotlib plot
         -------
         """
-        for i in tqdm(range(self.m), desc="M"):
+        for i in tqdm(range(self.m), desc="M", disable = True):
             iterdata = self._initial_imputation(self.initial)
             for j in range(self.maxit):
                 iterdata = self._analysis(iterdata=iterdata)

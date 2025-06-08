@@ -80,6 +80,7 @@ def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
                 mask = np.isclose(ynum, val)  # Use original numeric arr here
                 ynumobj[mask] = col
         ynum = ynumobj
+    print(ynum)
     return ynum
 
 def quantify_cca(y, ry, x):
