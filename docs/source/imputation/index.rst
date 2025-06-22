@@ -1,10 +1,6 @@
 Imputation
 ==================
 
-.. automodule:: imputation
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 .. automodule:: imputation.PMM
    :members:
