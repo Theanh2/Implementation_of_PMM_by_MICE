@@ -43,18 +43,16 @@ Simulation results are available as a CSV file at.csv under simulations/simulati
 ---
 
 ## Getting Started
+### [Readthedocs Documentation](https://implementation-of-pmm-by-mice.readthedocs.io/en/latest/modules.html)
 
 ### Installation
-
-Clone this repository:
-
 
 Clone:
 ```bash
 git clone https://github.com/Theanh2/Implementation_of_PMM_by_MICE.git@detached
 cd Implementation_of_PMM_by_MICE
 ```
-or directly install:
+or directly install as package:
 ```bash
 pip install git+https://github.com/Theanh2/Implementation_of_PMM_by_MICE.git@detached
 ```
