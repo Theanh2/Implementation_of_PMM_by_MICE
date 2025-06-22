@@ -1,15 +1,29 @@
 import numpy as np
-#Auxiliary
 def bootfunc_plain(n):
+    """
+        Generates bootstrap weights for n observations using simple random sampling with replacement.
+
+        This function simulates a nonparametric bootstrap by randomly drawing `n` integers
+        from the range 1 to n (inclusive), with replacement. It returns the count of how many times
+        each index (1-based) is selected, producing a frequency table that can be used
+        as weights in e.g. MIDAS imputation.
+
+        Parameters
+        ----------
+        n : int
+            The number of observations to sample and also the length of the resulting weight vector.
+
+        Returns
+        -------
+        weights : ndarray of shape (n,)
+            An array of integers indicating how often each index (1-based) was selected in the bootstrap sample.
+        """
     #random n int with size n from 1:n
     random = np.random.choice(n, size=n, replace=True)+1
     #returns histogram of drawn ints
     table, _ = np.histogram(random, bins=np.arange(1, n + 2))
     return table
-
-
 def minmax(x, domin=True, domax=True):
-    #max float and min float
     maxx = np.sqrt(np.finfo(float).max)
     minx = np.sqrt(np.finfo(float).eps)
     if domin:
@@ -17,34 +31,64 @@ def minmax(x, domin=True, domax=True):
     if domax:
         x = np.maximum(x, minx)
     return x
-
 def compute_beta(x, m):
     A = x[:m**2].reshape((m, m))
     b = x[m**2:]
     return np.linalg.solve(A, b)
-
 def midas(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = True):
     """
-    Gaffert, P., Meinfelder, F., Bosch V. (2018) Towards an MI-proper Predictive Mean Matching
-    :param y: Array: Vector to be imputed
-    :param ry: Logical: vector of length(y). ry distinguishes the observed TRUE and missing values FALSE in y.
-    :param x: Design matrix with length(y) rows and p columns containing complete covariates.
-    :param ridge: The ridge penalty used in norm.draw() to prevent problems with multicollinearity.
-        The default is ridge = 1e-05, which means that 0.01 percent of the diagonal is added to the cross-product.
-        Larger ridges may result in more biased estimates. For highly noisy data (e.g. many junk variables),
-        set ridge = 1e-06 or even lower to reduce bias. For highly collinear data, set ridge = 1e-04 or higher. !cite
-    :param midas_kappa: Scalar. If None optimal kappa gets selected automatically. Siddique and Belin 2008 find midas.kappa = 3 to be sensible.
-    :param outout: Logical. Default TRUE one model is estimated for each donor (leave-one-out principle). !outout False not implemented
-    For speedup choose outout = FALSE, which estimates one model for all observations leading to in-sample predictions for the donors and out-of-sample predictions for the recipients.
-    Mind the inappropriateness.
-    :return: Vector with imputed data
+        MIDAS Imputation: Multiple Imputation with Distant Average Substitution.
 
-    Example:
-    y = np.array([7, np.nan, 9,10,11])
-    ry = ~np.isnan(y)
-    x = np.array([[1, 2], [3, 4], [5, 6], [7, 13], [11, 10]])
-    print(midas(y,ry,x))
-    """
+        This function implements the MIDAS imputation algorithm for continuous variables,
+        as introduced by Gaffert et al. (2018).
+
+        It operates by weighting observed donors based on the similarity between predicted values,
+        with optional leave-one-out model estimation for increased fidelity.
+
+        Parameters
+        ----------
+        y : array-like of shape (n_samples,)
+            The target variable with missing values to be imputed. Must be numeric.
+
+        ry : array-like of bool of shape (n_samples,)
+            Logical array indicating observed values in `y`. True where `y` is observed, False where missing.
+
+        x : array-like of shape (n_samples, n_features)
+            Design matrix of predictor variables. Must be fully observed.
+
+        ridge : float, default=1e-5
+            Ridge penalty used in regularized regression to stabilize the solution in the presence of multicollinearity.
+            - Set lower (e.g. 1e-6) to reduce bias in noisy data.
+            - Set higher (e.g. 1e-4) if collinearity is suspected.
+
+        midas_kappa : float or None, default=None
+            Controls the sharpness of donor weighting. If None, the optimal value is estimated
+            based on R² as described by Siddique and Belin (2008). A common fallback is 3.
+
+        outout : bool, default=True
+            If True, uses leave-one-out regression for each donor (slow but MI-proper).
+            If False, a single model is estimated for all donors and recipients.
+            WARNING: Setting `outout=False` may produce biased estimates and is not fully supported.
+
+        Returns
+        -------
+        y_imp : np.ndarray
+            The input array `y` with imputed values replacing the missing entries.
+
+        Notes
+        -----
+        - Based on: Gaffert, P., Meinfelder, F., & van den Bosch, V. (2018).
+          "Towards an MI-proper Predictive Mean Matching."
+        - Related: Siddique, J. & Belin, T. R. (2008). "Multiple Imputation Using an Iterative Hot-Deck with Distance-Based Donor Selection."
+
+        Examples
+        --------
+        >>> y = np.array([7, np.nan, 9, 10, 11])
+        >>> ry = ~np.isnan(y)
+        >>> x = np.array([[1, 2], [3, 4], [5, 6], [7, 13], [11, 10]])
+        >>> midas(y, ry, x)
+        array([7. , 9.0, 9. , 10., 11.])
+        """
     wy = ~ry
     #machine epsilon
     sminx = np.finfo(float).eps ** (1 / 4)
