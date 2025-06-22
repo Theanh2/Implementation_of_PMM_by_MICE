@@ -8,3 +8,5 @@ numpy
 scipy
 statsmodels
 scikit-learn
+tqdm
+matplotlib
