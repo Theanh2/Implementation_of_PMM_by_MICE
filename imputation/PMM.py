@@ -6,36 +6,75 @@ from sklearn.cross_decomposition import CCA
 def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
                     quantify = True, ridge = 1e-5, matcher = "NN", **kwargs):
     """
-    :param y: Array: Vector to be imputed
-    :param ry: Logical: vector of length(y). ry distinguishes the observed TRUE and missing values FALSE in y.
-    :param x: Array: Numeric design matrix with length(y) rows with predictors for y. Matrix x may have no missing values.
-    :param wy: opposite of ry
-    :param donors: Numeric: size of donor pool
-    :param matchtype: 0, 1 or 2: Type of matching distance. The default type 1 matching calculates the distance between the predicted
-        value of yobs and the drawn values of ymis (called type-1 matching). Other choices are type 0 matching (distance between predicted values)
-        and type 2 matching (distance between drawn values).
-    :param quantify: Logical. If TRUE, factor levels are replaced by the first canonical variate before fitting the imputation model.
-        If false, the procedure reverts to the old behaviour and takes the integer codes
-        Relevant only of y is categorical. !!!WIP
-    :param ridge: The ridge penalty used in norm.draw() to prevent problems with multicollinearity.
-        The default is ridge = 1e-05, which means that 0.01 percent of the diagonal is added to the cross-product.
-        Larger ridges may result in more biased estimates. For highly noisy data (e.g. many junk variables),
-        set ridge = 1e-06 or even lower to reduce bias. For highly collinear data, set ridge = 1e-04 or higher. !cite
-    :param kwargs:
-    :return: Vector with imputed data
+       Predictive Mean Matching (PMM) imputation.
 
-    Example:
-    Numerical:
-    y = np.array([7, np.nan, 9,10,11])
-    ry = ~np.isnan(y)
-    x = np.array([[1, 2], [3, 4], [5, 7], [7, 8], [9, 10]])
-    p = pmm(x = x,ry = ry,y = y, matcher = "NN", donors = 3)
+       This function imputes missing values in a variable `y` using predictive mean matching.
+       The method is based on Rubin's (1987) Bayesian linear regression and mimics the behavior
+       of the R `mice` package's PMM imputation method.
 
-    Categorical:
-    y = pd.Series(["age", np.nan, "what", "w", "b"])
-    ry = ~pd.isna(y)
-    x = np.array([[1, 2], [3, 4], [5, 6], [9, 8], [9, 10]])
-    p = pmm(x = x,ry = ry,y = y, matcher = "NN", donors = 3)
+       Parameters
+       ----------
+       y : array-like (1D), shape (n_samples,)
+           Target variable to be imputed. Can be numeric or categorical.
+
+       ry : array-like of bool, shape (n_samples,)
+           Logical array indicating which elements of `y` are observed (True) or missing (False).
+
+       x : array-like (2D), shape (n_samples, n_features)
+           Numeric design matrix of predictors. Must have no missing values.
+
+       wy : array-like of bool, shape (n_samples,), optional
+           Logical array indicating which values should be imputed.
+           If None, wy is set to the complement of `ry`.
+
+       donors : int, default=5
+           Number of donors to draw from the observed cases when imputing missing values.
+
+       matchtype : int, default=1
+           Type of matching:
+           - 0: Predicted value of y_obs vs predicted value of y_mis
+           - 1: Predicted value of y_obs vs drawn value of y_mis (default)
+           - 2: Drawn value of y_obs vs drawn value of y_mis
+
+       quantify : bool, default=True
+           If True and `y` is categorical, factor levels are replaced by the first canonical variate (via CCA).
+           If False, categorical values are replaced by integer codes (less accurate).
+
+       ridge : float, default=1e-5
+           Ridge regularization parameter used in `norm_draw()` to stabilize estimation.
+           Increase for multicollinear data, decrease to reduce bias.
+
+       matcher : str, default="NN"
+           Matching method. Currently only "NN" (nearest neighbor) is supported.
+
+       **kwargs : dict
+           Additional arguments passed to `norm_draw()`, such as `ls_meth`.
+
+       Returns
+       -------
+       y_imp : np.ndarray
+           Imputed version of `y` with missing values filled via PMM.
+           Returns object array if `y` was categorical, else float array.
+
+       Notes
+       -----
+       Based on:
+       - Rubin, D. B. (1987). *Multiple Imputation for Nonresponse in Surveys*.
+       - Van Buuren, S. & Groothuis-Oudshoorn, K. (2011). `mice` R package.
+
+       Examples
+       --------
+       # Numeric example
+       >>> y = np.array([7, np.nan, 9, 10, 11])
+       >>> ry = ~np.isnan(y)
+       >>> x = np.array([[1, 2], [3, 4], [5, 7], [7, 8], [9, 10]])
+       >>> pmm(y=y, ry=ry, x=x, donors=3)
+
+       # Categorical example
+       >>> y = pd.Series(["red", np.nan, "blue", "blue", "red"])
+       >>> ry = ~pd.isna(y)
+       >>> x = np.array([[1, 2], [3, 4], [5, 6], [9, 8], [9, 10]])
+       >>> pmm(y=y, ry=ry, x=x, donors=3, quantify=True)
     """
     if wy is None:
         wy = ~ry
@@ -80,17 +119,29 @@ def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
                 mask = np.isclose(ynum, val)  # Use original numeric arr here
                 ynumobj[mask] = col
         ynum = ynumobj
-    print(ynum)
     return ynum
-
 def quantify_cca(y, ry, x):
     """
-    factorization of categorical variables via optimal scaling
+    Factorize a categorical variable y into numeric values via optimal scaling
+    using Canonical Correlation Analysis (CCA) with predictors x.
 
-    :param y: categorical variable
-    :param ry: bool vector indicating missing values
-    :param x: data
-    :return:
+    Parameters
+    ----------
+    y : array-like, categorical variable with missing values
+    ry : boolean array-like, mask indicating observed (True) and missing (False) in y
+    x : array-like or DataFrame, predictors without missing values corresponding to y
+
+    Returns
+    -------
+    ynum : numpy.ndarray
+        Numeric transformation of y with missing positions as np.nan.
+    id : pandas.DataFrame
+        DataFrame representing the canonical components for the observed y.
+
+    Notes
+    -----
+    This method encodes y as one-hot vectors, then applies CCA to find
+    numeric representations that maximize correlation with predictors x.
     """
     # Subset y and x based on ry
     xd = np.array(x)[ry]

@@ -1,21 +1,52 @@
 # Implementation-of-PMM-and-Variations
-Implementation of Predictive Mean matching, Midastouch, Local Residual Draws and Polynomial Combination to Python.
 
-###Predictive Mean Matching
+This repository contains a modular Python framework for multiple imputation, developed as part of my master's thesis at Ludwig Maximilian University of Munich for the Statistics Department. The focus lies on implementing and evaluating **Predictive Mean Matching (PMM)** and its recent extension, the **midastouch** algorithm.
 
-Little, Roderick J. A. (1988). Missing-data Adjustments in Large Surveys. Journal of Business and Economic Statistics, 6(3):287–301. 
+---
 
-###Midastouch 
+## Thesis Abstract
 
-Gaffert, Philipp; Meinfelder, Florian und Bosch, Volker (2016b). Towards an MI-proper Predictive Mean Matching. 
+This thesis develops a modular Python framework for multiple imputation inspired by the R package `mice`, with a particular focus on **Predictive Mean Matching (PMM)** and the **midastouch** algorithm. The implementation allows for full flexibility in defining:
 
-###Local Residual Draws
+- Distance metrics
+- Donor selection rules
+- Imputation parameters
 
-Morris, Tim P.; White, Ian R. und Royston, Patrick (2014). Tuning Multiple Imputation by Predictive Mean Matching and Local Residual Draws. BMC Medical Research Methodology, 14(1)
+To evaluate both imputation strategies, a comprehensive simulation study was conducted across three types of target variables:
 
-###Polynomial Combination
+- **Continuous**
+- **Semi-continuous**
+- **Discrete**
 
-Vink, Gerko; Frank, Laurence E.; Pannekoek, Jeroen und Van Buuren, Stef (2014). Predictive Mean Matching Imputation of Semicontinuous Variables. Statistica Neerlandica, 68(1):61–90. 
+Each simulation varied by:
 
-##Simulations 
-Based on Different Missingness etc...
+- **Missingness mechanism**: MCAR (Missing Completely At Random), left-tailed MAR, and right-tailed MAR
+- **Proportion of missing data**
+- **Imputation configuration**
+
+In total 675 Configurations were simulated and evaluated using four key performance metrics:
+
+- Bias
+- Confidence interval coverage
+- Confidence interval width
+- Mean squared error (MSE)
+
+### Key Findings
+
+- **PMM** performs reliably under MCAR and mild MAR, particularly with symmetric distributions and large samples.
+- **PMM** struggles under skewed distributions or structured missingness, often yielding biased estimates and reduced coverage.
+- **midastouch** consistently matches or outperforms PMM in coverage and standard error estimation, especially under skewness or small sample sizes.
+- Unlike PMM, **midastouch** requires no manual tuning of donor size `k` and, when combined with **HowManyImputations (HMI)**, provides an efficient and automated solution.
+- **Recommendation**: midastouch can be considered a robust default imputation method across a wide range of settings.
+
+---
+
+## Getting Started
+
+### Installation
+
+Clone this repository:
+
+```bash
+git clone https://github.com/yourusername/Implementation-of-PMM-and-Variations.git
+cd Implementation-of-PMM-and-Variations

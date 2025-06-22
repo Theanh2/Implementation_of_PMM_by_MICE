@@ -1,28 +1,73 @@
 import numpy as np
 from scipy.stats import chi2
-
 def sym(x):
     """
-    ensures symmetrical matrix for any square matrix
-    :param x: square matrix
-    :return: symmetrical matrix
-    """
+        Ensures the input square matrix is symmetric by averaging it with its transpose.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            A square numpy matrix.
+
+        Returns
+        -------
+        np.ndarray
+            A symmetric matrix computed as (x + x.T) / 2.
+
+        """
     return (x + x.T) / 2
 def norm_draw(y, ry, x, rank_adjust=True, **kwargs):
     """
-    From R Mice impute.norm norm.draw() function
-    Algorithm: https://www.rdocumentation.org/packages/mice/versions/3.17.0/topics/mice.impute.norm (Rubin(1987, p. 167)
-    Draws values of beta and sigma by Bayesian linear regression. Uses least squares parameters from estimice()
+        Bayesian linear regression draw of regression coefficients and residual variance,
+        based on the least squares parameters from `estimice()`.
 
-    :param y: Array: Vector to be imputed
-    :param ry: Logical: vector of length(y). ry distinguishes the observed TRUE and missing values FALSE in y.
-    :param x: Array: Numeric design matrix with length(y) rows with predictors for y. Matrix x may have no missing values.
-    :param rank_adjust: rank.adjust Argument that specifies whether NA in the coefficients need to be set to zero.
-        Only relevant when ls.meth = "qr" AND the predictor matrix is rank-deficient.
-    :param kwargs: Other keyword arguments, e.g least squares estimation method
-    :return: list containing coef (least squares estimate), beta (drawn regression weights)
-        and sigma (drawn value of the residual standard deviation).
-    """
+        This function replicates the `mice.impute.norm.draw()` algorithm from the R mice package,
+        as described in Rubin (1987, p. 167).
+
+        Parameters
+        ----------
+        y : np.ndarray
+            Numeric vector of length n, containing the variable to be imputed.
+        ry : np.ndarray of bool
+            Boolean mask vector of length n, where True indicates observed values of `y` and False indicates missing values.
+        x : np.ndarray
+            Numeric design matrix of shape (n, p) with predictors for `y`. Must have no missing values.
+        rank_adjust : bool, optional
+            If True, replaces any NaN coefficients with zeros. This is relevant only when
+            the least squares method is "qr" and the predictor matrix is rank-deficient.
+            Default is True.
+        **kwargs : dict
+            Additional keyword arguments passed to `estimice()`, e.g., `ls_meth` to specify the least squares method.
+
+        Returns
+        -------
+        dict
+            Dictionary containing:
+            - 'coef': Least squares coefficient estimates (numpy array).
+            - 'beta': Bayesian drawn regression coefficients (numpy array).
+            - 'sigma': Drawn residual standard deviation (float).
+            - 'estimation': Least squares method used (string).
+
+        Notes
+        -----
+        The residual variance sigma is drawn from a scaled chi-square distribution, and
+        the regression coefficients beta are drawn from a multivariate normal centered
+        at the least squares estimates with variance scaled by sigma.
+
+        References
+        ----------
+        Rubin, D. B. (1987). Multiple Imputation for Nonresponse in Surveys.
+        Wiley, p. 167.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> y = np.array([1.0, 2.0, np.nan, 4.0])
+        >>> ry = ~np.isnan(y)
+        >>> x = np.array([[1, 0], [1, 1], [1, 2], [1, 3]])
+        >>> result = norm_draw(y, ry, x, ls_meth='qr')
+        >>> print(result['beta'])
+        """
     #Draw from estimice
     p = estimice(x[ry, :], y[ry], **kwargs)
     #sqrt(sum((p$r)^2) / rchisq(n = 1,df = p$df)) #one random variate with p$df normal noise
@@ -45,36 +90,45 @@ def norm_draw(y, ry, x, rank_adjust=True, **kwargs):
         parm["coef"] = np.nan_to_num(parm["coef"], nan=0.0)
         parm["beta"] = np.nan_to_num(parm["beta"], nan=0.0)
     return parm
-
-
 def estimice(x, y, ls_meth="qr", ridge=1e-5):
     """
-    Fomputes least squares estimates, variance/covariance matrices,
-    residuals and degrees of freedom according to ridge regression, QR decomposition
-    or Singular Value Decomposition.
+        Computes least squares estimates, residuals, variance-covariance matrix,
+        and degrees of freedom using different methods: ridge regression, QR decomposition, or Singular Value Decomposition.
 
-    :param y: Array: Vector to be imputed
-    :param x: Array: Numeric design matrix with length(y) rows with predictors for y. Matrix x may have no missing values.
-    :param ls_meth: least squares method, QR decomposition, qr, ridge or svd
-    :param ridge: size of ridge The default value ridge = 1e-05 represents a compromise between stability and unbiasedness
-    :return: A list containing components
-        c (least squares estimate), r (residuals), v (variance/covariance matrix) and df (degrees of freedom).
+        Parameters
+        ----------
+        x : np.ndarray
+            Numeric design matrix with shape (n_samples, n_predictors). Must not contain missing values.
+        y : np.ndarray
+            Numeric vector of responses to be imputed, with possible missing values.
+        ls_meth : str, optional
+            Least squares method to use. Options are:
+            - "qr": QR decomposition (default)
+            - "ridge": Ridge regression
+            - "svd": Singular Value Decomposition
+        ridge : float, optional
+            Ridge penalty size for ridge regression. Default is 1e-5, balancing stability and bias.
 
-    Examples:
-    --------
-    x = np.array([[1, 2],[3, 4],[5, 6]])
-    y = np.array([7,  np.nan, 9])
-    # ry = ~np.isnan(y)
-    estimice(x,y,ls_meth="qr")
-    norm_draw(x=x, y=y, ry=ry, ls_meth="qr")
+        Returns
+        -------
+        dict
+            Dictionary containing:
+            - 'c': Least squares coefficient estimates (numpy array).
+            - 'r': Residuals (numpy array).
+            - 'v': Variance-covariance matrix of coefficients (numpy array).
+            - 'df': Degrees of freedom (int).
+            - 'ls_meth': Method used (str).
 
-    Output:
-    {'c': array([-6. ,  6.5]),
-    'r': array([-8.88178420e-16, -3.55271368e-15, -3.55271368e-15]),
-    'v': array([[ 2.33333333, -1.83333333], [-1.83333333,  1.45833333]]),
-    'df': 1,
-    'ls_meth': 'qr'}
-    """
+        Examples
+        --------
+        >>> import numpy as np
+        >>> x = np.array([[1, 2], [3, 4], [5, 6]])
+        >>> y = np.array([7, np.nan, 9])
+        >>> # Assuming you handle missing y externally, e.g. ry = ~np.isnan(y)
+        >>> result = estimice(x[~np.isnan(y)], y[~np.isnan(y)], ls_meth="qr")
+        >>> print(result['c'])
+        [-6.   6.5]
+        """
 
     #degrees of freedom = length of y - number of columns of x, mininmum df = 1
     #c = coefficients, f = fitted values, r = residuals
@@ -90,7 +144,7 @@ def estimice(x, y, ls_meth="qr", ridge=1e-5):
         v = np.linalg.solve(rr, np.eye(rr.shape[1]))
 
         return {
-            "c": c.flatten(),  # transpose to match R's shape
+            "c": c.flatten(),  # transpose to match shape
             "r": r.flatten(),
             "v": v,
             "df": df,

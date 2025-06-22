@@ -12,7 +12,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from tqdm.contrib.concurrent import process_map
 from functools import partial
-
+from statsmodels.iolib import summary2
 class mice:
     def __init__(self, data = None, m = 5, maxit = 5, predictorMatrix = None, initial = "meanobs"):
         #drop empty rows and copy
@@ -38,7 +38,22 @@ class mice:
             self.id_mis[col] = id_mis
         self.initial = initial
     def _split_indices(self, col):
-        #saves the indices of observed and missing values before initial imputation
+        """
+        Splits a column into indices of observed and missing values.
+
+        Identifies the positions of non-missing and missing values in the input
+        column before imputation. Raises an error if no observed values exist.
+
+        :param col: The data column to check for missing values.
+        :type col: pandas.Series or array-like
+
+        :return: A tuple containing two numpy arrays:
+            - Indices of observed (non-missing) values
+            - Indices of missing values
+        :rtype: tuple of numpy.ndarray
+
+        :raises ValueError: If the column has no observed (non-missing) values.
+        """
         null = pd.isnull(col)
         id_obs = np.flatnonzero(~null)
         id_mis = np.flatnonzero(null)
@@ -47,7 +62,21 @@ class mice:
         return id_obs, id_mis
     def _initial_imputation(self, initial):
         """
-        Uses either closest observed value to the mean or a sample of the observed value as initial values in iteration 0
+        Performs initial imputation on missing data before starting the iterative process.
+
+        Depending on the `initial` parameter, missing values are imputed either with
+        the observed value closest to the mean of the column, or with a random sample
+        drawn from the observed values.
+
+        :param initial: Method for initial imputation. Supported options:
+                        - "meanobs": Impute with observed value closest to the mean.
+                        - "sample": Impute with a random observed value sampled with replacement.
+        :type initial: str
+
+        :return: DataFrame with missing values initially imputed.
+        :rtype: pandas.DataFrame
+
+        :raises ValueError: If the `initial` parameter is not "meanobs" or "sample".
         """
         imp_values = {}
         if initial == "meanobs":
@@ -69,10 +98,18 @@ class mice:
         return initdata
     def set_methods(self, d):
         """
-        Assign method to columns
-        :param d: dictionary of methods
-        sets imputation methods for each variable. If not set uses default based on variable type
-        :return:
+        Assigns imputation methods to columns in the dataset.
+
+        For each column, the method specified in the dictionary `d` is assigned.
+        If a column is not specified in `d`, a default method is assigned based on the
+        variable type: `"pmm"` for categorical or numeric columns.
+
+        :param d: Dictionary mapping column names to imputation methods.
+        :type d: dict
+
+        :return: None
+
+        :raises ValueError: If any method in `d` is not supported (checked by `_check_d`).
         """
         _check_d(d, self.supported_meth)
         for col in self.data.columns:
@@ -85,36 +122,78 @@ class mice:
                     self.meth[col] = "pmm"
     def fit(self, fml, history = True, HMI = False, alpha = 0.05, cv = 0.05, pilot = 5, **kwargs):
         """
-        Parameters
-        ----------
-        :param fml: analysis model formula in patsy format. Takes any patsy formula, enables transforming variables
-            Note: Patsy does not handle dots in variable names throws Errors
-        :param HMI: HowManyImputations by Hippel (2020) https://doi.org/10.48550/arXiv.1608.05406, pass alpha and cv to HMI() function
-        :param history: bool, if True saves all iterations in a dict, if False only passes metrics for summary
-        Returns
-        -------
+            Fits the imputation model and performs analysis using the specified formula.
 
-        """
+            Parameters
+            ----------
+            :param fml: Analysis model formula in Patsy syntax.
+                        Supports variable transformations but does not allow dots in variable names
+                        (which may cause Patsy errors).
+            :type fml: str
+
+            :param history: If True, saves all iterations of the imputation in a dictionary.
+                            If False, only final metrics are kept.
+            :type history: bool, optional (default=True)
+
+            :param HMI: Whether to use HowManyImputations (Hippel, 2020) for pooling results.
+                        If True, alpha and cv parameters are passed to the HMI method.
+            :type HMI: bool, optional (default=False)
+
+            :param alpha: Significance level used in HMI pooling.
+            :type alpha: float, optional (default=0.05)
+
+            :param cv: Coefficient of variation threshold for HMI pooling.
+            :type cv: float, optional (default=0.05)
+
+            :param pilot: Number of pilot imputations for HMI.
+            :type pilot: int, optional (default=5)
+
+            :param kwargs: Additional keyword arguments (currently unused).
+
+            Returns
+            -------
+            :return: Results of the imputation and analysis.
+            :rtype: depends on self.results
+            """
         self.hist_bool = history
         self.fml = fml
         self.HMI_bool = HMI
 
         if not HMI:
-            ###Parallelize this block
-            for i in tqdm(range(self.m), desc = "M Multiple Imputations", disable = True): #runs m times each time returning final dataset and coef
+            ###Parallelize this block, or easier to parallelize simulations
+            for i in tqdm(range(self.m), desc = "M Multiple Imputations", disable = False): #runs m times each time returning final dataset and coef
                 iterdata = self.iterate()
                 if self.hist_bool:
                     self.history[i] = iterdata
-            ###
             self.pool()
         if self.HMI_bool:
             self.HMI(pilot, alpha, cv, self.fml)
 
-        #analysis model variables, for summary
         self.exog_names = self.amodel.exog_names
         self.endog_names = self.amodel.endog_names
         return self.results
     def _analysis(self, iterdata, **kwargs):
+        """
+        Performs imputation on the given dataset iteration using specified methods for each variable.
+
+        For each column, the method:
+        - Masks the missing values in the target variable.
+        - Selects predictor variables based on the predictor matrix.
+        - Applies the imputation method assigned to the column.
+        - Updates the imputed values in the dataset.
+
+        Parameters
+        ----------
+        :param iterdata: pandas DataFrame representing the current iteration of data with missing values.
+        :type iterdata: pd.DataFrame
+
+        :param kwargs: Additional keyword arguments to pass to the imputation methods.
+
+        Returns
+        -------
+        :return: DataFrame with imputed values updated for each column.
+        :rtype: pd.DataFrame
+        """
         for col, method in self.meth.items():
             # pass into function call
             # y needs to be masked
@@ -126,19 +205,28 @@ class mice:
             if (xid == 0).all():
                 continue
             x = iterdata[xid[xid == 1].index]
-            # from pandas to numpy
             y = np.array(y)
             ry = np.array(ry)
             x = np.array(x)
             iterdata[col] = self.supported_meth[method](y=y, ry=ry, x=x, **kwargs)
-            #analysis model specification
         return iterdata
     def pool(self, summ = False):
         """
-        Pools
-        Returns: summary of fit
-        -------
+        Pools parameter estimates and covariance matrices from multiple imputations
+        to produce overall inference estimates following Rubin's rules.
 
+        Aggregates results across multiple imputed datasets by combining within-imputation
+        variance and between-imputation variance to estimate overall parameter uncertainty.
+
+        Parameters
+        ----------
+        :param summ: bool, optional
+            If True, returns a summary of the pooled fit (default is False).
+
+        Returns
+        -------
+        :return: None
+            Stores pooled results in `self.results` as a MICEResults object.
         """
         params_list = []
         cov_within = 0.
@@ -173,21 +261,31 @@ class mice:
         self.results.frac_miss_info = self.fmi
     def HMI(self, pilot, alpha, cv, fml):
         """
-        Runs pilot imputation to get fraction of missing information and then runs the remaining iterations so ensure
-            point estimates and standard deviation for replicability
-            https://arxiv.org/pdf/1608.05406 chapter 1.2
-        Parameters
-        ----------
-        pilot: Initial pilot imputation to calculate fraction of missing information
-        cv: desired coefficient of variation
-        alpha: Confidence Interval
-        kwargs
+            Performs How-Many-Imputations (HMI) procedure to determine the required number
+            of imputations based on fraction of missing information (FMI) for stable
+            point estimates and standard errors.
 
-        Returns
-        -------
+            This method first runs a pilot set of imputations to estimate the FMI,
+            then calculates the number of additional imputations needed to achieve
+            a target coefficient of variation (cv) for the standard error estimates,
+            following Hippel (2020) [https://arxiv.org/pdf/1608.05406].
 
-        """
-        for i in tqdm(range(pilot), desc="pilot ", disable = True):
+            Parameters
+            ----------
+            :param pilot: int
+                Number of pilot imputations to run for initial FMI estimation.
+            :param alpha: float
+                Significance level for confidence interval calculation (e.g., 0.05 for 95% CI).
+            :param cv: float
+                Desired coefficient of variation for the standard error estimates.
+            :param fml: str
+                Analysis model formula (in patsy format) to fit during imputation.
+
+            Returns
+            -------
+            :return: None
+            """
+        for i in tqdm(range(pilot), desc="pilot ", disable = False):
             iterdata = self.iterate()
             if self.hist_bool:
                 self.history[i] = iterdata
@@ -202,12 +300,29 @@ class mice:
         #upper bound of confidence interval rounded with int
         self.m2 = int(np.ceil(1 + 0.5 * (fmiu / cv)**2))
 
-        for i in tqdm(range(self.m2-pilot), desc="stage2", disable = True):
+        for i in tqdm(range(self.m2-pilot), desc="stage2", disable = False):
             iterdata = self.iterate()
             if self.hist_bool:
                 self.history[i + pilot] = iterdata
         self.pool()
     def iterate(self):
+        """
+        Performs the iterative imputation procedure.
+
+        Starts with an initial imputation, then iteratively updates the imputations
+        for a number of cycles (self.maxit) by applying the imputation model
+        for each variable. After the final iteration, fits the analysis model to the
+        imputed dataset and stores the fitted model results.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        iterdata : pandas.DataFrame
+            The imputed dataset after the final iteration.
+        """
         iterdata = self._initial_imputation(self.initial)
         for j in range(self.maxit):
             iterdata = self._analysis(iterdata=iterdata)
@@ -216,22 +331,41 @@ class mice:
         return iterdata
     def complete(self):
         """
-        Runs imputation step once.
-        Returns: returns a single completed dataset
-        -------
+        Performs a single-step imputation to produce a completed dataset.
 
+        Runs the initial imputation and then one iteration of the imputation analysis
+        step to fill in missing values.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        iterdata : pandas.DataFrame
+            A completed dataset with imputed values after one imputation step.
         """
         iterdata = self._initial_imputation(self.initial)
         iterdata = self._analysis(iterdata=iterdata)
         return iterdata
     def convergence_plot(self, fml, x = "mean"):
         """
+        Generates convergence plots of parameter estimates over iterations for multiple imputations.
+
+        Runs multiple imputations and fits the analysis model for each iteration,
+        then plots either the mean or standard error of model parameters across cycles.
+
         Parameters
         ----------
-        fml: Analysis model formula
-        x: mean or sd
-        Returns matplotlib plot
+        fml : str
+            Analysis model formula in patsy syntax.
+        x : str, optional
+            Metric to plot: "mean" for parameter estimates or "sd" for standard errors (default is "mean").
+
+        Returns
         -------
+        None
+            Displays matplotlib plots of convergence diagnostics.
         """
         for i in tqdm(range(self.m), desc="M", disable = True):
             iterdata = self._initial_imputation(self.initial)
@@ -268,6 +402,7 @@ class mice:
             ax.set_ylabel(col)
             ax.grid(True)
         plt.tight_layout()
+
         plt.show()
 class MICEResults(LikelihoodModelResults):
     def __init__(self, model, params, normalized_cov_params):
@@ -291,9 +426,6 @@ class MICEResults(LikelihoodModelResults):
             This holds the summary tables and text, which can be
             printed or converted to various output formats.
         """
-
-        from statsmodels.iolib import summary2
-
         smry = summary2.Summary()
         float_format = "%8.3f"
 
