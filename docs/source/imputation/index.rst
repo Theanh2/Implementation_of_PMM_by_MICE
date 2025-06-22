@@ -6,9 +6,7 @@ Imputation
    :undoc-members:
    :show-inheritance:
 
-    mice
-    PMM
-    midas
+
 
 Auxiliaries
 -----------
@@ -17,4 +15,7 @@ Auxiliaries
    :maxdepth: 2
 
    Auxiliary
+    mice
+    PMM
+    midas
 
