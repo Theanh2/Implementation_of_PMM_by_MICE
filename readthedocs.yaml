@@ -7,13 +7,6 @@ build:
   tools:
     python: "3.9"
 
-# Install your package and any dependencies
-python:
-  install:
-    - method: pip
-      path: .
-    - requirements: requirements.txt  # or another path if you store it differently
-
 # Build documentation using Sphinx
 sphinx:
   configuration: docs/conf.py
