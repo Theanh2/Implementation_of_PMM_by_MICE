@@ -69,8 +69,6 @@ def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
        >>> ry = ~np.isnan(y)
        >>> x = np.array([[1, 2], [3, 4], [5, 7], [7, 8], [9, 10]])
        >>> pmm(y=y, ry=ry, x=x, donors=3)
-
-
     """
     if wy is None:
         wy = ~ry
