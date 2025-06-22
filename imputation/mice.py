@@ -214,13 +214,9 @@ class mice:
         Aggregates results across multiple imputed datasets by combining within-imputation
         variance and between-imputation variance to estimate overall parameter uncertainty.
 
-        Parameters
-        ----------
         :param summ: bool, optional
             If True, returns a summary of the pooled fit (default is False).
 
-        Returns
-        -------
         :return: None
             Stores pooled results in `self.results` as a MICEResults object.
         """
@@ -266,8 +262,6 @@ class mice:
             a target coefficient of variation (cv) for the standard error estimates,
             following Hippel (2020) [https://arxiv.org/pdf/1608.05406].
 
-            Parameters
-            ----------
             :param pilot: int
                 Number of pilot imputations to run for initial FMI estimation.
             :param alpha: float
@@ -277,8 +271,6 @@ class mice:
             :param fml: str
                 Analysis model formula (in patsy format) to fit during imputation.
 
-            Returns
-            -------
             :return: None
             """
         for i in tqdm(range(pilot), desc="pilot ", disable = False):

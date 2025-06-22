@@ -1,5 +1,5 @@
 Imputation with PMM and Midas using MICE
-=======
+=========================================
 
 .. toctree::
    :maxdepth: 4

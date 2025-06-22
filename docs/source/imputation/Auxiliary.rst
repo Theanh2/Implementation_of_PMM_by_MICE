@@ -21,12 +21,3 @@ imputation.sampler module
    :members:
    :undoc-members:
    :show-inheritance:
-
-
-imputation.checks module
-------------------------
-
-.. automodule:: imputation.checks
-   :members:
-   :undoc-members:
-   :show-inheritance:
