@@ -48,5 +48,5 @@ In total 675 Configurations were simulated and evaluated using four key performa
 Clone this repository:
 
 ```bash
-git clone https://github.com/yourusername/Implementation-of-PMM-and-Variations.git
-cd Implementation-of-PMM-and-Variations
+git clone https://github.com/Theanh2/Implementation_of_PMM_by_MICE.git
+cd Implementation_of_PMM_by_MICE

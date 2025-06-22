@@ -70,11 +70,7 @@ def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
        >>> x = np.array([[1, 2], [3, 4], [5, 7], [7, 8], [9, 10]])
        >>> pmm(y=y, ry=ry, x=x, donors=3)
 
-       # Categorical example
-       >>> y = pd.Series(["red", np.nan, "blue", "blue", "red"])
-       >>> ry = ~pd.isna(y)
-       >>> x = np.array([[1, 2], [3, 4], [5, 6], [9, 8], [9, 10]])
-       >>> pmm(y=y, ry=ry, x=x, donors=3, quantify=True)
+
     """
     if wy is None:
         wy = ~ry
