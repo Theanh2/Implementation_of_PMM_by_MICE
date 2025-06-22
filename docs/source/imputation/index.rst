@@ -1,7 +1,7 @@
 Imputation
 ==================
 
-.. automodule:: imputation
+.. automodule:: imputation.mice
    :members:
    :undoc-members:
    :show-inheritance:
