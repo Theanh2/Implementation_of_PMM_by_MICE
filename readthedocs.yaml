@@ -7,19 +7,7 @@ build:
   tools:
     python: "3.9"
 
-python:
-  install:
-    - method: pip
-      path: .
-    - requirements: requirements.txt  # <- root folder
-    # - requirements: docs/requirements.txt  # don't use if your file is in root
-
 
 # Build documentation using Sphinx
 sphinx:
   configuration: docs/source/conf.py
-
-# Optional: Add environment variables if needed
-# env:
-#   - name: EXAMPLE_ENV_VAR
-#     value: example_value
