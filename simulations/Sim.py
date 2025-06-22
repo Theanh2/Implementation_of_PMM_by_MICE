@@ -357,19 +357,19 @@ def repeat_sim(dist,n, mp, miss,m,k,hmi,pilot,method, tail = None, pmass = None)
         :rtype: None
 
         Example:
-            repeat_sim(
-                dist="norm",
-                n=500,
-                mp="MCAR",
-                miss=0.6,
-                m=5,
-                k=5,
-                hmi=False,
-                pilot=5,
-                method="pmm",
-                tail="left",
-                pmass=0.2
-            )
+            >>> repeat_sim(
+            ...     dist="norm",
+            ...     n=500,
+            ...     mp="MCAR",
+            ...     miss=0.6,
+            ...     m=5,
+            ...     k=5,
+            ...     hmi=False,
+            ...     pilot=5,
+            ...     method="pmm",
+            ...     tail="left",
+            ...     pmass=0.2
+            ... )
         """
     cBias_List = []
     Width_List = []

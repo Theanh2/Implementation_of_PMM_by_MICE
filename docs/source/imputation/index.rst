@@ -7,13 +7,10 @@ Imputation
    :show-inheritance:
 
 Auxiliaries
-----------
+-----------
 
 .. toctree::
    :maxdepth: 2
 
-   PMM
    Auxiliary
-    mice
-    midas
 

@@ -9,5 +9,4 @@ Simulations
 .. toctree::
    :maxdepth: 2
 
-   Sim
 
