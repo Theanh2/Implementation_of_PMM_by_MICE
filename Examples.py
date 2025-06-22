@@ -1,28 +1,18 @@
-from imputation.PMM import pmm
-from imputation.midas import midas
 import pandas as pd
 import numpy as np
-from simulations.Sim import repeat_sim
+from simulations.Sim import data_norm, MCAR
+from imputation.mice import mice
 
-y = np.array([7, np.nan, 9, 10, 11])
-ry = ~np.isnan(y)
-x = np.array([[1, 2], [3, 4], [5, 7], [7, 8], [9, 10]])
-print("pmm")
-print(pmm(y=y, ry=ry, x=x, donors=3))
-print("midas")
-print(midas(y, ry, x))
+Y, X, _ = data_norm(n = 1000, locY=5, scaleY=1, rho=0.5)
+Y = MCAR(ymis = Y, miss = 0.2)
+simdf = pd.DataFrame({"Y": Y, "X": X})
 
-print("Multiple Imputation")
-repeat_sim(
-        dist="norm",
-        n=500,
-        mp="MCAR",
-        miss=0.6,
-        m=5,
-        k=5,
-        hmi=False,
-        pilot=5,
-        method="pmm",
-        tail="left",
-        pmass=0.2
-    )
+pm = pd.DataFrame({
+    'Y': {'Y': 0, 'X': 1},
+    'X': {'Y': 0, 'X': 0}
+})
+
+miceobj = mice(data = simdf, m = 50, predictorMatrix = pm , initial = "sample", maxit = 5)
+miceobj.set_methods(d = {"Y": "pmm"})
+result = miceobj.fit(fml="Y ~ X", donors=3, history=False)
+print(result.summary())
