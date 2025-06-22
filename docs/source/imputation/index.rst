@@ -6,6 +6,10 @@ Imputation
    :undoc-members:
    :show-inheritance:
 
+    mice
+    PMM
+    midas
+
 Auxiliaries
 -----------
 
