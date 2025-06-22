@@ -1,10 +1,9 @@
 Imputation
 ==================
 
-.. automodule:: imputation.mice
+.. automodule:: imputation
    :members:
    :undoc-members:
-   :show-inheritance:
 
 Auxiliaries
 -----------
