@@ -124,8 +124,6 @@ class mice:
         """
             Fits the imputation model and performs analysis using the specified formula.
 
-            Parameters
-            ----------
             :param fml: Analysis model formula in Patsy syntax.
                         Supports variable transformations but does not allow dots in variable names
                         (which may cause Patsy errors).
@@ -150,8 +148,6 @@ class mice:
 
             :param kwargs: Additional keyword arguments (currently unused).
 
-            Returns
-            -------
             :return: Results of the imputation and analysis.
             :rtype: depends on self.results
             """
