@@ -31,13 +31,14 @@ In total 675 Configurations were simulated and evaluated using four key performa
 - Confidence interval width
 - Mean squared error (MSE)
 
+Simulation results are available as a CSV file at.csv under simulations/simulation_df.csv
+
 ### Key Findings
 
 - **PMM** performs reliably under MCAR and mild MAR, particularly with symmetric distributions and large samples.
 - **PMM** struggles under skewed distributions or structured missingness, often yielding biased estimates and reduced coverage.
 - **midastouch** consistently matches or outperforms PMM in coverage and standard error estimation, especially under skewness or small sample sizes.
 - Unlike PMM, **midastouch** requires no manual tuning of donor size `k` and, when combined with **HowManyImputations (HMI)**, provides an efficient and automated solution.
-- **Recommendation**: midastouch can be considered a robust default imputation method across a wide range of settings.
 
 ---
 
@@ -47,6 +48,15 @@ In total 675 Configurations were simulated and evaluated using four key performa
 
 Clone this repository:
 
+
+Clone:
 ```bash
-git clone https://github.com/Theanh2/Implementation_of_PMM_by_MICE.git
+git clone https://github.com/Theanh2/Implementation_of_PMM_by_MICE.git@detached
 cd Implementation_of_PMM_by_MICE
+```
+or directly install:
+```bash
+pip install git+https://github.com/Theanh2/Implementation_of_PMM_by_MICE.git@detached
+```
+
+
