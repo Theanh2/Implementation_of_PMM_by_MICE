@@ -1,11 +1,33 @@
-import pandas as pd
 import warnings
 import numpy as np
+import pandas as pd
 from typing import Dict, Union, Optional, List
-from .validators import validate_dataframe, validate_columns, check_n_imputations, check_maxit, check_method, check_initial_method, validate_predictor_matrix, check_visit_sequence
-from .constants import ImputationMethod, InitialMethod, SUPPORTED_METHODS, DEFAULT_METHOD, SUPPORTED_INITIAL_METHODS, DEFAULT_INITIAL_METHOD, VisitSequence
+from .validators import (
+    validate_dataframe,
+    validate_columns,
+    check_n_imputations,
+    check_maxit,
+    check_method,
+    check_initial_method,
+    validate_predictor_matrix,
+    check_visit_sequence,
+)
+from .constants import (
+    ImputationMethod,
+    InitialMethod,
+    SUPPORTED_METHODS,
+    DEFAULT_METHOD,
+    SUPPORTED_INITIAL_METHODS,
+    DEFAULT_INITIAL_METHOD,
+    VisitSequence,
+)
 
-# pm and visit sequenc
+# Import concrete imputation functions (skip RF for now)
+from .utils import get_imputer_func
+# External helpers
+from .mice_result import MICEresult
+
+# pm and visit sequenc -- if there are columns not in pm, but in visit sequence, add them to pm
 class MICE:
     """
     Multiple Imputation by Chained Equations (MICE) class.
@@ -52,6 +74,11 @@ class MICE:
             notna = self.data[col].notna()
             self.id_obs[col] = notna
             self.id_mis[col] = ~notna
+        # Container for pooled results
+        self.result = None  # Will hold the pooled `MICEresult` instance
+
+        # Required by statsmodels result wrappers
+        self.nobs = self.data.shape[0]
 
     def impute(
         self,
@@ -136,11 +163,28 @@ class MICE:
 
         self._set_visit_sequence(visit_sequence)
 
-        self.imputed_datasets = []
-        # prepare imputations - methods for columns
+        # -------------------------------------------------------------
+        # Prepare containers for chain statistics. These mimic the
+        # `imp$chainMean` and `imp$chainVar` objects available in the
+        # original R implementation: dimension order is
+        #   [iteration, chain, variable]
+        # Only track columns that are actually being imputed (visit_sequence)
+        # Both are stored as dictionaries keyed by column name for
+        # convenient access while keeping the memory footprint modest.
+        # -------------------------------------------------------------
+        self.chain_mean = {
+            col: np.full((self.maxit, self.n_imputations), np.nan, dtype=float)
+            for col in self.visit_sequence
+        }
+        self.chain_var = {
+            col: np.full((self.maxit, self.n_imputations), np.nan, dtype=float)
+            for col in self.visit_sequence
+        }
 
-        for i in range(self.n_imputations):
-            self.imputed_datasets.append(self._impute_once())
+        self.imputed_datasets = []
+
+        for chain_idx in range(self.n_imputations):
+            self.imputed_datasets.append(self._impute_once(chain_idx))
         
         print(f"Parameters validated successfully:")
         print(f"  - Number of imputations: {self.n_imputations}")
@@ -149,10 +193,68 @@ class MICE:
         print(f"  - Method: {self.method}")
         print(f"  - Visit sequence: {self.visit_sequence}")
         print(f"  - Predictor matrix provided: {self.predictor_matrix is not None}")
-        print(f"  - Method args provided: {len(self.method_args) > 0}")
         print(f"  - Imputed datasets will be stored in self.imputed_datasets")
-    
-    def _impute_once(self):
+
+    def pool(self, summ: bool = False):
+        """Pool column means across `self.imputed_datasets` using Rubin's rules.
+
+        Each imputed dataset provides an estimate (the column mean) and a within-
+        imputation variance (the variance of that column divided by *n*).  The
+        function combines these to obtain pooled estimates and their standard
+        errors.  Results are stored in ``self.result`` (an instance of
+        :class:`MICEresult`).
+
+        Parameters
+        ----------
+        summ : bool, optional
+            If True, return a textual summary (equivalent to
+            ``self.result.summary()``).
+        """
+
+        if not self.imputed_datasets:
+            raise ValueError("No imputed datasets found – run `.impute()` first.")
+
+        m = len(self.imputed_datasets)
+
+        # Restrict to numeric columns for pooling
+        numeric_cols = self.imputed_datasets[0].select_dtypes(include=[np.number]).columns.tolist()
+        if not numeric_cols:
+            raise ValueError("No numeric columns available for pooling.")
+
+        col_names = numeric_cols
+        q_mat = np.empty((m, len(col_names)))
+        u_mat = np.empty_like(q_mat)
+
+        n = self.imputed_datasets[0].shape[0]
+
+        for j, df in enumerate(self.imputed_datasets):
+            q_mat[j, :] = df.mean(axis=0).values  # q_j
+            # Within-imputation variance of the mean: var / n
+            u_mat[j, :] = df.var(ddof=1, axis=0).values / n
+
+        # Rubin's rules
+        q_bar = q_mat.mean(axis=0)                        # pooled estimate
+        u_bar = u_mat.mean(axis=0)                        # average within
+        b = ((q_mat - q_bar) ** 2).sum(axis=0) / (m - 1)  # between
+        t = u_bar + (1 + 1/m) * b                        # total variance
+
+        frac_miss_info = ((1 + 1/m) * b) / t
+
+        # Build covariance matrix (diagonal – assumes independence across vars)
+        cov_params = np.diag(t)
+
+        # Make variable names available for summaries that expect them
+        self.exog_names = col_names
+
+        # Create results object (scale=1 so cov_params == normalized_cov_params)
+        self.result = MICEresult(self, q_bar, cov_params)
+        self.result.scale = 1.0
+        self.result.frac_miss_info = frac_miss_info
+
+        if summ:
+            return self.result.summary()
+
+    def _impute_once(self, chain_idx: int):
         """
         Perform one complete imputation cycle.
         
@@ -164,12 +266,12 @@ class MICE:
         current_data = self.data.copy(deep=True)
         self._initial_imputation(current_data)
 
-        for i in range(self.maxit):
-            current_data = self._iterate(current_data)
+        for iter_idx in range(self.maxit):
+            current_data = self._iterate(current_data, iter_idx, chain_idx)
         
         return current_data
     
-    def _iterate(self, data):
+    def _iterate(self, data: pd.DataFrame, iter_idx: int, chain_idx: int):
         """
         Perform one iteration of the imputation cycle.
         
@@ -183,8 +285,72 @@ class MICE:
         pd.DataFrame
             A copy of the data with one iteration of the imputation cycle applied
         """
-        pass
-    
+        updated_data = data
+
+        for col in self.visit_sequence:
+            method_name = self.method[col]
+
+            predictor_cols = [c for c in updated_data.columns if c != col]
+            predictors = updated_data[predictor_cols]
+
+            # RF currently not implemented
+            if method_name == ImputationMethod.RF.value:
+                warnings.warn(
+                    "Random Forest imputation is not implemented yet; skipping "
+                    f"column '{col}'.",
+                    UserWarning,
+                )
+                continue
+
+            # Determine predictors – use predictor_matrix if provided
+            if self.predictor_matrix is not None:
+                # predictor_matrix rows index = target, columns = predictors
+                predictor_flags = self.predictor_matrix.loc[col]
+                predictor_cols = predictor_flags[predictor_flags == 1].index.tolist()
+                predictor_cols = [c for c in predictor_cols if c != col]
+            else:
+                predictor_cols = [c for c in updated_data.columns if c != col]
+
+            predictors = updated_data[predictor_cols]
+
+            # Prepare arrays/masks
+            y = updated_data[col].to_numpy()
+            ry_mask = self.id_obs[col]
+            wy_mask = self.id_mis[col]
+            ry = ry_mask.to_numpy()
+            wy = wy_mask.to_numpy()
+
+            # Get the appropriate imputer function and perform imputation
+            imputer_func = get_imputer_func(method_name)
+
+            try:
+                imputed_values = imputer_func(y=y, ry=ry, wy=wy, x=predictors)
+            except TypeError:
+                # Some imputers (e.g. sample) might not accept wy explicitly
+                imputed_values = imputer_func(y=y, ry=ry, x=predictors)
+
+
+            # Assign imputed values back to the DataFrame
+            updated_data.loc[wy_mask, col] = imputed_values
+
+            # -----------------------------------------------------
+            # Record chain statistics (mean & variance of newly
+            # imputed values for this variable in this iteration &
+            # chain). Aligns with behaviour of `mice` in R.
+            # -----------------------------------------------------
+            if wy.sum() > 0:
+                imputed_arr = np.asarray(imputed_values, dtype=float)
+                # Mean of imputed values for current variable
+                self.chain_mean[col][iter_idx, chain_idx] = np.nanmean(imputed_arr)
+
+                # Variance is undefined for a single value; handle safely
+                if imputed_arr.size > 1:
+                    self.chain_var[col][iter_idx, chain_idx] = np.nanvar(imputed_arr, ddof=1)
+                else:
+                    self.chain_var[col][iter_idx, chain_idx] = np.nan
+ 
+        return updated_data
+  
     def _initial_imputation(self, data):
         """
         Initialize missing values based on the initial method.
@@ -234,5 +400,3 @@ class MICE:
                 ii = np.argsort(nmis)
                 self.visit_sequence = [columns_with_missing[i] for i in ii]
 
-    def pool(self):
-        pass

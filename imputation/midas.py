@@ -73,7 +73,7 @@ def midas(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = True):
         Returns
         -------
         y_imp : np.ndarray
-            The input array `y` with imputed values replacing the missing entries.
+            Imputed values for missing positions only (matching R implementation).
 
         Notes
         -----
@@ -87,7 +87,7 @@ def midas(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = True):
         >>> ry = ~np.isnan(y)
         >>> x = np.array([[1, 2], [3, 4], [5, 6], [7, 13], [11, 10]])
         >>> midas(y, ry, x)
-        array([7. , 9.0, 9. , 10., 11.])
+        array([9.0])
         """
     wy = ~ry
     #machine epsilon
@@ -177,7 +177,7 @@ def midas(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = True):
         for j in range(probs.shape[1])
     ])
 
-    y[wy] = yobs[index]
+    imputed_values = yobs[index]
     #PLF correction implemented needs to be saved globally over iterations
     #mean(1 / rowSums((t(delta.mat) / csums)^2))
     #consists
@@ -185,4 +185,4 @@ def midas(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = True):
 
     #mean(1 / rowSums((t(delta.mat) / csums)^2))
     neff = np.mean(1 / row_sums)
-    return y
+    return imputed_values

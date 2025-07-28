@@ -1,0 +1,92 @@
+import pandas as pd
+import numpy as np
+
+# Import the custom MICE implementation
+from imputation.zh.MICE import MICE
+
+# Visualization helpers
+from visualization.utils import md_pattern_like, plot_missing_data_pattern
+from diagnostics.plots import stripplot, bwplot, densityplot, xyplot
+
+
+def main():
+    """Run a complete MICE workflow on the NHANES dataset."""
+
+    # ------------------------------------------------------------------
+    # 1. Load the dataset
+    # ------------------------------------------------------------------
+    df = pd.read_csv("data/nhanes.csv", na_values="NA")
+    print("Loaded NHANES dataset with shape:", df.shape)
+
+    # ------------------------------------------------------------------
+    # 2. Inspect and display the missing-data pattern
+    # ------------------------------------------------------------------
+    pattern_df = md_pattern_like(df)
+    print("\nMissing-data pattern (similar to R's md.pattern):\n", pattern_df)
+    plot_missing_data_pattern(pattern_df, title="NHANES Missing-Data Pattern")
+
+    # ------------------------------------------------------------------
+    # 3. Build a predictor matrix where every variable predicts every other
+    #    (i.e., all 1s except the diagonal).
+    # ------------------------------------------------------------------
+    cols = df.columns
+    predictor_matrix = pd.DataFrame(1, index=cols, columns=cols)
+    np.fill_diagonal(predictor_matrix.values, 0)  # A variable should not predict itself
+
+    # ------------------------------------------------------------------
+    # 4. Create the MICE imputer and generate 5 imputed datasets
+    # ------------------------------------------------------------------
+    mice_imp = MICE(df)
+    mice_imp.impute(n_imputations=5, predictor_matrix=predictor_matrix, method="pmm")
+    imputed_datasets = mice_imp.imputed_datasets
+
+    print(mice_imp.chain_mean)
+    print(mice_imp.chain_var)
+
+    print(f"\nGenerated {len(imputed_datasets)} imputed datasets.")
+
+    # ------------------------------------------------------------------
+    # 5. Pool the results (Rubin's rules) and print a summary
+    # ------------------------------------------------------------------
+    pooled_summary = mice_imp.pool(summ=True)
+    if pooled_summary is not None:
+        print("\nPooled estimates (Rubin's rules):\n")
+        print(pooled_summary)
+
+    # ------------------------------------------------------------------
+    # 6. Prepare a simple 0/1 missing-pattern DataFrame required by the
+    #    diagnostic plotting functions (1 = observed, 0 = missing).
+    # ------------------------------------------------------------------
+    missing_pattern = df.notna().astype(int)
+
+    # ------------------------------------------------------------------
+    # 7. Diagnostic plots
+    # ------------------------------------------------------------------
+    stripplot(
+        imputed_datasets=imputed_datasets,
+        missing_pattern=missing_pattern,
+        merge_imputations=False,
+    )
+
+    bwplot(
+        imputed_datasets=imputed_datasets,
+        missing_pattern=missing_pattern,
+        merge_imputations=False,
+    )
+
+    densityplot(
+        imputed_datasets=imputed_datasets,
+        missing_pattern=missing_pattern,
+    )
+
+    # Example XY plot: age (complete) vs bmi (contains missing values)
+    xyplot(
+        imputed_datasets=imputed_datasets,
+        missing_pattern=missing_pattern,
+        x="age",
+        y="bmi",
+    )
+
+
+if __name__ == "__main__":
+    main()

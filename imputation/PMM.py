@@ -53,7 +53,7 @@ def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
        Returns
        -------
        y_imp : np.ndarray
-           Imputed version of `y` with missing values filled via PMM.
+           Imputed values for missing positions only (matching R implementation).
            Returns object array if `y` was categorical, else float array.
 
        Notes
@@ -100,19 +100,22 @@ def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
         yhatmis = np.dot(x[wy, :], p["beta"])
 
     idx = matcherid(d = yhatobs, t = yhatmis, matcher = "NN", k = donors)
-    #replace y (missing value array) with imputed value from observed values
-    ynum[wy] = yhatobs[idx]
-
+    
+    # Get the observed values that were selected as donors
+    donor_values = ynum[ry][idx]
+    
+    # Handle categorical data retransformation if needed
     if y.dtype == "object":
         if quantify:
             #retransform cca numericals to categories
-            ynumobj = ynum.astype(object)
+            donor_values_obj = donor_values.astype(object)
             for col in id.columns:
                 val = id.at[0, col]
-                mask = np.isclose(ynum, val)  # Use original numeric arr here
-                ynumobj[mask] = col
-        ynum = ynumobj
-    return ynum
+                mask = np.isclose(donor_values, val)  # Use donor values here
+                donor_values_obj[mask] = col
+            donor_values = donor_values_obj
+    
+    return donor_values
 def quantify_cca(y, ry, x):
     """
     Factorize a categorical variable y into numeric values via optimal scaling

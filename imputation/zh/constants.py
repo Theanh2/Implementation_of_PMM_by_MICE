@@ -8,14 +8,12 @@ class ImputationMethod(Enum):
     
     Attributes:
         PMM: Predictive Mean Matching
-        MILES: Multiple Imputation by Chained Equations with Least Squares
         MIDAS: Multiple Imputation by Denoising Autoencoders with Swish
         CART: Classification and Regression Trees
         SAMPLE: Random sampling from observed values
         RF: Random Forest
     """
     PMM = "pmm"
-    MILES = "miles"
     MIDAS = "midas"
     CART = "cart"
     SAMPLE = "sample"
@@ -98,7 +96,6 @@ class InitialMethod(Enum):
             str: Default initial method name
         """
         return cls.SAMPLE.value
-
 
 
 class VisitSequence(Enum):

@@ -2,6 +2,10 @@ import pandas as pd
 from pandas.api.types import is_numeric_dtype
 from imputation.PMM import pmm
 from imputation.midas import midas
+from imputation.cart import cart
+from imputation.sample import sample
+from imputation.rf import rf
+from imputation.mean import mean
 from imputation.checks import _check_m, _check_pm, _check_d
 from imputation.Utils import logit, expit, split_dataframe
 import statsmodels.formula.api as smf
@@ -28,7 +32,7 @@ class mice:
         #analysis model
         self.amodel = {}
         self.model_results = []
-        self.supported_meth = {"pmm": pmm, "midas": midas}
+        self.supported_meth = {"pmm": pmm, "midas": midas, "cart": cart, "sample": sample, "rf": rf, "mean": mean}
         #id_obs = ry, id _mis = wy saved in dict for each column mask it later
         self.id_obs = {}
         self.id_mis = {}
@@ -191,6 +195,10 @@ class mice:
         :rtype: pd.DataFrame
         """
         for col, method in self.meth.items():
+            # Skip columns that don't have missing values
+            if len(self.id_mis[col]) == 0:
+                continue
+                
             # pass into function call
             # y needs to be masked
             # x needs to be subset by predictormatrix
