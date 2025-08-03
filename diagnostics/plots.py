@@ -10,7 +10,7 @@ pd.set_option('mode.chained_assignment', None)  # Suppress pandas warnings
 pd.set_option('display.max_columns', None)
 
 def stripplot(imputed_datasets, missing_pattern, columns=None, merge_imputations=False, 
-             observed_color='blue', imputed_color='red'):
+             observed_color='blue', imputed_color='red', save_path=None):
     """
     Create stripplots for imputed data showing observed and imputed values.
     First plots observed data, then for each imputation shows both observed and imputed values
@@ -31,11 +31,8 @@ def stripplot(imputed_datasets, missing_pattern, columns=None, merge_imputations
         Color for observed values
     imputed_color : str, default 'red'
         Color for imputed values
-    
-    Returns
-    -------
-    None
-        Creates a figure with stripplots
+    save_path : str, optional
+        If provided, save the plot to this path instead of displaying it
     """
     # If no columns specified, use all columns with missing values
     if columns is None:
@@ -137,10 +134,15 @@ def stripplot(imputed_datasets, missing_pattern, columns=None, merge_imputations
         plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
     
     plt.tight_layout()
-    plt.show()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+    else:
+        plt.show()
 
 def bwplot(imputed_datasets, missing_pattern, columns=None, merge_imputations=False,
-          observed_color='blue', imputed_color='red'):
+          observed_color='blue', imputed_color='red', save_path=None):
     """
     Create box-and-whisker plots for imputed data showing observed and imputed values.
     First plots observed data, then for each imputation shows only imputed values
@@ -160,11 +162,8 @@ def bwplot(imputed_datasets, missing_pattern, columns=None, merge_imputations=Fa
         Color for observed values
     imputed_color : str, default 'red'
         Color for imputed values
-    
-    Returns
-    -------
-    None
-        Creates a figure with box-and-whisker plots
+    save_path : str, optional
+        If provided, save the plot to this path instead of displaying it
     """
     # If no columns specified, use all columns with missing values
     if columns is None:
@@ -304,10 +303,15 @@ def bwplot(imputed_datasets, missing_pattern, columns=None, merge_imputations=Fa
         plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
     
     plt.tight_layout()
-    plt.show()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+    else:
+        plt.show()
 
 def densityplot(imputed_datasets, missing_pattern, columns=None, 
-               observed_color='blue', imputed_color='red'):
+               observed_color='blue', imputed_color='red', save_path=None):
     """
     Create density plots (KDE) for observed and imputed data.
     Shows the distribution of observed data in blue and imputed data in red.
@@ -324,11 +328,8 @@ def densityplot(imputed_datasets, missing_pattern, columns=None,
         Color for observed values
     imputed_color : str, default 'red'
         Color for imputed values
-    
-    Returns
-    -------
-    None
-        Creates a figure with density plots
+    save_path : str, optional
+        If provided, save the plot to this path instead of displaying it
     """
     # If no columns specified, use all columns with missing values
     if columns is None:
@@ -376,10 +377,15 @@ def densityplot(imputed_datasets, missing_pattern, columns=None,
                 ax.legend(handles, labels, title='')
     
     plt.tight_layout()
-    plt.show()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+    else:
+        plt.show()
 
 def densityplot_split(imputed_datasets, missing_pattern, column,
-                     observed_color='blue', imputed_color='red'):
+                     observed_color='blue', imputed_color='red', save_path=None):
     """
     Create separate density plots (KDE) for observed data and each imputed dataset.
     Shows the distribution of observed data in blue and imputed data in red,
@@ -397,11 +403,8 @@ def densityplot_split(imputed_datasets, missing_pattern, column,
         Color for observed values
     imputed_color : str, default 'red'
         Color for imputed values
-    
-    Returns
-    -------
-    None
-        Creates a figure with density plots
+    save_path : str, optional
+        If provided, save the plot to this path instead of displaying it
     """
     if column not in missing_pattern.columns:
         print(f"Column {column} not found in the data")
@@ -465,10 +468,15 @@ def densityplot_split(imputed_datasets, missing_pattern, column,
     fig.suptitle(f'Density plots for {column}', y=1.02)
     
     plt.tight_layout()
-    plt.show()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+    else:
+        plt.show()
 
 def xyplot(imputed_datasets, missing_pattern, x, y, merge_imputations=False,
-          observed_color='blue', imputed_color='red'):
+          observed_color='blue', imputed_color='red', save_path=None):
     """
     Create scatter plots of two columns, showing observed and imputed values.
     Missing data in y is shown in red, observed data in blue.
@@ -490,11 +498,8 @@ def xyplot(imputed_datasets, missing_pattern, x, y, merge_imputations=False,
         Color for observed values
     imputed_color : str, default 'red'
         Color for imputed values
-    
-    Returns
-    -------
-    None
-        Creates a figure with scatter plots
+    save_path : str, optional
+        If provided, save the plot to this path instead of displaying it
     """
     # Check if columns exist and provide specific error messages
     missing_cols = []
@@ -587,4 +592,86 @@ def xyplot(imputed_datasets, missing_pattern, x, y, merge_imputations=False,
         fig.suptitle(f'Scatter plots of {x} vs {y}', y=1.02)
     
     plt.tight_layout()
-    plt.show()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+    else:
+        plt.show()
+
+def plot_chain_stats(chain_mean, chain_var, columns=None, figsize=(10, 5), save_path=None):
+    """
+    Plot per-iteration chain means and variances for the given columns.
+
+    Parameters
+    ----------
+    chain_mean : Dict[str, np.ndarray]
+        Dictionary where each key is a column name and each value is a 2-D
+        array of shape (n_iter, n_imputations) containing the means of the
+        newly imputed values.
+    chain_var : Dict[str, np.ndarray]
+        Same structure as `chain_mean` but for the variance of the imputed
+        values.
+    columns : list of str, optional
+        Columns to plot. If None, plots all keys present in `chain_mean`.
+    figsize : tuple, default (10, 5)
+        Base size of a single row (width, height). The final figure will be
+        scaled according to the number of rows.
+    save_path : str, optional
+        If provided, save the plot to this path instead of displaying it.
+    """
+    if columns is None:
+        columns = list(chain_mean.keys())
+
+    # Basic validation
+    for col in columns:
+        if col not in chain_mean:
+            raise ValueError(f"Column '{col}' not found in chain statistics.")
+
+    n_rows = len(columns)
+    fig, axes = plt.subplots(n_rows, 2,
+                            figsize=(figsize[0], figsize[1] * n_rows),
+                            squeeze=False)
+
+    # Number of chains determined from first column's matrix
+    n_chains = next(iter(chain_mean.values())).shape[1]
+    palette = sns.color_palette("husl", n_colors=n_chains)
+
+    for row_idx, col in enumerate(columns):
+        mean_mat = chain_mean[col]
+        var_mat = chain_var[col]
+
+        n_iter = mean_mat.shape[0]
+        x = np.arange(1, n_iter + 1)
+
+        # Plot means
+        ax_mean = axes[row_idx, 0]
+        for chain_idx in range(mean_mat.shape[1]):
+            ax_mean.plot(x, mean_mat[:, chain_idx],
+                        marker='o', alpha=0.7,
+                        label=f'Chain {chain_idx + 1}',
+                        color=palette[chain_idx])
+        ax_mean.set_title(f"{col} – Mean")
+        ax_mean.set_xlabel("Iteration")
+        ax_mean.set_ylabel("Mean")
+        if row_idx == 0:
+            ax_mean.legend(loc='best')
+
+        # Plot variances
+        ax_var = axes[row_idx, 1]
+        for chain_idx in range(var_mat.shape[1]):
+            ax_var.plot(x, var_mat[:, chain_idx],
+                        marker='o', alpha=0.7,
+                        label=f'Chain {chain_idx + 1}',
+                        color=palette[chain_idx])
+        ax_var.set_title(f"{col} – Variance")
+        ax_var.set_xlabel("Iteration")
+        ax_var.set_ylabel("Variance")
+
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+    else:
+        plt.show()
