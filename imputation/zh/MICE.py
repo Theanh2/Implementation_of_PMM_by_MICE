@@ -4,28 +4,48 @@ import pandas as pd
 import logging
 import time
 from typing import Dict, Union, Optional, List
+from datetime import datetime
+from logging.handlers import RotatingFileHandler
+import os
 
 # Configure logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
-# Create console handler with a higher log level
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.INFO)
+# Prevent adding handlers multiple times if the module is re-imported
+if not logger.handlers:
+    # Create logs directory if it doesn't exist
+    log_dir = 'logs'
+    os.makedirs(log_dir, exist_ok=True)
 
-# Create file handler which logs even debug messages
-file_handler = logging.FileHandler('mice_imputation.log')
-file_handler.setLevel(logging.DEBUG)
+    # Generate a unique log filename
+    base_log_name = f"mice_{datetime.now().strftime('%Y-%m-%d')}"
+    log_file_path = os.path.join(log_dir, f"{base_log_name}.log")
+    
+    counter = 1
+    while os.path.exists(log_file_path):
+        log_file_path = os.path.join(log_dir, f"{base_log_name}_{counter}.log")
+        counter += 1
 
-# Create formatters and add them to the handlers
-console_format = logging.Formatter('%(levelname)s - %(message)s')
-file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-console_handler.setFormatter(console_format)
-file_handler.setFormatter(file_format)
+    # Create console handler with a INFO log level
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
 
-# Add the handlers to the logger
-logger.addHandler(console_handler)
-logger.addHandler(file_handler)
+    # Create rotating file handler which logs even debug messages
+    # Rotate log file when it reaches 5MB, keep up to 5 old log files.
+    file_handler = RotatingFileHandler(log_file_path, maxBytes=5 * 1024 * 1024, backupCount=5)
+    file_handler.setLevel(logging.DEBUG)
+
+    # Create formatters and add them to the handlers
+    console_format = logging.Formatter('%(levelname)s - %(message)s')
+    file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_format)
+    file_handler.setFormatter(file_format)
+
+    # Add the handlers to the logger
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
+
 
 from .validators import (
     validate_dataframe,
@@ -145,7 +165,7 @@ class MICE:
             Binary matrix indicating which variables should be used as predictors
             for each target variable. Should have column names as both index and columns.
             A 1 indicates that the column variable is used as predictor for the index variable.
-            If None, all variables are used as predictors for each target.
+            If None, a predictor matrix is estimated using `_quickpred`.
             
         initial : str, default=DEFAULT_INITIAL_METHOD
             Initial imputation method. Must be one of SUPPORTED_INITIAL_METHODS.
@@ -163,7 +183,12 @@ class MICE:
             - List[str]: list of column names specifying the order to visit variables
             
         **kwargs : dict
-            Additional keyword arguments for future extensions
+            Additional keyword arguments for `_quickpred` when `predictor_matrix` is not specified:
+            - `min_cor` (float, default=0.1): Minimum correlation for a predictor.
+            - `min_puc` (float, default=0.0): Minimum proportion of usable cases.
+            - `include` (list, optional): Columns to always include as predictors.
+            - `exclude` (list, optional): Columns to always exclude as predictors.
+            - `method` (str, default="pearson"): Correlation method.
         """
         logger.info("Starting imputation process")
         logger.debug(f"Parameters: n_imputations={n_imputations}, maxit={maxit}, "
@@ -175,7 +200,20 @@ class MICE:
         check_maxit(maxit)
         check_initial_method(initial)
         
-        if predictor_matrix is not None:
+        if predictor_matrix is None:
+            min_cor = kwargs.pop('min_cor', 0.1)
+            min_puc = kwargs.pop('min_puc', 0.0)
+            include = kwargs.pop('include', None)
+            exclude = kwargs.pop('exclude', None)
+            method = kwargs.pop('method', 'pearson')
+            predictor_matrix = self._quickpred(
+                min_cor=min_cor, 
+                min_puc=min_puc, 
+                include=include, 
+                exclude=exclude, 
+                method=method
+            )
+        else:
             predictor_matrix = validate_predictor_matrix(predictor_matrix, list(self.data.columns), self.data)
             logger.debug("Predictor matrix validated successfully")
         
@@ -221,6 +259,73 @@ class MICE:
         logger.debug(f"  - Method: {self.method}")
         logger.debug(f"  - Visit sequence: {self.visit_sequence}")
         logger.debug(f"  - Predictor matrix provided: {self.predictor_matrix is not None}")
+
+    def _quickpred(
+        self, 
+        min_cor: float = 0.1, 
+        min_puc: float = 0.0, 
+        include: Optional[List[str]] = None,
+        exclude: Optional[List[str]] = None,
+        method: str = "pearson"
+    ) -> pd.DataFrame:
+        """
+        Generate a predictor matrix based on correlation and proportion of usable cases.
+        
+        This method is inspired by the `quickpred` function from the R `mice` package.
+        
+        Parameters
+        ----------
+        min_cor : float, default=0.1
+            The minimum absolute correlation required to be included as a predictor.
+        min_puc : float, default=0.0
+            The minimum proportion of usable cases for correlation calculation.
+        include : list of str, optional
+            Columns to always include as predictors.
+        exclude : list of str, optional
+            Columns to always exclude as predictors.
+        method : str, default="pearson"
+            The correlation method to use ('pearson', 'kendall', 'spearman').
+        
+        Returns
+        -------
+        pd.DataFrame
+            A square binary matrix indicating predictor relationships.
+        """
+        logger.info(f"Estimating predictor matrix with min_cor={min_cor}, min_puc={min_puc}, method='{method}'")
+        
+        predictor_matrix = pd.DataFrame(0, index=self.data.columns, columns=self.data.columns)
+        
+        # Calculate correlation matrix
+        cor_matrix = self.data.corr(method=method)
+
+        for target_col in self.data.columns:
+            # Skip targets with no missing values
+            if self.id_obs[target_col].all():
+                continue
+
+            for predictor_col in self.data.columns:
+                if target_col == predictor_col:
+                    continue
+
+                # Proportion of usable cases
+                puc = self.data[[target_col, predictor_col]].notna().all(axis=1).mean()
+
+                if puc >= min_puc:
+                    correlation = cor_matrix.loc[target_col, predictor_col]
+                    if abs(correlation) >= min_cor:
+                        predictor_matrix.loc[target_col, predictor_col] = 1
+        
+        # Handle include and exclude lists
+        if include:
+            predictor_matrix.loc[:, include] = 1
+        if exclude:
+            predictor_matrix.loc[:, exclude] = 0
+            
+        # Ensure diagonal is zero
+        np.fill_diagonal(predictor_matrix.values, 0)
+        
+        logger.debug(f"Estimated predictor matrix:\n{predictor_matrix}")
+        return predictor_matrix
 
     def pool(self, summ: bool = False):
         """Pool column means across `self.imputed_datasets` using Rubin's rules.

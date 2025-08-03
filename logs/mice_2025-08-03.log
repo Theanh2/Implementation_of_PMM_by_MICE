@@ -1,0 +1,977 @@
+2025-08-03 16:44:51,585 - imputation.zh.MICE - INFO - Initializing MICE object
+2025-08-03 16:44:51,585 - imputation.zh.MICE - DEBUG - Input data shape: (25, 4)
+2025-08-03 16:44:51,586 - imputation.zh.MICE - DEBUG - Missing value statistics:
+2025-08-03 16:44:51,586 - imputation.zh.MICE - DEBUG -   age: 0 values (0.00%) missing
+2025-08-03 16:44:51,586 - imputation.zh.MICE - DEBUG -   bmi: 9 values (36.00%) missing
+2025-08-03 16:44:51,586 - imputation.zh.MICE - DEBUG -   hyp: 8 values (32.00%) missing
+2025-08-03 16:44:51,586 - imputation.zh.MICE - DEBUG -   chl: 10 values (40.00%) missing
+2025-08-03 16:44:51,586 - imputation.zh.MICE - INFO - MICE object initialized successfully
+2025-08-03 16:44:51,586 - imputation.zh.MICE - INFO - Starting imputation process
+2025-08-03 16:44:51,586 - imputation.zh.MICE - DEBUG - Parameters: n_imputations=5, maxit=10, initial=sample, method=pmm, visit_sequence=monotone
+2025-08-03 16:44:51,587 - imputation.zh.MICE - DEBUG - Predictor matrix validated successfully
+2025-08-03 16:44:51,588 - imputation.zh.MICE - DEBUG - Using imputation methods: {'age': 'pmm', 'bmi': 'pmm', 'hyp': 'pmm', 'chl': 'pmm'}
+2025-08-03 16:44:51,588 - imputation.zh.MICE - DEBUG - Visit sequence set to: ['bmi', 'hyp', 'chl']
+2025-08-03 16:44:51,588 - imputation.zh.MICE - INFO - Starting imputation chain 1/5
+2025-08-03 16:44:51,588 - imputation.zh.MICE - DEBUG - Starting imputation cycle for chain 0
+2025-08-03 16:44:51,588 - imputation.zh.MICE - DEBUG - Performing initial imputation
+2025-08-03 16:44:51,590 - imputation.zh.MICE - DEBUG - Starting iteration 1/10 for chain 0
+2025-08-03 16:44:51,590 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 1, chain 0)
+2025-08-03 16:44:51,590 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,590 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,592 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,592 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=23.4222, variance=9.3944
+2025-08-03 16:44:51,592 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 1, chain 0)
+2025-08-03 16:44:51,593 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,593 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,593 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,594 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.7500, variance=0.2143
+2025-08-03 16:44:51,594 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 1, chain 0)
+2025-08-03 16:44:51,594 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,594 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,595 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,595 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=232.2000, variance=2099.9556
+2025-08-03 16:44:51,595 - imputation.zh.MICE - DEBUG - Iteration 1 completed in 0.01 seconds
+2025-08-03 16:44:51,595 - imputation.zh.MICE - DEBUG - Completed iteration 1
+2025-08-03 16:44:51,595 - imputation.zh.MICE - DEBUG - Starting iteration 2/10 for chain 0
+2025-08-03 16:44:51,595 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 2, chain 0)
+2025-08-03 16:44:51,595 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,595 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,596 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,596 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=28.2889, variance=20.7936
+2025-08-03 16:44:51,596 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 2, chain 0)
+2025-08-03 16:44:51,596 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,596 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,597 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,597 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.6250, variance=0.2679
+2025-08-03 16:44:51,597 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 2, chain 0)
+2025-08-03 16:44:51,597 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,598 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,598 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,598 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=213.0000, variance=1598.4444
+2025-08-03 16:44:51,598 - imputation.zh.MICE - DEBUG - Iteration 2 completed in 0.00 seconds
+2025-08-03 16:44:51,598 - imputation.zh.MICE - DEBUG - Completed iteration 2
+2025-08-03 16:44:51,598 - imputation.zh.MICE - DEBUG - Starting iteration 3/10 for chain 0
+2025-08-03 16:44:51,598 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 3, chain 0)
+2025-08-03 16:44:51,599 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,599 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,599 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,600 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=28.8778, variance=26.0794
+2025-08-03 16:44:51,600 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 3, chain 0)
+2025-08-03 16:44:51,600 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,600 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,600 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,600 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,600 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 3, chain 0)
+2025-08-03 16:44:51,601 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,601 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,601 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,601 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=211.2000, variance=903.5111
+2025-08-03 16:44:51,601 - imputation.zh.MICE - DEBUG - Iteration 3 completed in 0.00 seconds
+2025-08-03 16:44:51,601 - imputation.zh.MICE - DEBUG - Completed iteration 3
+2025-08-03 16:44:51,601 - imputation.zh.MICE - DEBUG - Starting iteration 4/10 for chain 0
+2025-08-03 16:44:51,601 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 4, chain 0)
+2025-08-03 16:44:51,602 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,602 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,603 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,603 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=29.2000, variance=14.3050
+2025-08-03 16:44:51,603 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 4, chain 0)
+2025-08-03 16:44:51,603 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,604 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,604 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,604 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,604 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 4, chain 0)
+2025-08-03 16:44:51,604 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,604 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,605 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,605 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=155.1000, variance=3316.5444
+2025-08-03 16:44:51,605 - imputation.zh.MICE - DEBUG - Iteration 4 completed in 0.00 seconds
+2025-08-03 16:44:51,605 - imputation.zh.MICE - DEBUG - Completed iteration 4
+2025-08-03 16:44:51,605 - imputation.zh.MICE - DEBUG - Starting iteration 5/10 for chain 0
+2025-08-03 16:44:51,605 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 5, chain 0)
+2025-08-03 16:44:51,605 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,605 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,606 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,606 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=25.2444, variance=8.9553
+2025-08-03 16:44:51,606 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 5, chain 0)
+2025-08-03 16:44:51,607 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,607 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,607 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,607 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.2500, variance=0.2143
+2025-08-03 16:44:51,607 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 5, chain 0)
+2025-08-03 16:44:51,608 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,608 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,608 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,608 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=188.7000, variance=2704.0111
+2025-08-03 16:44:51,608 - imputation.zh.MICE - DEBUG - Iteration 5 completed in 0.00 seconds
+2025-08-03 16:44:51,608 - imputation.zh.MICE - DEBUG - Completed iteration 5
+2025-08-03 16:44:51,608 - imputation.zh.MICE - DEBUG - Starting iteration 6/10 for chain 0
+2025-08-03 16:44:51,608 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 6, chain 0)
+2025-08-03 16:44:51,609 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,609 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,609 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,609 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=24.9667, variance=11.6850
+2025-08-03 16:44:51,609 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 6, chain 0)
+2025-08-03 16:44:51,610 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,610 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,610 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,610 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,610 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 6, chain 0)
+2025-08-03 16:44:51,610 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,611 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,611 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,611 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=161.3000, variance=1660.9000
+2025-08-03 16:44:51,611 - imputation.zh.MICE - DEBUG - Iteration 6 completed in 0.00 seconds
+2025-08-03 16:44:51,611 - imputation.zh.MICE - DEBUG - Completed iteration 6
+2025-08-03 16:44:51,611 - imputation.zh.MICE - DEBUG - Starting iteration 7/10 for chain 0
+2025-08-03 16:44:51,611 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 7, chain 0)
+2025-08-03 16:44:51,611 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,612 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,612 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,612 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=24.3556, variance=9.9128
+2025-08-03 16:44:51,612 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 7, chain 0)
+2025-08-03 16:44:51,613 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,613 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,613 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,614 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.3750, variance=0.2679
+2025-08-03 16:44:51,614 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 7, chain 0)
+2025-08-03 16:44:51,614 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,614 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,614 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,614 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=159.7000, variance=2382.2333
+2025-08-03 16:44:51,614 - imputation.zh.MICE - DEBUG - Iteration 7 completed in 0.00 seconds
+2025-08-03 16:44:51,614 - imputation.zh.MICE - DEBUG - Completed iteration 7
+2025-08-03 16:44:51,615 - imputation.zh.MICE - DEBUG - Starting iteration 8/10 for chain 0
+2025-08-03 16:44:51,615 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 8, chain 0)
+2025-08-03 16:44:51,615 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,615 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,615 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,615 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=25.5556, variance=7.5028
+2025-08-03 16:44:51,615 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 8, chain 0)
+2025-08-03 16:44:51,616 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,616 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,616 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,616 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,616 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 8, chain 0)
+2025-08-03 16:44:51,617 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,617 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,617 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,618 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=230.6000, variance=1457.8222
+2025-08-03 16:44:51,618 - imputation.zh.MICE - DEBUG - Iteration 8 completed in 0.00 seconds
+2025-08-03 16:44:51,618 - imputation.zh.MICE - DEBUG - Completed iteration 8
+2025-08-03 16:44:51,618 - imputation.zh.MICE - DEBUG - Starting iteration 9/10 for chain 0
+2025-08-03 16:44:51,618 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 9, chain 0)
+2025-08-03 16:44:51,618 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,618 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,619 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,619 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=29.4333, variance=11.5900
+2025-08-03 16:44:51,619 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 9, chain 0)
+2025-08-03 16:44:51,619 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,620 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,620 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,620 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.6250, variance=0.2679
+2025-08-03 16:44:51,620 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 9, chain 0)
+2025-08-03 16:44:51,620 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,620 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,621 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,621 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=171.2000, variance=2772.4000
+2025-08-03 16:44:51,621 - imputation.zh.MICE - DEBUG - Iteration 9 completed in 0.00 seconds
+2025-08-03 16:44:51,621 - imputation.zh.MICE - DEBUG - Completed iteration 9
+2025-08-03 16:44:51,621 - imputation.zh.MICE - DEBUG - Starting iteration 10/10 for chain 0
+2025-08-03 16:44:51,621 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 10, chain 0)
+2025-08-03 16:44:51,622 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,622 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,622 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,623 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=27.5000, variance=20.7450
+2025-08-03 16:44:51,623 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 10, chain 0)
+2025-08-03 16:44:51,623 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,623 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,623 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,624 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,624 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 10, chain 0)
+2025-08-03 16:44:51,624 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,624 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,625 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,625 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=223.6000, variance=1862.0444
+2025-08-03 16:44:51,625 - imputation.zh.MICE - DEBUG - Iteration 10 completed in 0.00 seconds
+2025-08-03 16:44:51,625 - imputation.zh.MICE - DEBUG - Completed iteration 10
+2025-08-03 16:44:51,625 - imputation.zh.MICE - DEBUG - Completed imputation cycle for chain 0
+2025-08-03 16:44:51,625 - imputation.zh.MICE - INFO - Completed imputation chain 1
+2025-08-03 16:44:51,625 - imputation.zh.MICE - INFO - Starting imputation chain 2/5
+2025-08-03 16:44:51,625 - imputation.zh.MICE - DEBUG - Starting imputation cycle for chain 1
+2025-08-03 16:44:51,625 - imputation.zh.MICE - DEBUG - Performing initial imputation
+2025-08-03 16:44:51,627 - imputation.zh.MICE - DEBUG - Starting iteration 1/10 for chain 1
+2025-08-03 16:44:51,627 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 1, chain 1)
+2025-08-03 16:44:51,627 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,627 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,628 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,628 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=22.6667, variance=0.8100
+2025-08-03 16:44:51,628 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 1, chain 1)
+2025-08-03 16:44:51,628 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,628 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,628 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,629 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,629 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 1, chain 1)
+2025-08-03 16:44:51,629 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,629 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,629 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,629 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=157.9000, variance=2529.4333
+2025-08-03 16:44:51,629 - imputation.zh.MICE - DEBUG - Iteration 1 completed in 0.00 seconds
+2025-08-03 16:44:51,630 - imputation.zh.MICE - DEBUG - Completed iteration 1
+2025-08-03 16:44:51,630 - imputation.zh.MICE - DEBUG - Starting iteration 2/10 for chain 1
+2025-08-03 16:44:51,630 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 2, chain 1)
+2025-08-03 16:44:51,630 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,630 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,630 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,630 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=25.2667, variance=15.0725
+2025-08-03 16:44:51,630 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 2, chain 1)
+2025-08-03 16:44:51,631 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,631 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,631 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,631 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.6250, variance=0.2679
+2025-08-03 16:44:51,631 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 2, chain 1)
+2025-08-03 16:44:51,632 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,632 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,632 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,632 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=221.0000, variance=1180.6667
+2025-08-03 16:44:51,632 - imputation.zh.MICE - DEBUG - Iteration 2 completed in 0.00 seconds
+2025-08-03 16:44:51,632 - imputation.zh.MICE - DEBUG - Completed iteration 2
+2025-08-03 16:44:51,632 - imputation.zh.MICE - DEBUG - Starting iteration 3/10 for chain 1
+2025-08-03 16:44:51,632 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 3, chain 1)
+2025-08-03 16:44:51,632 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,633 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,633 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,633 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=27.6444, variance=12.9153
+2025-08-03 16:44:51,633 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 3, chain 1)
+2025-08-03 16:44:51,633 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,634 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,634 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,634 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.3750, variance=0.2679
+2025-08-03 16:44:51,634 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 3, chain 1)
+2025-08-03 16:44:51,634 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,635 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,635 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,635 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=220.6000, variance=1271.1556
+2025-08-03 16:44:51,635 - imputation.zh.MICE - DEBUG - Iteration 3 completed in 0.00 seconds
+2025-08-03 16:44:51,635 - imputation.zh.MICE - DEBUG - Completed iteration 3
+2025-08-03 16:44:51,635 - imputation.zh.MICE - DEBUG - Starting iteration 4/10 for chain 1
+2025-08-03 16:44:51,635 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 4, chain 1)
+2025-08-03 16:44:51,635 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,635 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,636 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,636 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=23.9778, variance=4.1744
+2025-08-03 16:44:51,636 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 4, chain 1)
+2025-08-03 16:44:51,636 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,636 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,636 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,637 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.6250, variance=0.2679
+2025-08-03 16:44:51,637 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 4, chain 1)
+2025-08-03 16:44:51,637 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,637 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,637 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,637 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=194.4000, variance=2610.0444
+2025-08-03 16:44:51,637 - imputation.zh.MICE - DEBUG - Iteration 4 completed in 0.00 seconds
+2025-08-03 16:44:51,637 - imputation.zh.MICE - DEBUG - Completed iteration 4
+2025-08-03 16:44:51,637 - imputation.zh.MICE - DEBUG - Starting iteration 5/10 for chain 1
+2025-08-03 16:44:51,638 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 5, chain 1)
+2025-08-03 16:44:51,638 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,638 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,638 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,638 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=30.0000, variance=7.7100
+2025-08-03 16:44:51,638 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 5, chain 1)
+2025-08-03 16:44:51,639 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,639 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,639 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,639 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,639 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 5, chain 1)
+2025-08-03 16:44:51,639 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,639 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,640 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,640 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=120.4000, variance=58.2667
+2025-08-03 16:44:51,640 - imputation.zh.MICE - DEBUG - Iteration 5 completed in 0.00 seconds
+2025-08-03 16:44:51,640 - imputation.zh.MICE - DEBUG - Completed iteration 5
+2025-08-03 16:44:51,640 - imputation.zh.MICE - DEBUG - Starting iteration 6/10 for chain 1
+2025-08-03 16:44:51,640 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 6, chain 1)
+2025-08-03 16:44:51,640 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,641 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,641 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,641 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=24.4889, variance=10.5386
+2025-08-03 16:44:51,641 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 6, chain 1)
+2025-08-03 16:44:51,641 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,642 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,642 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,642 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.1250, variance=0.1250
+2025-08-03 16:44:51,642 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 6, chain 1)
+2025-08-03 16:44:51,643 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,643 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,644 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,644 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=160.2000, variance=3380.1778
+2025-08-03 16:44:51,644 - imputation.zh.MICE - DEBUG - Iteration 6 completed in 0.00 seconds
+2025-08-03 16:44:51,644 - imputation.zh.MICE - DEBUG - Completed iteration 6
+2025-08-03 16:44:51,644 - imputation.zh.MICE - DEBUG - Starting iteration 7/10 for chain 1
+2025-08-03 16:44:51,644 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 7, chain 1)
+2025-08-03 16:44:51,644 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,644 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,645 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,645 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=23.7111, variance=3.6811
+2025-08-03 16:44:51,645 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 7, chain 1)
+2025-08-03 16:44:51,645 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,645 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,646 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,646 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,646 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 7, chain 1)
+2025-08-03 16:44:51,646 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,646 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,646 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,647 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=147.0000, variance=2367.7778
+2025-08-03 16:44:51,647 - imputation.zh.MICE - DEBUG - Iteration 7 completed in 0.00 seconds
+2025-08-03 16:44:51,647 - imputation.zh.MICE - DEBUG - Completed iteration 7
+2025-08-03 16:44:51,647 - imputation.zh.MICE - DEBUG - Starting iteration 8/10 for chain 1
+2025-08-03 16:44:51,647 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 8, chain 1)
+2025-08-03 16:44:51,647 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,647 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,647 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,647 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=24.7667, variance=30.5850
+2025-08-03 16:44:51,648 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 8, chain 1)
+2025-08-03 16:44:51,648 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,648 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,648 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,648 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.5000, variance=0.2857
+2025-08-03 16:44:51,648 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 8, chain 1)
+2025-08-03 16:44:51,649 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,649 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,649 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,649 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=198.8000, variance=249.9556
+2025-08-03 16:44:51,649 - imputation.zh.MICE - DEBUG - Iteration 8 completed in 0.00 seconds
+2025-08-03 16:44:51,649 - imputation.zh.MICE - DEBUG - Completed iteration 8
+2025-08-03 16:44:51,649 - imputation.zh.MICE - DEBUG - Starting iteration 9/10 for chain 1
+2025-08-03 16:44:51,649 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 9, chain 1)
+2025-08-03 16:44:51,649 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,650 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,650 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,650 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=26.1444, variance=13.4628
+2025-08-03 16:44:51,650 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 9, chain 1)
+2025-08-03 16:44:51,650 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,651 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,651 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,651 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,651 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 9, chain 1)
+2025-08-03 16:44:51,651 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,652 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,652 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,652 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=141.1000, variance=1058.7667
+2025-08-03 16:44:51,652 - imputation.zh.MICE - DEBUG - Iteration 9 completed in 0.00 seconds
+2025-08-03 16:44:51,652 - imputation.zh.MICE - DEBUG - Completed iteration 9
+2025-08-03 16:44:51,652 - imputation.zh.MICE - DEBUG - Starting iteration 10/10 for chain 1
+2025-08-03 16:44:51,652 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 10, chain 1)
+2025-08-03 16:44:51,652 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,653 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,653 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,653 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=23.1000, variance=3.9725
+2025-08-03 16:44:51,653 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 10, chain 1)
+2025-08-03 16:44:51,653 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,653 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,654 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,654 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,654 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 10, chain 1)
+2025-08-03 16:44:51,654 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,654 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,654 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,655 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=209.7000, variance=1611.5667
+2025-08-03 16:44:51,655 - imputation.zh.MICE - DEBUG - Iteration 10 completed in 0.00 seconds
+2025-08-03 16:44:51,655 - imputation.zh.MICE - DEBUG - Completed iteration 10
+2025-08-03 16:44:51,655 - imputation.zh.MICE - DEBUG - Completed imputation cycle for chain 1
+2025-08-03 16:44:51,655 - imputation.zh.MICE - INFO - Completed imputation chain 2
+2025-08-03 16:44:51,655 - imputation.zh.MICE - INFO - Starting imputation chain 3/5
+2025-08-03 16:44:51,655 - imputation.zh.MICE - DEBUG - Starting imputation cycle for chain 2
+2025-08-03 16:44:51,655 - imputation.zh.MICE - DEBUG - Performing initial imputation
+2025-08-03 16:44:51,656 - imputation.zh.MICE - DEBUG - Starting iteration 1/10 for chain 2
+2025-08-03 16:44:51,656 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 1, chain 2)
+2025-08-03 16:44:51,656 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,656 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,656 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,657 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=26.3556, variance=10.1453
+2025-08-03 16:44:51,657 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 1, chain 2)
+2025-08-03 16:44:51,657 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,657 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,657 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,657 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.7500, variance=0.2143
+2025-08-03 16:44:51,657 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 1, chain 2)
+2025-08-03 16:44:51,658 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,658 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,658 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,658 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=154.9000, variance=2312.7667
+2025-08-03 16:44:51,658 - imputation.zh.MICE - DEBUG - Iteration 1 completed in 0.00 seconds
+2025-08-03 16:44:51,658 - imputation.zh.MICE - DEBUG - Completed iteration 1
+2025-08-03 16:44:51,658 - imputation.zh.MICE - DEBUG - Starting iteration 2/10 for chain 2
+2025-08-03 16:44:51,658 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 2, chain 2)
+2025-08-03 16:44:51,659 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,659 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,660 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,660 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=30.7556, variance=9.0928
+2025-08-03 16:44:51,660 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 2, chain 2)
+2025-08-03 16:44:51,660 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,661 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,661 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,661 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,661 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 2, chain 2)
+2025-08-03 16:44:51,662 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,662 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,662 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,662 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=164.3000, variance=3006.2333
+2025-08-03 16:44:51,662 - imputation.zh.MICE - DEBUG - Iteration 2 completed in 0.00 seconds
+2025-08-03 16:44:51,662 - imputation.zh.MICE - DEBUG - Completed iteration 2
+2025-08-03 16:44:51,662 - imputation.zh.MICE - DEBUG - Starting iteration 3/10 for chain 2
+2025-08-03 16:44:51,662 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 3, chain 2)
+2025-08-03 16:44:51,663 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,663 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,663 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,664 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=32.0222, variance=7.4294
+2025-08-03 16:44:51,664 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 3, chain 2)
+2025-08-03 16:44:51,664 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,664 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,665 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,665 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.7500, variance=0.2143
+2025-08-03 16:44:51,665 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 3, chain 2)
+2025-08-03 16:44:51,665 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,665 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,666 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,666 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=141.3000, variance=2068.6778
+2025-08-03 16:44:51,666 - imputation.zh.MICE - DEBUG - Iteration 3 completed in 0.00 seconds
+2025-08-03 16:44:51,666 - imputation.zh.MICE - DEBUG - Completed iteration 3
+2025-08-03 16:44:51,666 - imputation.zh.MICE - DEBUG - Starting iteration 4/10 for chain 2
+2025-08-03 16:44:51,666 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 4, chain 2)
+2025-08-03 16:44:51,666 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,666 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,667 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,667 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=31.0000, variance=5.3925
+2025-08-03 16:44:51,667 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 4, chain 2)
+2025-08-03 16:44:51,667 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,667 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,668 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,668 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,668 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 4, chain 2)
+2025-08-03 16:44:51,668 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,668 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,669 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,669 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=219.2000, variance=1171.5111
+2025-08-03 16:44:51,669 - imputation.zh.MICE - DEBUG - Iteration 4 completed in 0.00 seconds
+2025-08-03 16:44:51,669 - imputation.zh.MICE - DEBUG - Completed iteration 4
+2025-08-03 16:44:51,669 - imputation.zh.MICE - DEBUG - Starting iteration 5/10 for chain 2
+2025-08-03 16:44:51,669 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 5, chain 2)
+2025-08-03 16:44:51,669 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,669 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,670 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,670 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=26.2333, variance=6.9475
+2025-08-03 16:44:51,670 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 5, chain 2)
+2025-08-03 16:44:51,670 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,671 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,671 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,671 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.5000, variance=0.2857
+2025-08-03 16:44:51,671 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 5, chain 2)
+2025-08-03 16:44:51,672 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,672 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,672 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,672 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=139.0000, variance=1679.3333
+2025-08-03 16:44:51,673 - imputation.zh.MICE - DEBUG - Iteration 5 completed in 0.00 seconds
+2025-08-03 16:44:51,673 - imputation.zh.MICE - DEBUG - Completed iteration 5
+2025-08-03 16:44:51,673 - imputation.zh.MICE - DEBUG - Starting iteration 6/10 for chain 2
+2025-08-03 16:44:51,673 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 6, chain 2)
+2025-08-03 16:44:51,673 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,673 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,674 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,674 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=26.7889, variance=18.5061
+2025-08-03 16:44:51,674 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 6, chain 2)
+2025-08-03 16:44:51,674 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,675 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,675 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,675 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,675 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 6, chain 2)
+2025-08-03 16:44:51,675 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,676 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,676 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,676 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=213.4000, variance=1523.6000
+2025-08-03 16:44:51,676 - imputation.zh.MICE - DEBUG - Iteration 6 completed in 0.00 seconds
+2025-08-03 16:44:51,676 - imputation.zh.MICE - DEBUG - Completed iteration 6
+2025-08-03 16:44:51,676 - imputation.zh.MICE - DEBUG - Starting iteration 7/10 for chain 2
+2025-08-03 16:44:51,676 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 7, chain 2)
+2025-08-03 16:44:51,676 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,677 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,677 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,677 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=25.3444, variance=22.8128
+2025-08-03 16:44:51,677 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 7, chain 2)
+2025-08-03 16:44:51,677 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,677 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,678 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,678 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.7500, variance=0.2143
+2025-08-03 16:44:51,678 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 7, chain 2)
+2025-08-03 16:44:51,678 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,678 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,678 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,679 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=155.1000, variance=2758.5444
+2025-08-03 16:44:51,679 - imputation.zh.MICE - DEBUG - Iteration 7 completed in 0.00 seconds
+2025-08-03 16:44:51,679 - imputation.zh.MICE - DEBUG - Completed iteration 7
+2025-08-03 16:44:51,679 - imputation.zh.MICE - DEBUG - Starting iteration 8/10 for chain 2
+2025-08-03 16:44:51,679 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 8, chain 2)
+2025-08-03 16:44:51,679 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,679 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,679 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,679 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=26.2333, variance=14.2625
+2025-08-03 16:44:51,679 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 8, chain 2)
+2025-08-03 16:44:51,680 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,680 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,680 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,681 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,681 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 8, chain 2)
+2025-08-03 16:44:51,681 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,681 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,682 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,682 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=147.2000, variance=1211.7333
+2025-08-03 16:44:51,682 - imputation.zh.MICE - DEBUG - Iteration 8 completed in 0.00 seconds
+2025-08-03 16:44:51,682 - imputation.zh.MICE - DEBUG - Completed iteration 8
+2025-08-03 16:44:51,682 - imputation.zh.MICE - DEBUG - Starting iteration 9/10 for chain 2
+2025-08-03 16:44:51,682 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 9, chain 2)
+2025-08-03 16:44:51,682 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,683 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,683 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,683 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=24.4889, variance=11.6886
+2025-08-03 16:44:51,683 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 9, chain 2)
+2025-08-03 16:44:51,683 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,684 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,684 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,684 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.2500, variance=0.2143
+2025-08-03 16:44:51,684 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 9, chain 2)
+2025-08-03 16:44:51,684 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,684 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,685 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,685 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=208.4000, variance=102.9333
+2025-08-03 16:44:51,685 - imputation.zh.MICE - DEBUG - Iteration 9 completed in 0.00 seconds
+2025-08-03 16:44:51,685 - imputation.zh.MICE - DEBUG - Completed iteration 9
+2025-08-03 16:44:51,685 - imputation.zh.MICE - DEBUG - Starting iteration 10/10 for chain 2
+2025-08-03 16:44:51,685 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 10, chain 2)
+2025-08-03 16:44:51,685 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,685 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,685 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,686 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=31.5667, variance=7.8250
+2025-08-03 16:44:51,686 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 10, chain 2)
+2025-08-03 16:44:51,686 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,686 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,686 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,686 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.3750, variance=0.2679
+2025-08-03 16:44:51,686 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 10, chain 2)
+2025-08-03 16:44:51,687 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,687 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,687 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,687 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=142.1000, variance=1000.7667
+2025-08-03 16:44:51,687 - imputation.zh.MICE - DEBUG - Iteration 10 completed in 0.00 seconds
+2025-08-03 16:44:51,687 - imputation.zh.MICE - DEBUG - Completed iteration 10
+2025-08-03 16:44:51,687 - imputation.zh.MICE - DEBUG - Completed imputation cycle for chain 2
+2025-08-03 16:44:51,687 - imputation.zh.MICE - INFO - Completed imputation chain 3
+2025-08-03 16:44:51,687 - imputation.zh.MICE - INFO - Starting imputation chain 4/5
+2025-08-03 16:44:51,687 - imputation.zh.MICE - DEBUG - Starting imputation cycle for chain 3
+2025-08-03 16:44:51,687 - imputation.zh.MICE - DEBUG - Performing initial imputation
+2025-08-03 16:44:51,688 - imputation.zh.MICE - DEBUG - Starting iteration 1/10 for chain 3
+2025-08-03 16:44:51,688 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 1, chain 3)
+2025-08-03 16:44:51,688 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,688 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,689 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,689 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=28.6667, variance=9.2950
+2025-08-03 16:44:51,689 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 1, chain 3)
+2025-08-03 16:44:51,689 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,689 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,690 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,690 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.2500, variance=0.2143
+2025-08-03 16:44:51,690 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 1, chain 3)
+2025-08-03 16:44:51,690 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,691 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,691 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,691 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=179.5000, variance=2576.7222
+2025-08-03 16:44:51,691 - imputation.zh.MICE - DEBUG - Iteration 1 completed in 0.00 seconds
+2025-08-03 16:44:51,691 - imputation.zh.MICE - DEBUG - Completed iteration 1
+2025-08-03 16:44:51,691 - imputation.zh.MICE - DEBUG - Starting iteration 2/10 for chain 3
+2025-08-03 16:44:51,691 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 2, chain 3)
+2025-08-03 16:44:51,692 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,692 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,692 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,692 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=28.1778, variance=23.1744
+2025-08-03 16:44:51,692 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 2, chain 3)
+2025-08-03 16:44:51,692 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,693 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,693 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,693 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.3750, variance=0.2679
+2025-08-03 16:44:51,693 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 2, chain 3)
+2025-08-03 16:44:51,693 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,693 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,694 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,694 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=160.7000, variance=2772.2333
+2025-08-03 16:44:51,694 - imputation.zh.MICE - DEBUG - Iteration 2 completed in 0.00 seconds
+2025-08-03 16:44:51,694 - imputation.zh.MICE - DEBUG - Completed iteration 2
+2025-08-03 16:44:51,694 - imputation.zh.MICE - DEBUG - Starting iteration 3/10 for chain 3
+2025-08-03 16:44:51,694 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 3, chain 3)
+2025-08-03 16:44:51,694 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,694 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,694 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,695 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=23.7556, variance=6.3903
+2025-08-03 16:44:51,695 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 3, chain 3)
+2025-08-03 16:44:51,695 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,695 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,695 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,695 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.7500, variance=0.2143
+2025-08-03 16:44:51,695 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 3, chain 3)
+2025-08-03 16:44:51,696 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,696 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,696 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,696 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=209.8000, variance=843.9556
+2025-08-03 16:44:51,696 - imputation.zh.MICE - DEBUG - Iteration 3 completed in 0.00 seconds
+2025-08-03 16:44:51,696 - imputation.zh.MICE - DEBUG - Completed iteration 3
+2025-08-03 16:44:51,696 - imputation.zh.MICE - DEBUG - Starting iteration 4/10 for chain 3
+2025-08-03 16:44:51,696 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 4, chain 3)
+2025-08-03 16:44:51,696 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,697 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,697 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,697 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=32.0556, variance=12.5528
+2025-08-03 16:44:51,697 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 4, chain 3)
+2025-08-03 16:44:51,697 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,697 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,698 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,698 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,698 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 4, chain 3)
+2025-08-03 16:44:51,698 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,698 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,699 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,699 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=208.9000, variance=738.1000
+2025-08-03 16:44:51,699 - imputation.zh.MICE - DEBUG - Iteration 4 completed in 0.00 seconds
+2025-08-03 16:44:51,699 - imputation.zh.MICE - DEBUG - Completed iteration 4
+2025-08-03 16:44:51,699 - imputation.zh.MICE - DEBUG - Starting iteration 5/10 for chain 3
+2025-08-03 16:44:51,699 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 5, chain 3)
+2025-08-03 16:44:51,699 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,699 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,700 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,700 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=23.8333, variance=6.1675
+2025-08-03 16:44:51,700 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 5, chain 3)
+2025-08-03 16:44:51,700 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,700 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,701 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,701 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,701 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 5, chain 3)
+2025-08-03 16:44:51,701 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,702 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,702 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,703 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=168.4000, variance=1478.9333
+2025-08-03 16:44:51,703 - imputation.zh.MICE - DEBUG - Iteration 5 completed in 0.00 seconds
+2025-08-03 16:44:51,703 - imputation.zh.MICE - DEBUG - Completed iteration 5
+2025-08-03 16:44:51,703 - imputation.zh.MICE - DEBUG - Starting iteration 6/10 for chain 3
+2025-08-03 16:44:51,703 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 6, chain 3)
+2025-08-03 16:44:51,703 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,703 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,704 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,704 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=27.3222, variance=30.0469
+2025-08-03 16:44:51,704 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 6, chain 3)
+2025-08-03 16:44:51,704 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,704 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,705 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,705 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,705 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 6, chain 3)
+2025-08-03 16:44:51,705 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,705 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,706 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,706 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=206.0000, variance=930.6667
+2025-08-03 16:44:51,706 - imputation.zh.MICE - DEBUG - Iteration 6 completed in 0.00 seconds
+2025-08-03 16:44:51,706 - imputation.zh.MICE - DEBUG - Completed iteration 6
+2025-08-03 16:44:51,706 - imputation.zh.MICE - DEBUG - Starting iteration 7/10 for chain 3
+2025-08-03 16:44:51,706 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 7, chain 3)
+2025-08-03 16:44:51,707 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,707 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,707 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,707 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=27.4556, variance=8.3828
+2025-08-03 16:44:51,708 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 7, chain 3)
+2025-08-03 16:44:51,708 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,708 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,708 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,708 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.1250, variance=0.1250
+2025-08-03 16:44:51,708 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 7, chain 3)
+2025-08-03 16:44:51,709 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,709 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,709 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,709 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=160.7000, variance=3330.2333
+2025-08-03 16:44:51,709 - imputation.zh.MICE - DEBUG - Iteration 7 completed in 0.00 seconds
+2025-08-03 16:44:51,709 - imputation.zh.MICE - DEBUG - Completed iteration 7
+2025-08-03 16:44:51,709 - imputation.zh.MICE - DEBUG - Starting iteration 8/10 for chain 3
+2025-08-03 16:44:51,709 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 8, chain 3)
+2025-08-03 16:44:51,709 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,710 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,710 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,710 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=23.6111, variance=3.9636
+2025-08-03 16:44:51,710 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 8, chain 3)
+2025-08-03 16:44:51,710 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,710 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,711 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,711 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,711 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 8, chain 3)
+2025-08-03 16:44:51,711 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,712 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,712 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,712 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=154.3000, variance=2802.2333
+2025-08-03 16:44:51,712 - imputation.zh.MICE - DEBUG - Iteration 8 completed in 0.00 seconds
+2025-08-03 16:44:51,712 - imputation.zh.MICE - DEBUG - Completed iteration 8
+2025-08-03 16:44:51,712 - imputation.zh.MICE - DEBUG - Starting iteration 9/10 for chain 3
+2025-08-03 16:44:51,712 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 9, chain 3)
+2025-08-03 16:44:51,713 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,713 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,713 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,713 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=27.2111, variance=15.8186
+2025-08-03 16:44:51,713 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 9, chain 3)
+2025-08-03 16:44:51,714 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,714 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,714 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,714 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.1250, variance=0.1250
+2025-08-03 16:44:51,714 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 9, chain 3)
+2025-08-03 16:44:51,715 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,715 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,715 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,715 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=181.1000, variance=2494.7667
+2025-08-03 16:44:51,715 - imputation.zh.MICE - DEBUG - Iteration 9 completed in 0.00 seconds
+2025-08-03 16:44:51,715 - imputation.zh.MICE - DEBUG - Completed iteration 9
+2025-08-03 16:44:51,715 - imputation.zh.MICE - DEBUG - Starting iteration 10/10 for chain 3
+2025-08-03 16:44:51,715 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 10, chain 3)
+2025-08-03 16:44:51,716 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,716 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,716 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,716 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=25.3111, variance=6.9461
+2025-08-03 16:44:51,716 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 10, chain 3)
+2025-08-03 16:44:51,716 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,717 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,717 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,717 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,717 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 10, chain 3)
+2025-08-03 16:44:51,717 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,717 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,718 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,718 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=205.8000, variance=907.9556
+2025-08-03 16:44:51,718 - imputation.zh.MICE - DEBUG - Iteration 10 completed in 0.00 seconds
+2025-08-03 16:44:51,718 - imputation.zh.MICE - DEBUG - Completed iteration 10
+2025-08-03 16:44:51,718 - imputation.zh.MICE - DEBUG - Completed imputation cycle for chain 3
+2025-08-03 16:44:51,718 - imputation.zh.MICE - INFO - Completed imputation chain 4
+2025-08-03 16:44:51,718 - imputation.zh.MICE - INFO - Starting imputation chain 5/5
+2025-08-03 16:44:51,718 - imputation.zh.MICE - DEBUG - Starting imputation cycle for chain 4
+2025-08-03 16:44:51,718 - imputation.zh.MICE - DEBUG - Performing initial imputation
+2025-08-03 16:44:51,719 - imputation.zh.MICE - DEBUG - Starting iteration 1/10 for chain 4
+2025-08-03 16:44:51,719 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 1, chain 4)
+2025-08-03 16:44:51,719 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,719 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,719 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,719 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=29.2889, variance=16.9686
+2025-08-03 16:44:51,719 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 1, chain 4)
+2025-08-03 16:44:51,720 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,720 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,720 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,720 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,720 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 1, chain 4)
+2025-08-03 16:44:51,720 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,721 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,721 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,722 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=206.6000, variance=16.9333
+2025-08-03 16:44:51,722 - imputation.zh.MICE - DEBUG - Iteration 1 completed in 0.00 seconds
+2025-08-03 16:44:51,722 - imputation.zh.MICE - DEBUG - Completed iteration 1
+2025-08-03 16:44:51,722 - imputation.zh.MICE - DEBUG - Starting iteration 2/10 for chain 4
+2025-08-03 16:44:51,722 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 2, chain 4)
+2025-08-03 16:44:51,722 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,722 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,723 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,723 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=29.5889, variance=5.9036
+2025-08-03 16:44:51,723 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 2, chain 4)
+2025-08-03 16:44:51,723 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,724 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,724 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,724 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.2500, variance=0.2143
+2025-08-03 16:44:51,724 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 2, chain 4)
+2025-08-03 16:44:51,725 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,725 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,725 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,726 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=150.5000, variance=2598.5000
+2025-08-03 16:44:51,726 - imputation.zh.MICE - DEBUG - Iteration 2 completed in 0.00 seconds
+2025-08-03 16:44:51,726 - imputation.zh.MICE - DEBUG - Completed iteration 2
+2025-08-03 16:44:51,726 - imputation.zh.MICE - DEBUG - Starting iteration 3/10 for chain 4
+2025-08-03 16:44:51,726 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 3, chain 4)
+2025-08-03 16:44:51,726 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,726 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,727 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,727 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=25.0556, variance=6.1403
+2025-08-03 16:44:51,727 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 3, chain 4)
+2025-08-03 16:44:51,727 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,727 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,728 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,728 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.6250, variance=0.2679
+2025-08-03 16:44:51,728 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 3, chain 4)
+2025-08-03 16:44:51,728 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,728 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,729 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,729 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=133.2000, variance=871.5111
+2025-08-03 16:44:51,729 - imputation.zh.MICE - DEBUG - Iteration 3 completed in 0.00 seconds
+2025-08-03 16:44:51,729 - imputation.zh.MICE - DEBUG - Completed iteration 3
+2025-08-03 16:44:51,729 - imputation.zh.MICE - DEBUG - Starting iteration 4/10 for chain 4
+2025-08-03 16:44:51,729 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 4, chain 4)
+2025-08-03 16:44:51,729 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,729 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,730 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,730 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=22.2444, variance=1.5328
+2025-08-03 16:44:51,730 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 4, chain 4)
+2025-08-03 16:44:51,730 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,730 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,730 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,731 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,731 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 4, chain 4)
+2025-08-03 16:44:51,731 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,731 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,731 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,731 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=177.3000, variance=2641.3444
+2025-08-03 16:44:51,732 - imputation.zh.MICE - DEBUG - Iteration 4 completed in 0.00 seconds
+2025-08-03 16:44:51,732 - imputation.zh.MICE - DEBUG - Completed iteration 4
+2025-08-03 16:44:51,732 - imputation.zh.MICE - DEBUG - Starting iteration 5/10 for chain 4
+2025-08-03 16:44:51,732 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 5, chain 4)
+2025-08-03 16:44:51,732 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,732 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,733 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,733 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=25.0111, variance=7.3436
+2025-08-03 16:44:51,733 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 5, chain 4)
+2025-08-03 16:44:51,733 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,733 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,733 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,734 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.2500, variance=0.2143
+2025-08-03 16:44:51,734 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 5, chain 4)
+2025-08-03 16:44:51,734 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,734 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,735 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,735 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=143.4000, variance=948.0444
+2025-08-03 16:44:51,735 - imputation.zh.MICE - DEBUG - Iteration 5 completed in 0.00 seconds
+2025-08-03 16:44:51,735 - imputation.zh.MICE - DEBUG - Completed iteration 5
+2025-08-03 16:44:51,735 - imputation.zh.MICE - DEBUG - Starting iteration 6/10 for chain 4
+2025-08-03 16:44:51,735 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 6, chain 4)
+2025-08-03 16:44:51,735 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,736 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,736 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,736 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=24.8111, variance=6.7436
+2025-08-03 16:44:51,736 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 6, chain 4)
+2025-08-03 16:44:51,736 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,736 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,737 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,737 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,737 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 6, chain 4)
+2025-08-03 16:44:51,737 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,737 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,737 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,738 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=236.2000, variance=1846.6222
+2025-08-03 16:44:51,738 - imputation.zh.MICE - DEBUG - Iteration 6 completed in 0.00 seconds
+2025-08-03 16:44:51,738 - imputation.zh.MICE - DEBUG - Completed iteration 6
+2025-08-03 16:44:51,738 - imputation.zh.MICE - DEBUG - Starting iteration 7/10 for chain 4
+2025-08-03 16:44:51,738 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 7, chain 4)
+2025-08-03 16:44:51,738 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,738 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,738 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,739 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=29.4444, variance=27.9578
+2025-08-03 16:44:51,739 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 7, chain 4)
+2025-08-03 16:44:51,739 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,739 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,740 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,740 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.6250, variance=0.2679
+2025-08-03 16:44:51,740 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 7, chain 4)
+2025-08-03 16:44:51,741 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,741 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,741 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,742 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=160.5000, variance=2328.9444
+2025-08-03 16:44:51,742 - imputation.zh.MICE - DEBUG - Iteration 7 completed in 0.00 seconds
+2025-08-03 16:44:51,742 - imputation.zh.MICE - DEBUG - Completed iteration 7
+2025-08-03 16:44:51,742 - imputation.zh.MICE - DEBUG - Starting iteration 8/10 for chain 4
+2025-08-03 16:44:51,742 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 8, chain 4)
+2025-08-03 16:44:51,742 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,742 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,743 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,743 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=26.3000, variance=30.8250
+2025-08-03 16:44:51,743 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 8, chain 4)
+2025-08-03 16:44:51,744 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,744 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,744 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,744 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.0000, variance=0.0000
+2025-08-03 16:44:51,744 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 8, chain 4)
+2025-08-03 16:44:51,745 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,745 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,745 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,745 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=178.3000, variance=3426.2333
+2025-08-03 16:44:51,745 - imputation.zh.MICE - DEBUG - Iteration 8 completed in 0.00 seconds
+2025-08-03 16:44:51,745 - imputation.zh.MICE - DEBUG - Completed iteration 8
+2025-08-03 16:44:51,745 - imputation.zh.MICE - DEBUG - Starting iteration 9/10 for chain 4
+2025-08-03 16:44:51,745 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 9, chain 4)
+2025-08-03 16:44:51,746 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,746 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,746 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,746 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=23.8111, variance=9.3811
+2025-08-03 16:44:51,746 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 9, chain 4)
+2025-08-03 16:44:51,746 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,747 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,747 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,747 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.2500, variance=0.2143
+2025-08-03 16:44:51,747 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 9, chain 4)
+2025-08-03 16:44:51,747 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,748 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,748 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,748 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=130.4000, variance=457.6000
+2025-08-03 16:44:51,748 - imputation.zh.MICE - DEBUG - Iteration 9 completed in 0.00 seconds
+2025-08-03 16:44:51,748 - imputation.zh.MICE - DEBUG - Completed iteration 9
+2025-08-03 16:44:51,748 - imputation.zh.MICE - DEBUG - Starting iteration 10/10 for chain 4
+2025-08-03 16:44:51,748 - imputation.zh.MICE - DEBUG - Processing column 'bmi' (iteration 10, chain 4)
+2025-08-03 16:44:51,748 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'bmi'
+2025-08-03 16:44:51,748 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'bmi'
+2025-08-03 16:44:51,749 - imputation.zh.MICE - DEBUG - Successfully imputed 9 values for column 'bmi'
+2025-08-03 16:44:51,749 - imputation.zh.MICE - DEBUG - Chain statistics for 'bmi': mean=31.4778, variance=11.3394
+2025-08-03 16:44:51,749 - imputation.zh.MICE - DEBUG - Processing column 'hyp' (iteration 10, chain 4)
+2025-08-03 16:44:51,749 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'hyp'
+2025-08-03 16:44:51,749 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'hyp'
+2025-08-03 16:44:51,750 - imputation.zh.MICE - DEBUG - Successfully imputed 8 values for column 'hyp'
+2025-08-03 16:44:51,750 - imputation.zh.MICE - DEBUG - Chain statistics for 'hyp': mean=1.1250, variance=0.1250
+2025-08-03 16:44:51,750 - imputation.zh.MICE - DEBUG - Processing column 'chl' (iteration 10, chain 4)
+2025-08-03 16:44:51,750 - imputation.zh.MICE - DEBUG - Using 3 predictors for column 'chl'
+2025-08-03 16:44:51,750 - imputation.zh.MICE - DEBUG - Using imputation method 'pmm' for column 'chl'
+2025-08-03 16:44:51,750 - imputation.zh.MICE - DEBUG - Successfully imputed 10 values for column 'chl'
+2025-08-03 16:44:51,751 - imputation.zh.MICE - DEBUG - Chain statistics for 'chl': mean=223.9000, variance=1785.8778
+2025-08-03 16:44:51,751 - imputation.zh.MICE - DEBUG - Iteration 10 completed in 0.00 seconds
+2025-08-03 16:44:51,751 - imputation.zh.MICE - DEBUG - Completed iteration 10
+2025-08-03 16:44:51,751 - imputation.zh.MICE - DEBUG - Completed imputation cycle for chain 4
+2025-08-03 16:44:51,751 - imputation.zh.MICE - INFO - Completed imputation chain 5
+2025-08-03 16:44:51,751 - imputation.zh.MICE - INFO - Imputation completed in 0.16 seconds
+2025-08-03 16:44:51,751 - imputation.zh.MICE - DEBUG - Final imputation statistics:
+2025-08-03 16:44:51,751 - imputation.zh.MICE - DEBUG -   - Number of imputations: 5
+2025-08-03 16:44:51,751 - imputation.zh.MICE - DEBUG -   - Maximum iterations: 10
+2025-08-03 16:44:51,751 - imputation.zh.MICE - DEBUG -   - Initial method: sample
+2025-08-03 16:44:51,751 - imputation.zh.MICE - DEBUG -   - Method: {'age': 'pmm', 'bmi': 'pmm', 'hyp': 'pmm', 'chl': 'pmm'}
+2025-08-03 16:44:51,751 - imputation.zh.MICE - DEBUG -   - Visit sequence: ['bmi', 'hyp', 'chl']
+2025-08-03 16:44:51,751 - imputation.zh.MICE - DEBUG -   - Predictor matrix provided: True
+2025-08-03 16:44:52,338 - imputation.zh.MICE - INFO - Chain statistics plot saved to additionalz/chain_stats.png
+2025-08-03 16:44:52,339 - imputation.zh.MICE - INFO - Starting pooling of imputed datasets
+2025-08-03 16:44:52,339 - imputation.zh.MICE - DEBUG - Pooling 5 imputed datasets
+2025-08-03 16:44:52,339 - imputation.zh.MICE - DEBUG - Found 4 numeric columns for pooling
+2025-08-03 16:44:52,339 - imputation.zh.MICE - DEBUG - Sample size: 25
+2025-08-03 16:44:52,339 - imputation.zh.MICE - DEBUG - Processing imputed dataset 1/5
+2025-08-03 16:44:52,340 - imputation.zh.MICE - DEBUG - Processing imputed dataset 2/5
+2025-08-03 16:44:52,340 - imputation.zh.MICE - DEBUG - Processing imputed dataset 3/5
+2025-08-03 16:44:52,340 - imputation.zh.MICE - DEBUG - Processing imputed dataset 4/5
+2025-08-03 16:44:52,340 - imputation.zh.MICE - DEBUG - Processing imputed dataset 5/5
+2025-08-03 16:44:52,340 - imputation.zh.MICE - DEBUG - Applying Rubin's rules for pooling
+2025-08-03 16:44:52,340 - imputation.zh.MICE - DEBUG - Pooling statistics for 'age':
+2025-08-03 16:44:52,340 - imputation.zh.MICE - DEBUG -   - Pooled estimate: 1.7600
+2025-08-03 16:44:52,340 - imputation.zh.MICE - DEBUG -   - Total variance: 0.0276
+2025-08-03 16:44:52,340 - imputation.zh.MICE - DEBUG -   - Fraction of missing information: 0.0000
+2025-08-03 16:44:52,340 - imputation.zh.MICE - DEBUG - Pooling statistics for 'bmi':
+2025-08-03 16:44:52,340 - imputation.zh.MICE - DEBUG -   - Pooled estimate: 27.0048
+2025-08-03 16:44:52,341 - imputation.zh.MICE - DEBUG -   - Total variance: 2.8826
+2025-08-03 16:44:52,341 - imputation.zh.MICE - DEBUG -   - Fraction of missing information: 0.7565
+2025-08-03 16:44:52,341 - imputation.zh.MICE - DEBUG - Pooling statistics for 'hyp':
+2025-08-03 16:44:52,341 - imputation.zh.MICE - DEBUG -   - Pooled estimate: 1.1920
+2025-08-03 16:44:52,341 - imputation.zh.MICE - DEBUG -   - Total variance: 0.0096
+2025-08-03 16:44:52,341 - imputation.zh.MICE - DEBUG -   - Fraction of missing information: 0.3387
+2025-08-03 16:44:52,341 - imputation.zh.MICE - DEBUG - Pooling statistics for 'chl':
+2025-08-03 16:44:52,341 - imputation.zh.MICE - DEBUG -   - Pooled estimate: 195.2480
+2025-08-03 16:44:52,341 - imputation.zh.MICE - DEBUG -   - Total variance: 300.2881
+2025-08-03 16:44:52,341 - imputation.zh.MICE - DEBUG -   - Fraction of missing information: 0.7358
+2025-08-03 16:44:52,341 - imputation.zh.MICE - DEBUG - Covariance matrix constructed
+2025-08-03 16:44:52,341 - imputation.zh.MICE - DEBUG - Creating results object
+2025-08-03 16:44:52,341 - imputation.zh.MICE - INFO - Pooling completed successfully
+2025-08-03 16:44:52,341 - imputation.zh.MICE - DEBUG - Generating summary
