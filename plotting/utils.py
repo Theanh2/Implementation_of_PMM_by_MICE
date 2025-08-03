@@ -61,7 +61,7 @@ def md_pattern_like(df):
 
     return summary_df
 
-def plot_missing_data_pattern(pattern_df, figsize=(8, 5), title="Missing Data Pattern", rotate_names=False):
+def plot_missing_data_pattern(pattern_df, figsize=(8, 5), title="Missing Data Pattern", rotate_names=False, save_path=None):
     """
     Plots the missing data pattern from a pattern dataframe.
     
@@ -75,6 +75,8 @@ def plot_missing_data_pattern(pattern_df, figsize=(8, 5), title="Missing Data Pa
         Title for the plot. Default is "Missing Data Pattern"
     rotate_names : bool, optional
         Whether to rotate column names 90 degrees. Default is False
+    save_path : str, optional
+        If provided, save the plot to this path instead of displaying it
         
     Returns:
     --------
@@ -130,8 +132,14 @@ def plot_missing_data_pattern(pattern_df, figsize=(8, 5), title="Missing Data Pa
             f"{int(pattern_df.loc['#miss_col'].iloc[-1])}", 
             ha='left', va='top', fontsize=10)
 
+    plt.title(title)
     plt.tight_layout(pad=0.4)
-    plt.show()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+    else:
+        plt.show()
 
     # Return the pattern matrix for textual output
     return pattern_df
