@@ -1,37 +1,41 @@
 import numpy as np
 import pandas as pd
 from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
-from typing import Union, Optional, Tuple
+from typing import Union, Optional
+import logging
+logger = logging.getLogger(__name__)
 
-def mice_impute_cart(
+def cart(
     y: Union[pd.Series, np.ndarray],
-    ry: np.ndarray,
+    id_obs: np.ndarray,
     x: Union[pd.DataFrame, np.ndarray],
-    wy: Optional[np.ndarray] = None,
+    id_mis: Optional[np.ndarray] = None,
     min_samples_leaf: int = 5,
     ccp_alpha: float = 1e-4,
+    random_state: Optional[int] = None,
     **kwargs
 ) -> np.ndarray:
     """
     Impute missing values using Classification and Regression Trees (CART).
     
-    This function is designed to be compatible with the MICE framework,
-    following the same interface as PMM and midas imputation methods.
+    This function is designed to be compatible with the MICE framework.
     
     Parameters
     ----------
     y : Union[pd.Series, np.ndarray]
         Target variable with missing values
-    ry : np.ndarray
+    id_obs : np.ndarray
         Boolean mask of observed values in y (True for observed, False for missing)
     x : Union[pd.DataFrame, np.ndarray]
         Predictor variables (must be fully observed)
-    wy : np.ndarray, optional
-        Boolean mask of missing values to impute. If None, uses ~ry
+    id_mis : np.ndarray, optional
+        Boolean mask of missing values to impute. If None, uses ~id_obs
     min_samples_leaf : int, default=5
-        Minimum number of samples required to be at a leaf node (equivalent to R's minbucket)
+        Minimum number of samples required to be at a leaf node
     ccp_alpha : float, default=1e-4
-        Complexity parameter for pruning (equivalent to R's cp)
+        Complexity parameter for pruning
+    random_state : int, optional
+        Random seed for reproducibility; also passed to the sklearn tree
     **kwargs : dict
         Additional parameters passed to the tree model
         
@@ -47,17 +51,27 @@ def mice_impute_cart(
     2. For each missing value, find the terminal node it would end up in
     3. Make a random draw among the members in that node, and take the observed
        value from that draw as the imputation
-    
-    This implementation closely follows the R mice package's cart imputation method.
     """
-    # Convert inputs to numpy arrays for consistency
-    y = np.asarray(y)
-    x = np.asarray(x)
-    ry = np.asarray(ry, dtype=bool)
+    logger.debug("Starting CART imputation.")
     
-    # Set default wy if not provided
-    if wy is None:
-        wy = ~ry
+    # Pre-process x to handle categorical predictors
+    if isinstance(x, pd.DataFrame) and (x.select_dtypes(include=['object', 'category']).shape[1] > 0):
+        logger.debug("One-hot encoding categorical predictors for column %s.", x.select_dtypes(include=['object', 'category']).columns[0])
+        # One-hot encode categorical features, which is necessary for scikit-learn.
+        # This mimics R's ability to handle factors.
+        x = pd.get_dummies(x, drop_first=True)
+    
+    # Convert inputs to numpy arrays for consistency, y is handled later
+    x = np.asarray(x)
+    id_obs = np.asarray(id_obs, dtype=bool)
+    
+    # Set default id_mis if not provided
+    if id_mis is None:
+        id_mis = ~id_obs
+
+    # Set random state if provided for reproducibility
+    if random_state is not None:
+        np.random.seed(random_state)
     
     # Ensure minimum samples per leaf is at least 1
     min_samples_leaf = max(1, min_samples_leaf)
@@ -67,9 +81,9 @@ def mice_impute_cart(
         x = np.ones((len(x), 1))
     
     # Split data into observed and missing
-    x_obs = x[ry].copy()
-    x_mis = x[wy].copy()
-    y_obs = y[ry].copy()
+    x_obs = x[id_obs].copy()
+    x_mis = x[id_mis].copy()
+    y_obs = y[id_obs]
     
     # Check if we have any missing values to impute
     if len(x_mis) == 0:
@@ -78,25 +92,31 @@ def mice_impute_cart(
     
     # Check if we have enough observed data to fit the model
     if len(y_obs) < 2:
+        logger.warning("Not enough observed data to fit a tree. Using fallback imputation.")
         # Not enough observed data, use mean/sample for imputation
-        if not pd.api.types.is_categorical_dtype(y_obs) and not pd.api.types.is_object_dtype(y_obs):
+        is_numeric = pd.api.types.is_numeric_dtype(y_obs)
+        if is_numeric:
             # Numeric case - use mean
             mean_val = np.mean(y_obs)
-            imputed_values = np.full(np.sum(wy), mean_val)
+            imputed_values = np.full(np.sum(id_mis), mean_val)
         else:
             # Categorical case - use most frequent
             from collections import Counter
-            most_frequent = Counter(y_obs).most_common(1)[0][0]
-            imputed_values = np.full(np.sum(wy), most_frequent)
+            # np.asarray is needed in case y_obs is a pandas Series
+            most_frequent = Counter(np.asarray(y_obs)).most_common(1)[0][0]
+            imputed_values = np.full(np.sum(id_mis), most_frequent)
         
         return imputed_values
     
     # Handle numeric and categorical variables differently
-    if not pd.api.types.is_categorical_dtype(y_obs) and not pd.api.types.is_object_dtype(y_obs):
+    is_numeric = pd.api.types.is_numeric_dtype(y_obs)
+    if is_numeric:
+        logger.debug("Performing regression tree imputation.")
         # Regression case
         tree = DecisionTreeRegressor(
             min_samples_leaf=min_samples_leaf,
             ccp_alpha=ccp_alpha,
+            random_state=random_state,
             **kwargs
         )
         
@@ -110,32 +130,27 @@ def mice_impute_cart(
         mis_leaf_nodes = tree.apply(x_mis)
         
         # For each missing value, sample from the same leaf node
-        imputed_values = np.zeros(np.sum(wy))
+        imputed_values = np.zeros(np.sum(id_mis))
+        y_obs_arr = np.asarray(y_obs)
         for i, leaf in enumerate(mis_leaf_nodes):
             # Get all observed values in the same leaf
-            leaf_values = y_obs[leaf_nodes == leaf]
+            leaf_values = y_obs_arr[leaf_nodes == leaf]
             # Randomly sample one value
             imputed_values[i] = np.random.choice(leaf_values)
             
     else:
+        logger.debug("Performing classification tree imputation.")
         # Classification case - following R implementation more closely
         
         # Check if all observed values are in one category (matching R behavior)
-        unique_cats, counts = np.unique(y_obs, return_counts=True)
+        unique_cats, _ = np.unique(y_obs, return_counts=True)
         if len(unique_cats) == 1:
-            return np.repeat(unique_cats[0], np.sum(wy))
-        
-        # Check if any category has all observed values (R's cat.has.all.obs logic)
-        if np.any(counts == np.sum(ry)):
-            dominant_cat = unique_cats[counts == np.sum(ry)][0]
-            return np.repeat(dominant_cat, np.sum(wy))
-        
-        # Remove any unused categories (equivalent to R's droplevels)
-        y_obs = pd.Categorical(y_obs).remove_unused_categories()
+            return np.repeat(unique_cats[0], np.sum(id_mis))
         
         tree = DecisionTreeClassifier(
             min_samples_leaf=min_samples_leaf,
             ccp_alpha=ccp_alpha,
+            random_state=random_state,
             **kwargs
         )
         
@@ -151,7 +166,5 @@ def mice_impute_cart(
             for probs in class_probs
         ])
     
+    logger.debug(f"CART imputation complete. Imputed {len(imputed_values)} values.")
     return imputed_values
-
-# Alias for compatibility with MICE framework
-cart = mice_impute_cart

@@ -1,17 +1,19 @@
 import numpy as np
 import pandas as pd
-from typing import Union, Optional, List
+from typing import Union, Optional
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
-from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
-import warnings
+import logging
 
-def mice_impute_rf(
+# Get a logger for the current module.
+# This will be a child of the 'imputation' logger configured in MICE.py
+logger = logging.getLogger(__name__)
+
+def rf(
     y: Union[pd.Series, np.ndarray],
-    ry: np.ndarray,
+    id_obs: np.ndarray,
     x: Union[pd.DataFrame, np.ndarray],
-    wy: Optional[np.ndarray] = None,
+    id_mis: Optional[np.ndarray] = None,
     n_estimators: int = 10,
-    rf_package: str = "sklearn",
     random_state: Optional[int] = None,
     **kwargs
 ) -> np.ndarray:
@@ -25,16 +27,14 @@ def mice_impute_rf(
     ----------
     y : Union[pd.Series, np.ndarray]
         Target variable with missing values
-    ry : np.ndarray
+    id_obs : np.ndarray
         Boolean mask of observed values in y (True for observed, False for missing)
     x : Union[pd.DataFrame, np.ndarray]
         Predictor variables (must be fully observed)
-    wy : np.ndarray, optional
-        Boolean mask of missing values to impute. If None, uses ~ry
+    id_mis : np.ndarray, optional
+        Boolean mask of missing values to impute. If None, uses ~id_obs
     n_estimators : int, default=10
         Number of trees in the forest (equivalent to R's ntree)
-    rf_package : str, default="sklearn"
-        Backend for random forest implementation. Currently supports "sklearn"
     random_state : int, optional
         Random seed for reproducibility
     **kwargs : dict
@@ -54,16 +54,25 @@ def mice_impute_rf(
     4. Randomly sample one donor from each tree
     5. Take the final imputed value as a random sample from the tree predictions
     
-    This implementation follows the algorithm described in Doove et al. (2014).
+    This implementation follows the algorithm described in Doove et al. (2014)
+    and closely mirrors the R mice implementation.
     """
-    # Convert inputs to numpy arrays for consistency
-    y = np.asarray(y)
-    x = np.asarray(x)
-    ry = np.asarray(ry, dtype=bool)
+    logger.debug("Starting Random Forest imputation.")
     
-    # Set default wy if not provided
-    if wy is None:
-        wy = ~ry
+    # Pre-process x to handle categorical predictors
+    if isinstance(x, pd.DataFrame) and (x.select_dtypes(include=['object', 'category']).shape[1] > 0):
+        logger.debug("One-hot encoding categorical predictors.")
+        # One-hot encode categorical features, which is necessary for scikit-learn.
+        # This mimics R's ability to handle factors.
+        x = pd.get_dummies(x, drop_first=True)
+    
+    # Convert inputs to numpy arrays for consistency, y is handled later
+    x = np.asarray(x)
+    id_obs = np.asarray(id_obs, dtype=bool)
+    
+    # Set default id_mis if not provided
+    if id_mis is None:
+        id_mis = ~id_obs
     
     # Set random state if provided
     if random_state is not None:
@@ -72,130 +81,143 @@ def mice_impute_rf(
     # Ensure minimum number of trees
     n_estimators = max(1, n_estimators)
     
-    # Number of missing values to impute
-    n_mis = np.sum(wy)
+    # Add intercept if no predictors (matching R behavior)
+    if x.shape[1] == 0:
+        x = np.ones((len(x), 1))
     
     # Split data into observed and missing
-    x_obs = x[ry].copy()
-    x_mis = x[wy].copy()
-    y_obs = y[ry].copy()
+    x_obs = x[id_obs].copy()
+    x_mis = x[id_mis].copy()
+    y_obs = y[id_obs]
     
     # Check if we have any missing values to impute
     if len(x_mis) == 0:
         # No missing values to impute, return empty array
         return np.array([])
     
-    # Check if we have enough data
+    # Check if we have enough observed data to fit the model
     if len(y_obs) < 2:
-        raise ValueError("Need at least 2 observed values for random forest imputation")
-    
+        logger.warning("Not enough observed data to fit a random forest. Using fallback imputation.")
+        # Not enough observed data, use mean/sample for imputation
+        is_numeric = pd.api.types.is_numeric_dtype(y_obs)
+        if is_numeric:
+            # Numeric case - use mean
+            mean_val = np.mean(y_obs)
+            imputed_values = np.full(np.sum(id_mis), mean_val)
+        else:
+            # Categorical case - use most frequent
+            from collections import Counter
+            # np.asarray is needed in case y_obs is a pandas Series
+            most_frequent = Counter(np.asarray(y_obs)).most_common(1)[0][0]
+            imputed_values = np.full(np.sum(id_mis), most_frequent)
+        
+        return imputed_values
+
     # Handle numeric and categorical variables differently
-    if not pd.api.types.is_categorical_dtype(y_obs) and not pd.api.types.is_object_dtype(y_obs):
+    is_numeric = pd.api.types.is_numeric_dtype(y_obs)
+    if is_numeric:
+        logger.debug("Performing regression random forest imputation.")
         # Regression case
         imputed_values = _rf_regression_impute(x_obs, x_mis, y_obs, n_estimators, random_state, **kwargs)
     else:
+        logger.debug("Performing classification random forest imputation.")
         # Classification case
         imputed_values = _rf_classification_impute(x_obs, x_mis, y_obs, n_estimators, random_state, **kwargs)
     
+    logger.debug(f"Random Forest imputation complete. Imputed {len(imputed_values)} values.")
     return imputed_values
 
 def _rf_regression_impute(x_obs, x_mis, y_obs, n_estimators, random_state, **kwargs):
-    """Helper function for regression random forest imputation."""
+    """Helper function for regression random forest imputation using RandomForestRegressor."""
     n_mis = x_mis.shape[0]
+    
+    # Fit the random forest
+    rf = RandomForestRegressor(
+        n_estimators=n_estimators,
+        random_state=random_state,
+        **kwargs
+    )
+    rf.fit(x_obs, y_obs)
+    
+    # Get terminal nodes for all trees at once
+    # For observed data
+    nodes_obs = np.array([tree.apply(x_obs) for tree in rf.estimators_]).T  # Shape: (n_obs, n_estimators)
+    # For missing data  
+    nodes_mis = np.array([tree.apply(x_mis) for tree in rf.estimators_]).T  # Shape: (n_mis, n_estimators)
+    
+    # For each missing value, collect donors from each tree
     tree_predictions = []
     
-    # Fit individual trees and get predictions
-    for i in range(n_estimators):
-        # Set random state for each tree
-        tree_random_state = random_state + i if random_state is not None else None
-        
-        # Fit single tree
-        tree = DecisionTreeRegressor(
-            random_state=tree_random_state,
-            **kwargs
-        )
-        tree.fit(x_obs, y_obs)
-        
-        # Get leaf nodes for observed and missing data
-        leaf_nodes_obs = tree.apply(x_obs)
-        leaf_nodes_mis = tree.apply(x_mis)
-        
-        # For each missing value, find eligible donors
-        tree_pred = np.zeros(n_mis)
-        for j, leaf in enumerate(leaf_nodes_mis):
-            # Find observed values in the same leaf
-            donors = y_obs[leaf_nodes_obs == leaf]
+    for i in range(n_mis):  # For each missing observation
+        tree_pred = []
+        for j in range(n_estimators):  # For each tree
+            # Find observed values in the same terminal node as this missing value
+            same_node_mask = nodes_obs[:, j] == nodes_mis[i, j]
+            donors = y_obs[same_node_mask]
+            
             if len(donors) > 0:
                 # Randomly sample one donor
-                tree_pred[j] = np.random.choice(donors)
+                tree_pred.append(np.random.choice(donors))
             else:
                 # Fallback: use mean of all observed values
-                tree_pred[j] = np.mean(y_obs)
+                tree_pred.append(np.mean(y_obs))
         
         tree_predictions.append(tree_pred)
     
-    # Convert to array
-    tree_predictions = np.array(tree_predictions).T  # Shape: (n_mis, n_estimators)
-    
-    # For each missing value, randomly sample from tree predictions
+    # For each missing value, randomly sample from its tree predictions
     imputed_values = np.array([
-        np.random.choice(tree_pred) for tree_pred in tree_predictions
+        np.random.choice(predictions) for predictions in tree_predictions
     ])
     
     return imputed_values
 
 def _rf_classification_impute(x_obs, x_mis, y_obs, n_estimators, random_state, **kwargs):
-    """Helper function for classification random forest imputation."""
+    """Helper function for classification random forest imputation using RandomForestClassifier."""
     n_mis = x_mis.shape[0]
-    tree_predictions = []
     
-    # Check if all observed values are in one category
-    unique_cats = pd.unique(y_obs)
+    # Check if all observed values are in one category (matching R behavior)
+    unique_cats = np.unique(y_obs)
     if len(unique_cats) == 1:
         return np.repeat(unique_cats[0], n_mis)
     
-    # Remove any unused categories
-    y_obs = pd.Categorical(y_obs).remove_unused_categories()
+    # Fit the random forest
+    rf = RandomForestClassifier(
+        n_estimators=n_estimators,
+        random_state=random_state,
+        **kwargs
+    )
+    rf.fit(x_obs, y_obs)
     
-    # Fit individual trees and get predictions
-    for i in range(n_estimators):
-        # Set random state for each tree
-        tree_random_state = random_state + i if random_state is not None else None
-        
-        # Fit single tree
-        tree = DecisionTreeClassifier(
-            random_state=tree_random_state,
-            **kwargs
-        )
-        tree.fit(x_obs, y_obs)
-        
-        # Get leaf nodes for observed and missing data
-        leaf_nodes_obs = tree.apply(x_obs)
-        leaf_nodes_mis = tree.apply(x_mis)
-        
-        # For each missing value, find eligible donors
-        tree_pred = np.zeros(n_mis, dtype=object)
-        for j, leaf in enumerate(leaf_nodes_mis):
-            # Find observed values in the same leaf
-            donors = y_obs[leaf_nodes_obs == leaf]
+    # Get terminal nodes for all trees at once
+    # For observed data
+    nodes_obs = np.array([tree.apply(x_obs) for tree in rf.estimators_]).T  # Shape: (n_obs, n_estimators)
+    # For missing data
+    nodes_mis = np.array([tree.apply(x_mis) for tree in rf.estimators_]).T  # Shape: (n_mis, n_estimators)
+    
+    # For each missing value, collect donors from each tree
+    tree_predictions = []
+    
+    for i in range(n_mis):  # For each missing observation
+        tree_pred = []
+        for j in range(n_estimators):  # For each tree
+            # Find observed values in the same terminal node as this missing value
+            same_node_mask = nodes_obs[:, j] == nodes_mis[i, j]
+            donors = y_obs[same_node_mask]
+            
             if len(donors) > 0:
                 # Randomly sample one donor
-                tree_pred[j] = np.random.choice(donors)
+                tree_pred.append(np.random.choice(donors))
             else:
                 # Fallback: use most frequent class
-                tree_pred[j] = pd.Series(y_obs).mode().iloc[0]
+                from collections import Counter
+                most_frequent = Counter(np.asarray(y_obs)).most_common(1)[0][0]
+                tree_pred.append(most_frequent)
         
         tree_predictions.append(tree_pred)
     
-    # Convert to array
-    tree_predictions = np.array(tree_predictions).T  # Shape: (n_mis, n_estimators)
-    
-    # For each missing value, randomly sample from tree predictions
+    # For each missing value, randomly sample from its tree predictions
     imputed_values = np.array([
-        np.random.choice(tree_pred) for tree_pred in tree_predictions
+        np.random.choice(predictions) for predictions in tree_predictions
     ])
     
-    return imputed_values
-
-# Alias for compatibility with MICE framework
-rf = mice_impute_rf 
+    return imputed_values 

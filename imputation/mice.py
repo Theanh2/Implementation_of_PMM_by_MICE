@@ -203,16 +203,23 @@ class mice:
             # y needs to be masked
             # x needs to be subset by predictormatrix
             y = iterdata[col]
-            y[self.id_mis[col]] = np.nan
-            ry = ~np.isnan(y)
+            # ensure target missing positions are masked
+            y.iloc[self.id_mis[col]] = np.nan
+            # robust observed/missing masks across dtypes
+            id_obs = ~pd.isna(y).values
+            id_mis = ~id_obs
             xid = self.predictorMatrix[col]
             if (xid == 0).all():
                 continue
             x = iterdata[xid[xid == 1].index]
-            y = np.array(y)
-            ry = np.array(ry)
-            x = np.array(x)
-            iterdata[col] = self.supported_meth[method](y=y, ry=ry, x=x, **kwargs)
+            # call imputer with consistent argument names
+            iterdata[col] = self.supported_meth[method](
+                y=y,
+                id_obs=id_obs,
+                id_mis=id_mis,
+                x=x,
+                **kwargs,
+            )
         return iterdata
     def pool(self, summ = False):
         """

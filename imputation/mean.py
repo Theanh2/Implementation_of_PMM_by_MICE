@@ -2,11 +2,11 @@ import numpy as np
 import pandas as pd
 from typing import Union, Optional
 
-def mice_impute_mean(
+def mean(
     y: Union[pd.Series, np.ndarray],
-    ry: np.ndarray,
+    id_obs: np.ndarray,
     x: Union[pd.DataFrame, np.ndarray],
-    wy: Optional[np.ndarray] = None,
+    id_mis: Optional[np.ndarray] = None,
     **kwargs
 ) -> np.ndarray:
     """
@@ -19,12 +19,12 @@ def mice_impute_mean(
     ----------
     y : Union[pd.Series, np.ndarray]
         Target variable with missing values
-    ry : np.ndarray
+    id_obs : np.ndarray
         Boolean mask of observed values in y (True for observed, False for missing)
     x : Union[pd.DataFrame, np.ndarray]
         Predictor variables (not used in this method, but kept for consistency)
-    wy : np.ndarray, optional
-        Boolean mask of missing values to impute. If None, uses ~ry
+    id_mis : np.ndarray, optional
+        Boolean mask of missing values to impute. If None, uses ~id_obs
     **kwargs : dict
         Additional arguments (not used in this method)
         
@@ -55,14 +55,14 @@ def mice_impute_mean(
     # Convert inputs to numpy arrays for consistency
     y = np.asarray(y)
     x = np.asarray(x)
-    ry = np.asarray(ry, dtype=bool)
+    id_obs = np.asarray(id_obs, dtype=bool)
     
-    # Set default wy if not provided
-    if wy is None:
-        wy = ~ry
+    # Set default id_mis if not provided
+    if id_mis is None:
+        id_mis = ~id_obs
     
     # Get observed values
-    y_obs = y[ry]
+    y_obs = y[id_obs]
     
     # Check if we have any observed values
     if len(y_obs) == 0:
@@ -72,12 +72,9 @@ def mice_impute_mean(
     mean_value = np.mean(y_obs)
     
     # Number of missing values to impute
-    n_mis = np.sum(wy)
+    n_mis = np.sum(id_mis)
     
     # Create imputed values (all the same mean)
     imputed_values = np.full(n_mis, mean_value)
     
-    return imputed_values
-
-# Alias for compatibility with MICE framework
-mean = mice_impute_mean 
+    return imputed_values 

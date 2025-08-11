@@ -1,16 +1,20 @@
 import pandas as pd
 import numpy as np
+import os
 
 # Import the custom MICE implementation
 from imputation.zh.MICE import MICE
 
 # Visualization helpers
-from visualization.utils import md_pattern_like, plot_missing_data_pattern
-from diagnostics.plots import stripplot, bwplot, densityplot, xyplot
+from plotting.utils import md_pattern_like, plot_missing_data_pattern
+from plotting.diagnostics import stripplot, bwplot, densityplot, xyplot
 
 
 def main():
     """Run a complete MICE workflow on the NHANES dataset."""
+
+    # Create additionalz directory if it doesn't exist
+    os.makedirs('additionalz', exist_ok=True)
 
     # ------------------------------------------------------------------
     # 1. Load the dataset
@@ -23,7 +27,11 @@ def main():
     # ------------------------------------------------------------------
     pattern_df = md_pattern_like(df)
     print("\nMissing-data pattern (similar to R's md.pattern):\n", pattern_df)
-    plot_missing_data_pattern(pattern_df, title="NHANES Missing-Data Pattern")
+    plot_missing_data_pattern(
+        pattern_df, 
+        title="NHANES Missing-Data Pattern",
+        save_path='additionalz/missing_data_pattern.png'
+    )
 
     # ------------------------------------------------------------------
     # 3. Build a predictor matrix where every variable predicts every other
@@ -37,11 +45,17 @@ def main():
     # 4. Create the MICE imputer and generate 5 imputed datasets
     # ------------------------------------------------------------------
     mice_imp = MICE(df)
-    mice_imp.impute(n_imputations=5, predictor_matrix=predictor_matrix, method="pmm")
+    mice_imp.impute(n_imputations=8, predictor_matrix=predictor_matrix, method="cart")
     imputed_datasets = mice_imp.imputed_datasets
 
-    print(mice_imp.chain_mean)
-    print(mice_imp.chain_var)
+    # ------------------------------------------------------------------
+    # 4b. Visualize convergence of chain statistics (mean & variance)
+    # ------------------------------------------------------------------
+    cols_with_missing = [col for col in df.columns if df[col].isna().any()]
+    mice_imp.plot_chain_stats(columns=cols_with_missing)
+
+    # print(mice_imp.chain_mean)
+    # print(mice_imp.chain_var)
 
     print(f"\nGenerated {len(imputed_datasets)} imputed datasets.")
 
@@ -66,17 +80,20 @@ def main():
         imputed_datasets=imputed_datasets,
         missing_pattern=missing_pattern,
         merge_imputations=False,
+        save_path='additionalz/stripplot.png'
     )
 
     bwplot(
         imputed_datasets=imputed_datasets,
         missing_pattern=missing_pattern,
         merge_imputations=False,
+        save_path='additionalz/bwplot.png'
     )
 
     densityplot(
         imputed_datasets=imputed_datasets,
         missing_pattern=missing_pattern,
+        save_path='additionalz/densityplot.png'
     )
 
     # Example XY plot: age (complete) vs bmi (contains missing values)
@@ -85,6 +102,7 @@ def main():
         missing_pattern=missing_pattern,
         x="age",
         y="bmi",
+        save_path='additionalz/xyplot_age_bmi.png'
     )
 
 

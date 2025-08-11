@@ -2,11 +2,11 @@ import numpy as np
 import pandas as pd
 from typing import Union, Optional
 
-def mice_impute_sample(
+def sample(
     y: Union[pd.Series, np.ndarray],
-    ry: np.ndarray,
+    id_obs: np.ndarray,
     x: Union[pd.DataFrame, np.ndarray],
-    wy: Optional[np.ndarray] = None,
+    id_mis: Optional[np.ndarray] = None,
     random_state: Optional[int] = None,
     **kwargs
 ) -> np.ndarray:
@@ -20,12 +20,12 @@ def mice_impute_sample(
     ----------
     y : Union[pd.Series, np.ndarray]
         Target variable with missing values
-    ry : np.ndarray
+    id_obs : np.ndarray
         Boolean mask of observed values in y (True for observed, False for missing)
     x : Union[pd.DataFrame, np.ndarray]
         Predictor variables (not used in this method, but kept for consistency)
-    wy : np.ndarray, optional
-        Boolean mask of missing values to impute. If None, uses ~ry
+    id_mis : np.ndarray, optional
+        Boolean mask of missing values to impute. If None, uses ~id_obs
     random_state : int, optional
         Random seed for reproducibility
     **kwargs : dict
@@ -53,35 +53,32 @@ def mice_impute_sample(
     # Convert inputs to numpy arrays for consistency
     y = np.asarray(y)
     x = np.asarray(x)
-    ry = np.asarray(ry, dtype=bool)
+    id_obs = np.asarray(id_obs, dtype=bool)
     
-    # Set default wy if not provided
-    if wy is None:
-        wy = ~ry
+    # Set default id_mis if not provided
+    if id_mis is None:
+        id_mis = ~id_obs
     
     # Set random state if provided
     if random_state is not None:
         np.random.seed(random_state)
     
     # Get observed values
-    y_obs = y[ry]
+    y_obs = y[id_obs]
     
     # Handle edge cases (matching R implementation)
     if len(y_obs) < 1:
         # If no observed values, return random normal values
-        n_mis = np.sum(wy)
+        n_mis = np.sum(id_mis)
         imputed_values = np.random.normal(0, 1, n_mis)
     elif len(y_obs) == 1:
         # If only one observed value, duplicate it to allow sampling
         y_obs = np.array([y_obs[0], y_obs[0]])
-        n_mis = np.sum(wy)
+        n_mis = np.sum(id_mis)
         imputed_values = np.random.choice(y_obs, size=n_mis, replace=True)
     else:
         # Normal case: sample from observed values
-        n_mis = np.sum(wy)
+        n_mis = np.sum(id_mis)
         imputed_values = np.random.choice(y_obs, size=n_mis, replace=True)
     
-    return imputed_values
-
-# Alias for compatibility with MICE framework
-sample = mice_impute_sample 
+    return imputed_values 

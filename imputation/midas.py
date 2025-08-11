@@ -35,7 +35,7 @@ def compute_beta(x, m):
     A = x[:m**2].reshape((m, m))
     b = x[m**2:]
     return np.linalg.solve(A, b)
-def midas(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = True):
+def midas(y, id_obs, x, id_mis=None, ridge=1e-5, midas_kappa=None, outout=True, **kwargs):
     """
         MIDAS Imputation: Multiple Imputation with Distant Average Substitution.
 
@@ -50,11 +50,14 @@ def midas(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = True):
         y : array-like of shape (n_samples,)
             The target variable with missing values to be imputed. Must be numeric.
 
-        ry : array-like of bool of shape (n_samples,)
+        id_obs : array-like of bool of shape (n_samples,)
             Logical array indicating observed values in `y`. True where `y` is observed, False where missing.
 
         x : array-like of shape (n_samples, n_features)
             Design matrix of predictor variables. Must be fully observed.
+
+        id_mis : np.ndarray, optional
+            Boolean mask of missing values to impute. If None, uses ~id_obs.
 
         ridge : float, default=1e-5
             Ridge penalty used in regularized regression to stabilize the solution in the presence of multicollinearity.
@@ -70,6 +73,9 @@ def midas(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = True):
             If False, a single model is estimated for all donors and recipients.
             WARNING: Setting `outout=False` may produce biased estimates and is not fully supported.
 
+        **kwargs : dict
+            Additional arguments (not used in this method).
+
         Returns
         -------
         y_imp : np.ndarray
@@ -84,24 +90,55 @@ def midas(y, ry, x, ridge = 1e-5, midas_kappa = None, outout = True):
         Examples
         --------
         >>> y = np.array([7, np.nan, 9, 10, 11])
-        >>> ry = ~np.isnan(y)
+        >>> id_obs = ~np.isnan(y)
         >>> x = np.array([[1, 2], [3, 4], [5, 6], [7, 13], [11, 10]])
-        >>> midas(y, ry, x)
+        >>> midas(y, id_obs, x)
         array([9.0])
         """
-    wy = ~ry
+    # Validate predictors (x): must be numeric and contain no missing values
+    import pandas as pd
+    if isinstance(x, pd.DataFrame):
+        non_numeric_cols = x.select_dtypes(exclude=[np.number]).columns.tolist()
+        if non_numeric_cols:
+            raise ValueError(
+                f"Predictors must be numeric for midas. Non-numeric predictors found: {non_numeric_cols}"
+            )
+        missing_cols = x.columns[x.isna().any()].tolist()
+        if missing_cols:
+            raise ValueError(
+                f"Predictors must not contain missing values for midas. Columns with missing values: {missing_cols}"
+            )
+        x = x.to_numpy()
+    else:
+        x = np.asarray(x)
+        try:
+            _ = x.astype(float, copy=False)
+        except Exception:
+            raise ValueError("Predictors must be numeric for midas. Could not convert 'x' to numeric array.")
+        if np.isnan(x).any():
+            raise ValueError("Predictors must not contain missing values for midas.")
+
+    # Validate target (y): must be numeric for midas
+    y_array = np.asarray(y)
+    try:
+        y_numeric = y_array.astype(float)
+    except Exception:
+        raise ValueError("Target y must be numeric for midas. Found non-numeric values.")
+
+    if id_mis is None:
+        id_mis = ~id_obs
     #machine epsilon
     sminx = np.finfo(float).eps ** (1 / 4)
 
     x = np.asarray(x, dtype=float)
     x = np.c_[np.ones(x.shape[0]), x]
-    y = np.asarray(y, dtype=float)
-    nobs = np.sum(ry)
-    n = len(ry)
+    y = y_numeric.astype(float, copy=False)
+    nobs = np.sum(id_obs)
+    n = len(id_obs)
     m = x.shape[1]
-    yobs = y[ry]
-    xobs = x[ry, :]
-    xmis = x[wy, :]
+    yobs = y[id_obs]
+    xobs = x[id_obs, :]
+    xmis = x[id_mis, :]
     #P Step
     omega = bootfunc_plain(nobs)
 

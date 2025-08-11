@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-"""Utility helpers for the *zh* sub-package.
+"""Utility helpers.
 
 Currently this module offers a single public function, :func:`get_imputer_func`,
 which maps a string identifying an imputation method to the concrete callable
 that implements that method.
-
-The mapping deliberately excludes the *Random Forest* (``rf``) strategy for the
-moment because it is not yet implemented in this code base.
 """
 
 from .constants import ImputationMethod
@@ -15,8 +12,9 @@ from .constants import ImputationMethod
 # Import concrete imputation back-ends
 from imputation.PMM import pmm
 from imputation.midas import midas
-from imputation.cart import mice_impute_cart
-from imputation.sample import mice_impute_sample
+from imputation.cart import cart
+from imputation.sample import sample
+from imputation.rf import rf
 
 # ---------------------------------------------------------------------------
 # Public helpers
@@ -26,8 +24,9 @@ from imputation.sample import mice_impute_sample
 _IMPUTER_MAP = {
     ImputationMethod.PMM.value: pmm,
     ImputationMethod.MIDAS.value: midas,
-    ImputationMethod.CART.value: mice_impute_cart,
-    ImputationMethod.SAMPLE.value: mice_impute_sample,
+    ImputationMethod.CART.value: cart,
+    ImputationMethod.SAMPLE.value: sample,
+    ImputationMethod.RF.value: rf,
 }
 
 
@@ -38,8 +37,7 @@ def get_imputer_func(method_name: str):
     ----------
     method_name : str
         Name of the imputation method. Must be one of the values defined in
-        :class:`imputation.zh.constants.ImputationMethod` (except 'rf', which
-        is not yet available).
+        :class:`imputation.zh.constants.ImputationMethod`.
 
     Returns
     -------

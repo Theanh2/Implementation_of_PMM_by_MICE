@@ -2,6 +2,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import logging
+
+# Get a logger for the current module.
+# This will automatically inherit the root logger configuration.
+logger = logging.getLogger(__name__)
 
 # Set random seed for reproducibility
 np.random.seed(42)
@@ -620,13 +625,20 @@ def plot_chain_stats(chain_mean, chain_var, columns=None, figsize=(10, 5), save_
     save_path : str, optional
         If provided, save the plot to this path instead of displaying it.
     """
+    logger.info("Generating chain statistics plots.")
+
+    # If columns are not specified, use all available from chain_mean
     if columns is None:
         columns = list(chain_mean.keys())
 
-    # Basic validation
+    if not columns:
+        logger.warning("No columns specified or found to plot.")
+        return
+
     for col in columns:
-        if col not in chain_mean:
-            raise ValueError(f"Column '{col}' not found in chain statistics.")
+        if col not in chain_mean or col not in chain_var:
+            logger.warning(f"Statistics for column '{col}' not found. Skipping.")
+            continue
 
     n_rows = len(columns)
     fig, axes = plt.subplots(n_rows, 2,

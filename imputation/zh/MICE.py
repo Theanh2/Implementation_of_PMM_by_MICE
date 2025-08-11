@@ -8,31 +8,27 @@ from datetime import datetime
 from logging.handlers import RotatingFileHandler
 import os
 
-# Configure logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+# Configure a single root logger for the entire project.
+# Any logger created in other modules (e.g., cart.py, plotting/diagnostics.py)
+# will inherit this configuration.
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.DEBUG)
 
-# Prevent adding handlers multiple times if the module is re-imported
-if not logger.handlers:
+# Prevent adding handlers multiple times
+if not root_logger.handlers:
     # Create logs directory if it doesn't exist
     log_dir = 'logs'
     os.makedirs(log_dir, exist_ok=True)
 
-    # Generate a unique log filename
-    base_log_name = f"mice_{datetime.now().strftime('%Y-%m-%d')}"
-    log_file_path = os.path.join(log_dir, f"{base_log_name}.log")
-    
-    counter = 1
-    while os.path.exists(log_file_path):
-        log_file_path = os.path.join(log_dir, f"{base_log_name}_{counter}.log")
-        counter += 1
+    # Define the log filename based on the current date.
+    log_filename = f"mice_{datetime.now().strftime('%Y-%m-%d')}.log"
+    log_file_path = os.path.join(log_dir, log_filename)
 
-    # Create console handler with a INFO log level
+    # Create console handler with an INFO log level
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
 
-    # Create rotating file handler which logs even debug messages
-    # Rotate log file when it reaches 5MB, keep up to 5 old log files.
+    # Create rotating file handler which logs even debug messages.
     file_handler = RotatingFileHandler(log_file_path, maxBytes=5 * 1024 * 1024, backupCount=5)
     file_handler.setLevel(logging.DEBUG)
 
@@ -42,9 +38,14 @@ if not logger.handlers:
     console_handler.setFormatter(console_format)
     file_handler.setFormatter(file_format)
 
-    # Add the handlers to the logger
-    logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
+    # Add the handlers to the root logger
+    root_logger.addHandler(console_handler)
+    root_logger.addHandler(file_handler)
+
+
+# Get a logger for the current module.
+# It will automatically inherit handlers from the root logger.
+logger = logging.getLogger(__name__)
 
 
 from .validators import (
@@ -67,7 +68,7 @@ from .constants import (
     VisitSequence,
 )
 
-# Import concrete imputation functions (skip RF for now)
+# Import concrete imputation functions
 from .utils import get_imputer_func
 # External helpers
 from .mice_result import MICEresult
@@ -134,6 +135,7 @@ class MICE:
             
         # Container for pooled results
         self.result = None  # Will hold the pooled `MICEresult` instance
+        self.run_output_dir = None
 
         # Required by statsmodels result wrappers
         self.nobs = self.data.shape[0]
@@ -183,18 +185,38 @@ class MICE:
             - List[str]: list of column names specifying the order to visit variables
             
         **kwargs : dict
-            Additional keyword arguments for `_quickpred` when `predictor_matrix` is not specified:
+            Additional keyword arguments.
+            - `output_dir` (str, optional): Directory to save outputs for this run.
+              If not provided, a timestamped folder is created in `output_figures`.
+            
+            Parameters for specific imputation methods can also be passed. These should
+            be prefixed with the method name and an underscore, e.g., `pmm_donors=5` to pass
+            `donors=5` to the `pmm` imputer.
+            
+            When `predictor_matrix` is not specified, the following can be passed for `_quickpred`:
             - `min_cor` (float, default=0.1): Minimum correlation for a predictor.
             - `min_puc` (float, default=0.0): Minimum proportion of usable cases.
             - `include` (list, optional): Columns to always include as predictors.
             - `exclude` (list, optional): Columns to always exclude as predictors.
-            - `method` (str, default="pearson"): Correlation method.
+            - `correlation_method` (str, default="pearson"): Correlation method used to
+              compute the correlation matrix inside `_quickpred`.
         """
         logger.info("Starting imputation process")
         logger.debug(f"Parameters: n_imputations={n_imputations}, maxit={maxit}, "
                     f"initial={initial}, method={method}, visit_sequence={visit_sequence}")
 
         start_time = time.time()
+
+        # Set up output directory for the run
+        output_dir = kwargs.pop('output_dir', None)
+        if output_dir is None:
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            self.run_output_dir = os.path.join('output_figures', f'run_{timestamp}')
+        else:
+            self.run_output_dir = output_dir
+        
+        os.makedirs(self.run_output_dir, exist_ok=True)
+        logger.info(f"Outputs for this run will be saved in: {self.run_output_dir}")
 
         check_n_imputations(n_imputations)
         check_maxit(maxit)
@@ -205,13 +227,13 @@ class MICE:
             min_puc = kwargs.pop('min_puc', 0.0)
             include = kwargs.pop('include', None)
             exclude = kwargs.pop('exclude', None)
-            method = kwargs.pop('method', 'pearson')
+            correlation_method = kwargs.pop('correlation_method', 'pearson')
             predictor_matrix = self._quickpred(
                 min_cor=min_cor, 
                 min_puc=min_puc, 
                 include=include, 
                 exclude=exclude, 
-                method=method
+                method=correlation_method
             )
         else:
             predictor_matrix = validate_predictor_matrix(predictor_matrix, list(self.data.columns), self.data)
@@ -222,11 +244,27 @@ class MICE:
         else:
             self.method = DEFAULT_METHOD
         logger.debug(f"Using imputation methods: {self.method}")
+
+        # Warn if user provided method-specific parameters for methods not used
+        if self.imputation_params:
+            provided_prefixes = set()
+            for key in self.imputation_params.keys():
+                if '_' in key:
+                    provided_prefixes.add(key.split('_', 1)[0])
+            used_methods = set(self.method.values())
+            unused_provided = provided_prefixes - used_methods
+            if unused_provided:
+                logger.warning(
+                    "Method-specific parameters were provided for unused methods: %s. "
+                    "These parameters will be ignored.",
+                    sorted(list(unused_provided))
+                )
         
         self.n_imputations = n_imputations
         self.maxit = maxit
         self.predictor_matrix = predictor_matrix
         self.initial = initial
+        self.imputation_params = kwargs
 
         self._set_visit_sequence(visit_sequence)
         logger.debug(f"Visit sequence set to: {self.visit_sequence}")
@@ -315,10 +353,16 @@ class MICE:
                     if abs(correlation) >= min_cor:
                         predictor_matrix.loc[target_col, predictor_col] = 1
         
-        # Handle include and exclude lists
+        # Handle include and exclude lists with validation for unknown columns
         if include:
+            unknown_includes = [c for c in include if c not in predictor_matrix.columns]
+            if unknown_includes:
+                raise ValueError(f"_quickpred include contains unknown columns: {unknown_includes}")
             predictor_matrix.loc[:, include] = 1
         if exclude:
+            unknown_excludes = [c for c in exclude if c not in predictor_matrix.columns]
+            if unknown_excludes:
+                raise ValueError(f"_quickpred exclude contains unknown columns: {unknown_excludes}")
             predictor_matrix.loc[:, exclude] = 0
             
         # Ensure diagonal is zero
@@ -328,19 +372,28 @@ class MICE:
         return predictor_matrix
 
     def pool(self, summ: bool = False):
-        """Pool column means across `self.imputed_datasets` using Rubin's rules.
+        """Pool descriptive estimates across ``self.imputed_datasets`` using Rubin's rules.
 
-        Each imputed dataset provides an estimate (the column mean) and a within-
-        imputation variance (the variance of that column divided by *n*).  The
-        function combines these to obtain pooled estimates and their standard
-        errors.  Results are stored in ``self.result`` (an instance of
-        :class:`MICEresult`).
+        What is pooled
+        --------------
+        - Numeric columns: the sample mean per column.
+        - Categorical columns (object/category): the per-level proportions for each column.
+
+        Within-imputation variance
+        --------------------------
+        - Numeric: ``Var(mean) = s^2 / n`` (with ``ddof=1`` for ``s^2``).
+        - Categorical level proportion ``p``: ``Var(p) = p(1-p)/n``.
+
+        Notes
+        -----
+        - Cross-parameter covariances are ignored and a diagonal covariance matrix is constructed.
+        - Degrees of freedom small-sample adjustments are not applied.
+        - Categorical level parameter names are formatted as ``<column>[<level>]``.
 
         Parameters
         ----------
         summ : bool, optional
-            If True, return a textual summary (equivalent to
-            ``self.result.summary()``).
+            If True, return ``self.result.summary()``.
         """
         logger.info("Starting pooling of imputed datasets")
 
@@ -352,51 +405,104 @@ class MICE:
         m = len(self.imputed_datasets)
         logger.debug(f"Pooling {m} imputed datasets")
 
-        # Restrict to numeric columns for pooling
-        numeric_cols = self.imputed_datasets[0].select_dtypes(include=[np.number]).columns.tolist()
-        if not numeric_cols:
-            msg = "No numeric columns available for pooling."
-            logger.error(msg)
-            raise ValueError(msg)
+        if m == 1:
+            warnings.warn("Number of multiple imputations m = 1. Pooling will not reflect between-imputation uncertainty.")
 
-        logger.debug(f"Found {len(numeric_cols)} numeric columns for pooling")
-
-        col_names = numeric_cols
-        q_mat = np.empty((m, len(col_names)))
-        u_mat = np.empty_like(q_mat)
-
+        # Sample size (after imputation there should be no missing)
         n = self.imputed_datasets[0].shape[0]
         logger.debug(f"Sample size: {n}")
 
-        # Calculate means and variances for each imputed dataset
-        for j, df in enumerate(self.imputed_datasets):
-            logger.debug(f"Processing imputed dataset {j + 1}/{m}")
-            q_mat[j, :] = df.mean(axis=0).values  # q_j
-            # Within-imputation variance of the mean: var / n
-            u_mat[j, :] = df.var(ddof=1, axis=0).values / n
+        # Identify columns by type from the first imputed dataset
+        first_df = self.imputed_datasets[0]
+        numeric_cols = first_df.select_dtypes(include=[np.number]).columns.tolist()
+        categorical_cols = first_df.select_dtypes(include=["object", "category", "bool"]).columns.tolist()
+
+        if not numeric_cols and not categorical_cols:
+            msg = "No numeric or categorical columns available for pooling."
+            logger.error(msg)
+            raise ValueError(msg)
+
+        if numeric_cols:
+            logger.debug(f"Found {len(numeric_cols)} numeric columns for pooling")
+        if categorical_cols:
+            logger.debug(f"Found {len(categorical_cols)} categorical columns for pooling")
+
+        # Build parameter vectors per imputed dataset
+        param_names: List[str] = []
+        q_list: List[List[float]] = [[] for _ in range(m)]
+        u_list: List[List[float]] = [[] for _ in range(m)]
+
+        # 1) Numeric columns: mean and its within-imputation variance
+        for col in numeric_cols:
+            param_names.append(col)
+            for j, df in enumerate(self.imputed_datasets):
+                series = df[col]
+                q_ij = float(series.mean())
+                # Within-imputation variance of the mean: var / n
+                u_ij = float(series.var(ddof=1)) / n if n > 0 else np.nan
+                q_list[j].append(q_ij)
+                u_list[j].append(u_ij)
+
+        # 2) Categorical columns: per-level proportions and their within-imputation variance p(1-p)/n
+        for col in categorical_cols:
+            # Determine stable set of levels across imputations
+            all_levels = []
+            for df in self.imputed_datasets:
+                # Using unique preserves order of appearance; we collect then take unique again to retain stability
+                all_levels.extend(pd.unique(df[col]))
+            # Create ordered, unique levels while preserving first occurrence order
+            seen = set()
+            levels: List[object] = []
+            for lvl in all_levels:
+                if lvl not in seen:
+                    seen.add(lvl)
+                    levels.append(lvl)
+
+            for lvl in levels:
+                lvl_name = f"{col}[{str(lvl)}]"
+                param_names.append(lvl_name)
+                for j, df in enumerate(self.imputed_datasets):
+                    # Proportion of rows equal to this level
+                    # Using .to_numpy() for speed and robust equality
+                    col_vals = df[col].to_numpy()
+                    p = float(np.mean(col_vals == lvl)) if n > 0 else np.nan
+                    u = p * (1.0 - p) / n if n > 0 else np.nan
+                    q_list[j].append(p)
+                    u_list[j].append(u)
 
         # Apply Rubin's rules
         logger.debug("Applying Rubin's rules for pooling")
-        q_bar = q_mat.mean(axis=0)                        # pooled estimate
-        u_bar = u_mat.mean(axis=0)                        # average within
-        b = ((q_mat - q_bar) ** 2).sum(axis=0) / (m - 1)  # between
-        t = u_bar + (1 + 1/m) * b                        # total variance
+        q_mat = np.asarray(q_list, dtype=float)
+        u_mat = np.asarray(u_list, dtype=float)
 
-        frac_miss_info = ((1 + 1/m) * b) / t
+        q_bar = np.nanmean(q_mat, axis=0)
+        u_bar = np.nanmean(u_mat, axis=0)
+
+        if m > 1:
+            b = np.nansum((q_mat - q_bar) ** 2, axis=0) / (m - 1)
+        else:
+            b = np.zeros_like(q_bar)
+
+        t = u_bar + (1.0 + 1.0 / max(m, 1)) * b
+
+        # Avoid division by zero in FMI
+        with np.errstate(divide='ignore', invalid='ignore'):
+            frac_miss_info = ((1.0 + 1.0 / max(m, 1)) * b) / t
+            frac_miss_info = np.where(np.isfinite(frac_miss_info), frac_miss_info, np.nan)
 
         # Log pooling statistics
-        for i, col in enumerate(col_names):
+        for i, col in enumerate(param_names):
             logger.debug(f"Pooling statistics for '{col}':")
             logger.debug(f"  - Pooled estimate: {q_bar[i]:.4f}")
             logger.debug(f"  - Total variance: {t[i]:.4f}")
             logger.debug(f"  - Fraction of missing information: {frac_miss_info[i]:.4f}")
 
-        # Build covariance matrix
+        # Build diagonal covariance matrix (ignoring cross-parameter covariances)
         cov_params = np.diag(t)
         logger.debug("Covariance matrix constructed")
 
-        # Make variable names available for summaries
-        self.exog_names = col_names
+        # Make parameter names available for summaries
+        self.exog_names = param_names
 
         # Create results object
         logger.debug("Creating results object")
@@ -412,35 +518,37 @@ class MICE:
     
     def plot_chain_stats(self, columns: Optional[List[str]] = None):
         """
-        Visualize per-iteration chain mean and variance of imputed values.
-
+        Plot convergence of chain mean and variance
+        
         Parameters
         ----------
-        columns : list of str, optional
-            List of column names to plot. If None, plots all columns tracked
-            in `self.chain_mean`.
+        columns : list, optional
+            List of column names to plot. If None, plots all columns
         """
-        if not getattr(self, 'chain_mean', None) or not getattr(self, 'chain_var', None):
-            raise ValueError("No chain statistics available – run `.impute()` first.")
-
-        if columns is None:
-            columns = list(self.chain_mean.keys())
-
-        # Import locally to avoid heavy plotting libraries during module import
-        import os
-        from diagnostics.plots import plot_chain_stats
+        from plotting.diagnostics import plot_chain_stats
         
-        # Create additionalz directory if it doesn't exist
-        os.makedirs('additionalz', exist_ok=True)
+        if self.chain_mean is None or self.chain_var is None:
+            logger.warning("No chain statistics to plot. Run imputation first.")
+            return
+            
+        # Filter columns if specified
+        if columns is not None:
+            # Check that all specified columns exist in chain statistics
+            available_cols = list(self.chain_mean.keys())
+            columns = [col for col in columns if col in available_cols]
+            
+            if not columns:
+                logger.warning(f"None of the specified columns found in chain statistics. Available columns: {available_cols}")
+                return
+                
+            # Filter chain statistics to only include specified columns
+            filtered_chain_mean = {col: self.chain_mean[col] for col in columns}
+            filtered_chain_var = {col: self.chain_var[col] for col in columns}
+        else:
+            filtered_chain_mean = self.chain_mean
+            filtered_chain_var = self.chain_var
         
-        # Save the plot to the additionalz directory
-        plot_chain_stats(
-            self.chain_mean, 
-            self.chain_var, 
-            columns, 
-            save_path='additionalz/chain_stats.png'
-        )
-        logger.info("Chain statistics plot saved to additionalz/chain_stats.png")
+        plot_chain_stats(filtered_chain_mean, filtered_chain_var, columns)
 
 
     def _impute_once(self, chain_idx: int):
@@ -487,16 +595,6 @@ class MICE:
             logger.debug(f"Processing column '{col}' (iteration {iter_idx + 1}, chain {chain_idx})")
             method_name = self.method[col]
 
-            predictor_cols = [c for c in updated_data.columns if c != col]
-            predictors = updated_data[predictor_cols]
-
-            # RF currently not implemented
-            if method_name == ImputationMethod.RF.value:
-                logger.warning(
-                    f"Random Forest imputation not implemented yet; skipping column '{col}'"
-                )
-                continue
-
             # Determine predictors
             if self.predictor_matrix is not None:
                 predictor_flags = self.predictor_matrix.loc[col]
@@ -510,35 +608,34 @@ class MICE:
 
             # Prepare arrays/masks
             y = updated_data[col].to_numpy()
-            ry_mask = self.id_obs[col]
-            wy_mask = self.id_mis[col]
-            ry = ry_mask.to_numpy()
-            wy = wy_mask.to_numpy()
+            id_obs_mask = self.id_obs[col]
+            id_mis_mask = self.id_mis[col]
+            id_obs = id_obs_mask.to_numpy()
+            id_mis = id_mis_mask.to_numpy()
 
             # Get imputer function and perform imputation
             imputer_func = get_imputer_func(method_name)
             logger.debug(f"Using imputation method '{method_name}' for column '{col}'")
 
-            try:
-                imputed_values = imputer_func(y=y, ry=ry, wy=wy, x=predictors)
-                logger.debug(f"Successfully imputed {len(imputed_values)} values for column '{col}'")
-            except TypeError as e:
-                logger.debug(f"Retrying imputation without 'wy' parameter for column '{col}'")
-                try:
-                    imputed_values = imputer_func(y=y, ry=ry, x=predictors)
-                    logger.debug("Imputation successful on retry")
-                except Exception as e:
-                    logger.error(f"Failed to impute column '{col}': {str(e)}")
-                    raise
-            except Exception as e:
-                logger.error(f"Failed to impute column '{col}': {str(e)}")
-                raise
+            # Extract method-specific parameters from kwargs
+            method_params = {}
+            prefix = f"{method_name}_"
+            for key, value in self.imputation_params.items():
+                if key.startswith(prefix):
+                    param_name = key[len(prefix):]
+                    method_params[param_name] = value
+            
+            if method_params:
+                logger.debug(f"Passing parameters to imputer: {method_params}")
+
+            imputed_values = imputer_func(y=y, id_obs=id_obs, id_mis=id_mis, x=predictors, **method_params)
+            logger.debug(f"Successfully imputed {len(imputed_values)} values for column '{col}'")
 
             # Assign imputed values
-            updated_data.loc[wy_mask, col] = imputed_values
+            updated_data.loc[id_mis_mask, col] = imputed_values
 
             # Record chain statistics
-            if wy.sum() > 0:
+            if id_mis.sum() > 0:
                 imputed_arr = np.asarray(imputed_values, dtype=float)
                 mean_val = np.nanmean(imputed_arr)
                 self.chain_mean[col][iter_idx, chain_idx] = mean_val
@@ -600,7 +697,6 @@ class MICE:
             if visit_sequence == VisitSequence.RANDOM.value:
                 self.visit_sequence = list(np.random.permutation(columns_with_missing))
             elif visit_sequence == VisitSequence.MONOTONE.value:
-                nmis = np.array([len(self.id_mis[col]) for col in columns_with_missing])
+                nmis = np.array([self.id_mis[col].sum() for col in columns_with_missing])
                 ii = np.argsort(nmis)
                 self.visit_sequence = [columns_with_missing[i] for i in ii]
-

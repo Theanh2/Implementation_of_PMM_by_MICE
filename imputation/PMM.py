@@ -3,7 +3,7 @@ from .sampler import *
 from .Utils import *
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.cross_decomposition import CCA
-def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
+def pmm(y, id_obs, x, id_mis = None, donors = 5, matchtype = 1,
                     quantify = True, ridge = 1e-5, matcher = "NN", **kwargs):
     """
        Predictive Mean Matching (PMM) imputation.
@@ -17,15 +17,15 @@ def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
        y : array-like (1D), shape (n_samples,)
            Target variable to be imputed. Can be numeric or categorical.
 
-       ry : array-like of bool, shape (n_samples,)
+       id_obs : array-like of bool, shape (n_samples,)
            Logical array indicating which elements of `y` are observed (True) or missing (False).
 
        x : array-like (2D), shape (n_samples, n_features)
            Numeric design matrix of predictors. Must have no missing values.
 
-       wy : array-like of bool, shape (n_samples,), optional
+       id_mis : array-like of bool, shape (n_samples,), optional
            Logical array indicating which values should be imputed.
-           If None, wy is set to the complement of `ry`.
+           If None, `id_mis` is set to the complement of `id_obs`.
 
        donors : int, default=5
            Number of donors to draw from the observed cases when imputing missing values.
@@ -65,12 +65,35 @@ def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
        Examples
        --------
        >>> y = np.array([7, np.nan, 9, 10, 11])
-       >>> ry = ~np.isnan(y)
+       >>> id_obs = ~np.isnan(y)
        >>> x = np.array([[1, 2], [3, 4], [5, 7], [7, 8], [9, 10]])
-       >>> pmm(y=y, ry=ry, x=x, donors=3)
+       >>> pmm(y=y, id_obs=id_obs, x=x, donors=3)
     """
-    if wy is None:
-        wy = ~ry
+    # Validate predictors (x): must be numeric and contain no missing values
+    if isinstance(x, pd.DataFrame):
+        non_numeric_cols = x.select_dtypes(exclude=[np.number]).columns.tolist()
+        if non_numeric_cols:
+            raise ValueError(
+                f"Predictors must be numeric for pmm. Non-numeric predictors found: {non_numeric_cols}"
+            )
+        missing_cols = x.columns[x.isna().any()].tolist()
+        if missing_cols:
+            raise ValueError(
+                f"Predictors must not contain missing values for pmm. Columns with missing values: {missing_cols}"
+            )
+        x = x.to_numpy()
+    else:
+        x = np.asarray(x)
+        # Try to coerce to float to detect non-numeric entries early
+        try:
+            _ = x.astype(float, copy=False)
+        except Exception:
+            raise ValueError("Predictors must be numeric for pmm. Could not convert 'x' to numeric array.")
+        if np.isnan(x).any():
+            raise ValueError("Predictors must not contain missing values for pmm.")
+
+    if id_mis is None:
+        id_mis = ~id_obs
 
     # Add a column of ones to the matrix x
     x = np.c_[np.ones(x.shape[0]), x]
@@ -81,28 +104,28 @@ def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
             # quantify function returns the numeric transformation of the factor
             #Experimental has different output than R
             #id to retransform cca to categories back
-            ynum, id = quantify_cca(y, ry, x)
+            ynum, id = quantify_cca(y, id_obs, x)
         else:
             ynum, id = pd.factorize(y)
 
     # Parameter estimation
-    p = norm_draw(ynum, ry, x, ridge=ridge, **kwargs)
+    p = norm_draw(ynum, id_obs, x, ridge=ridge, **kwargs)
 
     #dotproduct x @ parameter = predicted values
     if matchtype == 0:
-        yhatobs = np.dot(x[ry, :], p["coef"])
-        yhatmis = np.dot(x[wy, :], p["coef"])
+        yhatobs = np.dot(x[id_obs, :], p["coef"])
+        yhatmis = np.dot(x[id_mis, :], p["coef"])
     elif matchtype == 1:
-        yhatobs = np.dot(x[ry, :], p["coef"])
-        yhatmis = np.dot(x[wy, :], p["beta"])
+        yhatobs = np.dot(x[id_obs, :], p["coef"])
+        yhatmis = np.dot(x[id_mis, :], p["beta"])
     elif matchtype == 2:
-        yhatobs = np.dot(x[ry, :], p["beta"])
-        yhatmis = np.dot(x[wy, :], p["beta"])
+        yhatobs = np.dot(x[id_obs, :], p["beta"])
+        yhatmis = np.dot(x[id_mis, :], p["beta"])
 
     idx = matcherid(d = yhatobs, t = yhatmis, matcher = "NN", k = donors)
     
     # Get the observed values that were selected as donors
-    donor_values = ynum[ry][idx]
+    donor_values = ynum[id_obs][idx]
     
     # Handle categorical data retransformation if needed
     if y.dtype == "object":
@@ -116,7 +139,7 @@ def pmm(y, ry, x, wy = None, donors = 5, matchtype = 1,
             donor_values = donor_values_obj
     
     return donor_values
-def quantify_cca(y, ry, x):
+def quantify_cca(y, id_obs, x):
     """
     Factorize a categorical variable y into numeric values via optimal scaling
     using Canonical Correlation Analysis (CCA) with predictors x.
@@ -124,7 +147,7 @@ def quantify_cca(y, ry, x):
     Parameters
     ----------
     y : array-like, categorical variable with missing values
-    ry : boolean array-like, mask indicating observed (True) and missing (False) in y
+    id_obs : boolean array-like, mask indicating observed (True) and missing (False) in y
     x : array-like or DataFrame, predictors without missing values corresponding to y
 
     Returns
@@ -139,9 +162,9 @@ def quantify_cca(y, ry, x):
     This method encodes y as one-hot vectors, then applies CCA to find
     numeric representations that maximize correlation with predictors x.
     """
-    # Subset y and x based on ry
-    xd = np.array(x)[ry]
-    yf = np.array(y)[ry]
+    # Subset y and x based on id_obs
+    xd = np.array(x)[id_obs]
+    yf = np.array(y)[id_obs]
     encoder = OneHotEncoder(sparse_output=False, drop=None)
     yf = encoder.fit_transform(yf.reshape(-1, 1))
 
@@ -154,7 +177,7 @@ def quantify_cca(y, ry, x):
     scaler = StandardScaler()
     y_t = scaler.fit_transform(yf_c[:, 1].reshape(-1, 1)).flatten()
     ynum = np.array([np.nan] * len(y), dtype=np.float64)
-    ynum[ry] = y_t
-    id = pd.DataFrame([y_t], columns=y[ry].values)
+    ynum[id_obs] = y_t
+    id = pd.DataFrame([y_t], columns=y[id_obs].values)
     return ynum, id
 
