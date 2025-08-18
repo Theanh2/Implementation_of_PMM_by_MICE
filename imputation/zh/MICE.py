@@ -7,6 +7,7 @@ from typing import Dict, Union, Optional, List
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 import os
+import statsmodels.formula.api as smf
 
 # Configure a single root logger for the entire project.
 # Any logger created in other modules (e.g., cart.py, plotting/diagnostics.py)
@@ -57,13 +58,11 @@ from .validators import (
     check_initial_method,
     validate_predictor_matrix,
     check_visit_sequence,
+    validate_formula,
 )
 from .constants import (
-    ImputationMethod,
     InitialMethod,
-    SUPPORTED_METHODS,
     DEFAULT_METHOD,
-    SUPPORTED_INITIAL_METHODS,
     DEFAULT_INITIAL_METHOD,
     VisitSequence,
 )
@@ -72,8 +71,8 @@ from .constants import (
 from .utils import get_imputer_func
 # External helpers
 from .mice_result import MICEresult
+from .pooling import pool_descriptive_statistics
 
-# pm and visit sequenc -- if there are columns not in pm, but in visit sequence, add them to pm
 class MICE:
     """
     Multiple Imputation by Chained Equations (MICE) class.
@@ -136,6 +135,9 @@ class MICE:
         # Container for pooled results
         self.result = None  # Will hold the pooled `MICEresult` instance
         self.run_output_dir = None
+        
+        # For storing analysis model results
+        self.model_results = []
 
         # Required by statsmodels result wrappers
         self.nobs = self.data.shape[0]
@@ -280,15 +282,24 @@ class MICE:
         }
 
         self.imputed_datasets = []
+        individual_times = []
 
         for chain_idx in range(self.n_imputations):
+            chain_start_time = time.time()
             logger.info(f"Starting imputation chain {chain_idx + 1}/{self.n_imputations}")
             self.imputed_datasets.append(self._impute_once(chain_idx))
-            logger.info(f"Completed imputation chain {chain_idx + 1}")
+            chain_end_time = time.time()
+            chain_duration = chain_end_time - chain_start_time
+            individual_times.append(chain_duration)
+            logger.info(f"Completed imputation chain {chain_idx + 1} in {chain_duration:.2f} seconds")
         
         end_time = time.time()
-        duration = end_time - start_time
-        logger.info(f"Imputation completed in {duration:.2f} seconds")
+        total_duration = end_time - start_time
+        avg_chain_time = sum(individual_times) / len(individual_times)
+        
+        logger.info(f"All {self.n_imputations} imputations completed in {total_duration:.2f} seconds")
+        logger.info(f"Average time per imputation chain: {avg_chain_time:.2f} seconds")
+        logger.debug(f"Individual chain times: {[f'{t:.2f}s' for t in individual_times]}")
         
         logger.debug("Final imputation statistics:")
         logger.debug(f"  - Number of imputations: {self.n_imputations}")
@@ -297,6 +308,8 @@ class MICE:
         logger.debug(f"  - Method: {self.method}")
         logger.debug(f"  - Visit sequence: {self.visit_sequence}")
         logger.debug(f"  - Predictor matrix provided: {self.predictor_matrix is not None}")
+
+        return self.imputed_datasets
 
     def _quickpred(
         self, 
@@ -374,6 +387,9 @@ class MICE:
     def pool(self, summ: bool = False):
         """Pool descriptive estimates across ``self.imputed_datasets`` using Rubin's rules.
 
+        This method is a convenience wrapper around the standalone pooling module.
+        For more flexibility, consider using ``imputation.zh.pooling.pool_descriptive_statistics`` directly.
+
         What is pooled
         --------------
         - Numeric columns: the sample mean per column.
@@ -395,126 +411,271 @@ class MICE:
         summ : bool, optional
             If True, return ``self.result.summary()``.
         """
-        logger.info("Starting pooling of imputed datasets")
+        logger.info("Starting pooling of imputed datasets using standalone pooling module")
 
         if not self.imputed_datasets:
             msg = "No imputed datasets found – run `.impute()` first."
             logger.error(msg)
             raise ValueError(msg)
 
-        m = len(self.imputed_datasets)
-        logger.debug(f"Pooling {m} imputed datasets")
-
-        if m == 1:
-            warnings.warn("Number of multiple imputations m = 1. Pooling will not reflect between-imputation uncertainty.")
-
-        # Sample size (after imputation there should be no missing)
-        n = self.imputed_datasets[0].shape[0]
-        logger.debug(f"Sample size: {n}")
-
-        # Identify columns by type from the first imputed dataset
-        first_df = self.imputed_datasets[0]
-        numeric_cols = first_df.select_dtypes(include=[np.number]).columns.tolist()
-        categorical_cols = first_df.select_dtypes(include=["object", "category", "bool"]).columns.tolist()
-
-        if not numeric_cols and not categorical_cols:
-            msg = "No numeric or categorical columns available for pooling."
-            logger.error(msg)
-            raise ValueError(msg)
-
-        if numeric_cols:
-            logger.debug(f"Found {len(numeric_cols)} numeric columns for pooling")
-        if categorical_cols:
-            logger.debug(f"Found {len(categorical_cols)} categorical columns for pooling")
-
-        # Build parameter vectors per imputed dataset
-        param_names: List[str] = []
-        q_list: List[List[float]] = [[] for _ in range(m)]
-        u_list: List[List[float]] = [[] for _ in range(m)]
-
-        # 1) Numeric columns: mean and its within-imputation variance
-        for col in numeric_cols:
-            param_names.append(col)
-            for j, df in enumerate(self.imputed_datasets):
-                series = df[col]
-                q_ij = float(series.mean())
-                # Within-imputation variance of the mean: var / n
-                u_ij = float(series.var(ddof=1)) / n if n > 0 else np.nan
-                q_list[j].append(q_ij)
-                u_list[j].append(u_ij)
-
-        # 2) Categorical columns: per-level proportions and their within-imputation variance p(1-p)/n
-        for col in categorical_cols:
-            # Determine stable set of levels across imputations
-            all_levels = []
-            for df in self.imputed_datasets:
-                # Using unique preserves order of appearance; we collect then take unique again to retain stability
-                all_levels.extend(pd.unique(df[col]))
-            # Create ordered, unique levels while preserving first occurrence order
-            seen = set()
-            levels: List[object] = []
-            for lvl in all_levels:
-                if lvl not in seen:
-                    seen.add(lvl)
-                    levels.append(lvl)
-
-            for lvl in levels:
-                lvl_name = f"{col}[{str(lvl)}]"
-                param_names.append(lvl_name)
-                for j, df in enumerate(self.imputed_datasets):
-                    # Proportion of rows equal to this level
-                    # Using .to_numpy() for speed and robust equality
-                    col_vals = df[col].to_numpy()
-                    p = float(np.mean(col_vals == lvl)) if n > 0 else np.nan
-                    u = p * (1.0 - p) / n if n > 0 else np.nan
-                    q_list[j].append(p)
-                    u_list[j].append(u)
-
-        # Apply Rubin's rules
-        logger.debug("Applying Rubin's rules for pooling")
-        q_mat = np.asarray(q_list, dtype=float)
-        u_mat = np.asarray(u_list, dtype=float)
-
-        q_bar = np.nanmean(q_mat, axis=0)
-        u_bar = np.nanmean(u_mat, axis=0)
-
-        if m > 1:
-            b = np.nansum((q_mat - q_bar) ** 2, axis=0) / (m - 1)
-        else:
-            b = np.zeros_like(q_bar)
-
-        t = u_bar + (1.0 + 1.0 / max(m, 1)) * b
-
-        # Avoid division by zero in FMI
-        with np.errstate(divide='ignore', invalid='ignore'):
-            frac_miss_info = ((1.0 + 1.0 / max(m, 1)) * b) / t
-            frac_miss_info = np.where(np.isfinite(frac_miss_info), frac_miss_info, np.nan)
-
-        # Log pooling statistics
-        for i, col in enumerate(param_names):
-            logger.debug(f"Pooling statistics for '{col}':")
-            logger.debug(f"  - Pooled estimate: {q_bar[i]:.4f}")
-            logger.debug(f"  - Total variance: {t[i]:.4f}")
-            logger.debug(f"  - Fraction of missing information: {frac_miss_info[i]:.4f}")
-
-        # Build diagonal covariance matrix (ignoring cross-parameter covariances)
-        cov_params = np.diag(t)
-        logger.debug("Covariance matrix constructed")
-
+        # Use standalone pooling module
+        pooling_result = pool_descriptive_statistics(self.imputed_datasets)
+        
+        # Convert standalone result to MICE-compatible result for backward compatibility
+        logger.debug("Converting pooling result to MICE-compatible format")
+        
+        # Build diagonal covariance matrix
+        cov_params = np.diag(pooling_result.variances)
+        
         # Make parameter names available for summaries
-        self.exog_names = param_names
+        self.exog_names = pooling_result.param_names
 
-        # Create results object
-        logger.debug("Creating results object")
-        self.result = MICEresult(self, q_bar, cov_params)
+        # Create results object compatible with existing MICE interface
+        logger.debug("Creating MICEresult object")
+        self.result = MICEresult(self, pooling_result.estimates, cov_params)
         self.result.scale = 1.0
-        self.result.frac_miss_info = frac_miss_info
+        self.result.frac_miss_info = pooling_result.frac_miss_info
+        
+        # Store the standalone pooling result for advanced users
+        self.pooling_result = pooling_result
 
-        logger.info("Pooling completed successfully")
+        logger.info("Pooling completed successfully using standalone module")
 
         if summ:
             logger.debug("Generating summary")
             return self.result.summary()
+    
+    def fit(self, formula: str) -> None:
+        """
+        Fit a statistical model to each imputed dataset using the specified formula.
+        
+        This method fits the specified statistical model to each dataset in 
+        self.imputed_datasets and stores the results in self.model_results.
+        
+        Parameters
+        ----------
+        formula : str
+            A formula string in patsy syntax for statsmodels (e.g., 'y ~ x1 + x2')
+            
+        Raises
+        ------
+        ValueError
+            If no imputed datasets are available or if variables in formula are not in data
+            
+        Examples
+        --------
+        >>> mice_obj = MICE(data)
+        >>> mice_obj.impute(n_imputations=5)
+        >>> mice_obj.fit('outcome ~ predictor1 + predictor2')
+        """
+        logger.info(f"Starting analysis with formula: {formula}")
+        
+        # Check if imputation has been performed
+        if not hasattr(self, 'imputed_datasets') or not self.imputed_datasets:
+            msg = "No imputed datasets found. Please run .impute() first."
+            logger.error(msg)
+            raise ValueError(msg)
+        
+        # Validate formula
+        validate_formula(formula, list(self.data.columns))
+        
+        # Clear any previous model results
+        self.model_results = []
+        
+        # Fit model to each imputed dataset
+        n_datasets = len(self.imputed_datasets)
+        logger.info(f"Fitting model to {n_datasets} imputed datasets")
+        
+        for i, dataset in enumerate(self.imputed_datasets):
+            logger.debug(f"Fitting model to dataset {i + 1}/{n_datasets}")
+            
+            try:
+                # Fit OLS model using statsmodels
+                model = smf.ols(formula, data=dataset)
+                fitted_model = model.fit()
+                self.model_results.append(fitted_model)
+                
+                logger.debug(f"Successfully fitted model to dataset {i + 1}")
+                
+            except Exception as e:
+                logger.error(f"Error fitting model to dataset {i + 1}: {str(e)}")
+                raise RuntimeError(f"Failed to fit model to dataset {i + 1}: {str(e)}")
+        
+        # Store formula for potential later use
+        self.formula = formula
+        
+        logger.info(f"Analysis completed successfully. Fitted models to {len(self.model_results)} datasets")
+        logger.debug(f"Model results stored in self.model_results with {len(self.model_results)} entries")
+        return self.model_results
+
+    def pool(self, summ: bool = False):
+        """
+        Pool parameter estimates from fitted models using Rubin's rules.
+        
+        This method combines parameter estimates and their uncertainties from 
+        multiple imputed datasets according to Rubin's (1987) rules for 
+        multiple imputation inference.
+        
+        Parameters
+        ----------
+        summ : bool, default=False
+            If True, returns a summary of the pooled results
+            
+        Returns
+        -------
+        MICEresult or summary
+            If summ=False, returns a MICEresult object containing pooled estimates.
+            If summ=True, returns a summary table of the pooled results.
+            
+        Raises
+        ------
+        ValueError
+            If no model results are available from analysis
+            
+        Notes
+        -----
+        Rubin's pooling rules combine:
+        - Point estimates: average across imputations
+        - Within-imputation variance: average of individual model variances  
+        - Between-imputation variance: variance of point estimates across imputations
+        - Total variance: within + (1 + 1/m) * between
+        - Fraction of missing information (FMI): proportion of uncertainty due to missingness
+        
+        References
+        ----------
+        Rubin, D.B. (1987). Multiple Imputation for Nonresponse in Surveys. 
+        New York: John Wiley and Sons.
+        """
+        logger.info("Starting pooling of model results using Rubin's rules")
+        
+        # Check if analysis has been performed
+        if not hasattr(self, 'model_results') or not self.model_results:
+            msg = "No model results found. Please run .fit() first."
+            logger.error(msg)
+            raise ValueError(msg)
+        
+        # Check if formula was stored (should be set by fit())
+        if not hasattr(self, 'formula'):
+            logger.warning("No formula found. This may indicate .fit() was not called properly.")
+        
+        m = len(self.model_results)  # Number of imputations
+        logger.info(f"Pooling estimates from {m} fitted models")
+        
+        # Extract parameters, covariances, and scales from each model
+        params_list = []
+        cov_within_list = []
+        scale_list = []
+        
+        for i, model_result in enumerate(self.model_results):
+            logger.debug(f"Extracting results from model {i + 1}")
+            
+            # Extract parameter estimates
+            params_list.append(model_result.params.values)
+            
+            # Extract covariance matrix (within-imputation variance)
+            cov_within_list.append(model_result.cov_params().values)
+            
+            # Extract scale (residual variance)
+            scale_list.append(model_result.scale)
+        
+        # Convert to numpy arrays for easier computation
+        params_array = np.array(params_list)  # Shape: (m, p) where p = number of parameters
+        cov_within_array = np.array(cov_within_list)  # Shape: (m, p, p)
+        scale_array = np.array(scale_list)
+        
+        logger.debug(f"Parameter array shape: {params_array.shape}")
+        logger.debug(f"Covariance array shape: {cov_within_array.shape}")
+        
+        # Apply Rubin's pooling rules
+        # 1. Pooled point estimates (qbar): average of individual estimates
+        pooled_params = np.mean(params_array, axis=0)
+        logger.debug(f"Computed pooled parameter estimates: {pooled_params}")
+        
+        # 2. Within-imputation variance (ubar): average of individual covariances
+        cov_within = np.mean(cov_within_array, axis=0)
+        
+        # 3. Between-imputation variance (b): covariance of parameter estimates across imputations
+        if m > 1:
+            cov_between = np.cov(params_array, rowvar=False, ddof=1)
+        else:
+            cov_between = np.zeros_like(cov_within)
+            logger.warning("Only one imputation available. Between-imputation variance set to zero.")
+        
+        # 4. Total covariance matrix using Rubin's rules
+        # Total variance = within + (1 + 1/m) * between
+        f = 1.0 + 1.0 / m  # Adjustment factor
+        cov_total = cov_within + f * cov_between
+        
+        # 5. Fraction of missing information (FMI)
+        # FMI = (1 + 1/m) * diag(between) / diag(total)
+        if m > 1:
+            fmi = f * np.diag(cov_between) / np.diag(cov_total)
+            # Ensure FMI is between 0 and 1
+            fmi = np.clip(fmi, 0.0, 1.0)
+        else:
+            fmi = np.zeros(len(pooled_params))
+        
+        # 6. Pooled scale (average of individual scales)
+        pooled_scale = np.mean(scale_array)
+        
+        logger.debug(f"Computed within-imputation variance diagonal: {np.diag(cov_within)}")
+        logger.debug(f"Computed between-imputation variance diagonal: {np.diag(cov_between)}")
+        logger.debug(f"Computed total variance diagonal: {np.diag(cov_total)}")
+        logger.debug(f"Computed fraction of missing information: {fmi}")
+        logger.debug(f"Computed pooled scale: {pooled_scale}")
+        
+        # Create parameter names (use from first model)
+        param_names = list(self.model_results[0].params.index)
+        logger.debug(f"Parameter names: {param_names}")
+        
+        # Store results for backward compatibility
+        self.exog_names = param_names
+        if hasattr(self.model_results[0], 'model') and hasattr(self.model_results[0].model, 'endog_names'):
+            self.endog_names = self.model_results[0].model.endog_names
+        
+        # Create MICEresult object
+        logger.debug("Creating MICEresult object")
+        from .mice_result import MICEresult
+        
+        # The MICEresult expects normalized covariance params (divided by scale)
+        normalized_cov_params = cov_total / pooled_scale
+        
+        pooled_result = MICEresult(self, pooled_params, normalized_cov_params)
+        pooled_result.scale = pooled_scale
+        pooled_result.frac_miss_info = fmi
+        
+        # Store additional pooling diagnostics
+        pooled_result.cov_within = cov_within
+        pooled_result.cov_between = cov_between
+        pooled_result.cov_total = cov_total
+        pooled_result.m = m
+        
+        # Store the result
+        self.pooled_result = pooled_result
+        
+        logger.info("Pooling completed successfully using Rubin's rules")
+        logger.debug(f"Pooled estimates: {dict(zip(param_names, pooled_params))}")
+        logger.debug(f"Fraction of missing information: {dict(zip(param_names, fmi))}")
+        
+        if summ:
+            logger.debug("Generating summary")
+            return pooled_result.summary()
+        
+        # Return comprehensive results for analysis
+        comprehensive_result = {
+            'pooled_result': pooled_result,
+            'pooled_params': pooled_params,
+            'pooled_covariance': cov_total,
+            'within_covariance': cov_within,
+            'between_covariance': cov_between,
+            'fraction_missing_info': fmi,
+            'pooled_scale': pooled_scale,
+            'n_imputations': m,
+            'parameter_names': param_names,
+            'formula': getattr(self, 'formula', None)
+        }
+        
+        return comprehensive_result
     
     def plot_chain_stats(self, columns: Optional[List[str]] = None):
         """

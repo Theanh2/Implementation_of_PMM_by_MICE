@@ -3,6 +3,7 @@ import warnings
 from typing import Dict, Union, List
 from .constants import ImputationMethod, SUPPORTED_METHODS, DEFAULT_METHOD, InitialMethod, SUPPORTED_INITIAL_METHODS, DEFAULT_INITIAL_METHOD, VisitSequence, SUPPORTED_VISIT_SEQUENCES
 import numpy as np
+import re
 
 def check_n_imputations(n_imputations: int) -> None:
     """
@@ -308,3 +309,46 @@ def validate_dataframe(data) -> pd.DataFrame:
         data = data.drop(columns=empty_cols)
     
     return data
+
+def validate_formula(formula: str, columns: List[str]) -> None:
+    """
+    Validate that all variables in the formula exist in the dataset columns.
+    
+    Parameters
+    ----------
+    formula : str
+        The formula string to validate
+    columns : List[str]
+        List of column names in the dataset
+        
+    Raises
+    ------
+    ValueError
+        If any variables in the formula are not found in the columns
+    """
+    if not isinstance(formula, str):
+        raise ValueError("formula must be a string")
+    
+    if not isinstance(columns, list):
+        raise ValueError("columns must be a list")
+    
+    # Extract variable names from formula using regex
+    # This pattern matches valid Python identifiers that could be column names
+    variable_pattern = r'\b[a-zA-Z_][a-zA-Z0-9_]*\b'
+    variables_in_formula = set(re.findall(variable_pattern, formula))
+    
+    # Remove common statsmodels/patsy keywords that are not variables
+    keywords_to_ignore = {
+        'I', 'Q', 'C', 'np', 'pd', 'log', 'exp', 'sqrt', 'abs', 'sin', 'cos', 'tan',
+        'int', 'float', 'str', 'bool', 'True', 'False', 'None'
+    }
+    variables_in_formula = variables_in_formula - keywords_to_ignore
+    
+    # Check which variables exist in the dataset
+    available_columns = set(columns)
+    missing_variables = variables_in_formula - available_columns
+    
+    if missing_variables:
+        raise ValueError(f"The following variables in the formula are not present in the dataset: {missing_variables}")
+    
+    return None
