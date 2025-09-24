@@ -1,88 +1,58 @@
-from sklearn.neighbors import KDTree
-import numpy as np
-import random
-def matcherid(d, t, matcher = "NN", k = 10, radius = 3):
-    """
-    Find donor indices matching missing values based on specified matching method.
+from __future__ import annotations
+
+"""Utility helpers.
+
+Currently this module offers a single public function, :func:`get_imputer_func`,
+which maps a string identifying an imputation method to the concrete callable
+that implements that method.
+"""
+
+from .constants import ImputationMethod
+
+# Import concrete imputation back-ends
+from .PMM import pmm
+from .midas import midas
+from .cart import cart
+from .sample import sample
+from .rf import rf
+
+# ---------------------------------------------------------------------------
+# Public helpers
+# ---------------------------------------------------------------------------
+
+# Map of method-name -> imputer function
+_IMPUTER_MAP = {
+    ImputationMethod.PMM.value: pmm,
+    ImputationMethod.MIDAS.value: midas,
+    ImputationMethod.CART.value: cart,
+    ImputationMethod.SAMPLE.value: sample,
+    ImputationMethod.RF.value: rf,
+}
+
+
+def get_imputer_func(method_name: str):
+    """Return the imputer callable for *method_name*.
 
     Parameters
     ----------
-    d : np.array
-        Numeric vector of observed values (donor pool).
-    t : np.array
-        Numeric vector of missing values to be matched.
-    matcher : str, optional
-        Matching method to use:
-        - "NN": Randomly selects one from the k nearest neighbors (default).
-        - "fixedNN": Randomly selects one donor within a fixed radius.
-    k : int, optional
-        Number of nearest neighbors to consider (only for "NN" matcher).
-    radius : float, optional
-        Radius threshold for fixedNN matcher (only for "fixedNN" matcher).
+    method_name : str
+        Name of the imputation method. Must be one of the values defined in
+        :class:`imputation.zh.constants.ImputationMethod`.
 
     Returns
     -------
-    list of int
-        List of indices corresponding to chosen donors in d for each element in t.
+    Callable
+        The function implementing the requested imputation strategy.
 
     Raises
     ------
     ValueError
-        If an unknown matcher method is specified.
-
-    Examples
-    --------
-    >>> d = np.array([-5, 6, 0, 10, 12])
-    >>> t = np.array([-6])
-    >>> matcherid(d, t, matcher="NN", k=3)
-    [0]
-    >>> matcherid(d, t, matcher="fixedNN", radius=5)
-    [0]
+        If *method_name* is unknown or not yet implemented.
     """
-    if matcher == "NN": #random from n closest Donors
-        idx = []
-        tree = KDTree(d.reshape(-1, 1), leaf_size = 40)
-        #returns index k NN indices choose 1 on random
-        dist, ind = tree.query(t.reshape(-1, 1), k = k)
-        for list in ind:
-            idx.append(random.choice(list))
-        #returns indices of one random nearest neighbor for each t
-        return idx
-    elif matcher == "fixedNN": #fixed radius nearest neighbour
-        idx = []
-        tree = KDTree(d.reshape(-1, 1), leaf_size = 40)
-        #returns index k NN indices choose 1 on random
-        ind = tree.query_radius(t.reshape(-1, 1), radius)
-        for list in ind:
-            idx.append(random.choice(list))
-        #returns indices of one random nearest neighbor
-        return idx
-    else:
-        raise ValueError("unknown matcher")
-def split_dataframe(df, n):
-    """
-    Split a DataFrame into n roughly equal parts.
+    if method_name not in _IMPUTER_MAP:
+        raise ValueError(
+            "Unsupported or unimplemented imputation method: "
+            f"'{method_name}'. Supported methods are: {list(_IMPUTER_MAP.keys())}"
+        )
 
-    Parameters
-    ----------
-    df : pandas.DataFrame
-        The DataFrame to split.
-    n : int
-        Number of parts to split the DataFrame into.
-
-    Returns
-    -------
-    list of pandas.DataFrame
-        List containing n DataFrames, each a part of the original DataFrame.
-    """
-    k, m = divmod(len(df), n)
-    parts = [
-        df.iloc[i * k + min(i, m):(i + 1) * k + min(i + 1, m)].reset_index(drop=True)
-        for i in range(n)
-    ]
-    return parts
-def logit(p):
-    return np.log(p / (1 - p))
-def expit(x):
-    return 1 / (1 + np.exp(-x))
-
+    return _IMPUTER_MAP[method_name] 
