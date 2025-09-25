@@ -6,7 +6,7 @@ import logging
 
 # Get a logger for the current module.
 # This will be a child of the 'imputation' logger configured in MICE.py
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('imputation.rf')
 
 def rf(
     y: Union[pd.Series, np.ndarray],

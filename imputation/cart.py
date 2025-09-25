@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
 from typing import Union, Optional
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('imputation.cart')
 
 def cart(
     y: Union[pd.Series, np.ndarray],

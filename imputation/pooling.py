@@ -13,7 +13,7 @@ import logging
 from typing import List, Dict, Optional, Union, Tuple
 from dataclasses import dataclass
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('imputation.pooling')
 
 
 @dataclass

@@ -5,48 +5,33 @@ import logging
 import time
 from typing import Dict, Union, Optional, List
 from datetime import datetime
-from logging.handlers import RotatingFileHandler
 import os
 import statsmodels.formula.api as smf
 
-# Configure a single root logger for the entire project.
-# Any logger created in other modules (e.g., cart.py, plotting/diagnostics.py)
-# will inherit this configuration.
-root_logger = logging.getLogger()
-root_logger.setLevel(logging.DEBUG)
+# Get a logger for this module using the proper package hierarchy
+# This will inherit configuration from the package logger when configured
+logger = logging.getLogger('imputation.mice')
 
-# Prevent adding handlers multiple times
-if not root_logger.handlers:
-    # Create logs directory if it doesn't exist
-    log_dir = 'logs'
-    os.makedirs(log_dir, exist_ok=True)
-
-    # Define the log filename based on the current date.
-    log_filename = f"mice_{datetime.now().strftime('%Y-%m-%d')}.log"
-    log_file_path = os.path.join(log_dir, log_filename)
-
-    # Create console handler with an INFO log level
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-
-    # Create rotating file handler which logs even debug messages.
-    file_handler = RotatingFileHandler(log_file_path, maxBytes=5 * 1024 * 1024, backupCount=5)
-    file_handler.setLevel(logging.DEBUG)
-
-    # Create formatters and add them to the handlers
-    console_format = logging.Formatter('%(levelname)s - %(message)s')
-    file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    console_handler.setFormatter(console_format)
-    file_handler.setFormatter(file_format)
-
-    # Add the handlers to the root logger
-    root_logger.addHandler(console_handler)
-    root_logger.addHandler(file_handler)
-
-
-# Get a logger for the current module.
-# It will automatically inherit handlers from the root logger.
-logger = logging.getLogger(__name__)
+# Check if logging has been configured; if not, provide helpful guidance
+def _check_logging_configured():
+    """Check if package logging has been configured and provide guidance if not."""
+    package_logger = logging.getLogger('imputation')
+    
+    # Check if the package logger has any handlers (other than NullHandler)
+    has_real_handlers = any(
+        not isinstance(handler, logging.NullHandler) 
+        for handler in package_logger.handlers
+    )
+    
+    if not has_real_handlers and not package_logger.propagate:
+        # Only show warning once per session
+        if not hasattr(_check_logging_configured, '_warned'):
+            logger.warning(
+                "No logging configured for imputation package. "
+                "Call imputation.configure_logging() to enable logging, "
+                "or imputation.disable_logging() to suppress this warning."
+            )
+            _check_logging_configured._warned = True
 
 
 from .validators import (
@@ -109,6 +94,9 @@ class MICE:
         ValueError
             If data is not a pandas DataFrame or contains duplicate column names
         """
+        # Check if logging has been configured and provide guidance if needed
+        _check_logging_configured()
+        
         logger.info("Initializing MICE object")
         logger.debug(f"Input data shape: {data.shape}")
 
