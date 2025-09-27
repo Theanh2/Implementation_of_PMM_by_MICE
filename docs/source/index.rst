@@ -1,53 +1,25 @@
-.. Imputepmmidas documentation master file, created by
-   sphinx-quickstart on Sun Jun 22 19:37:44 2025.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Multiple Imputation by Chained Equations in Python: mice-py
+============================================================
 
-Imputepmmidas documentation
-===========================
+This repository contains a modular Python framework for multiple imputation, developed as part of a master's thesis at Ludwig Maximilian University of Munich for the Statistics Department. The focus lies on implementing and evaluating **Predictive Mean Matching (PMM)** and its recent extension, the **midastouch** algorithm.
 
-Implementation of PMM and Variations
-====================================
+Overview
+--------
 
-This repository contains a modular Python framework for multiple imputation, developed as part of my master's thesis at Ludwig Maximilian University of Munich for the Statistics Department. The focus lies on implementing and evaluating **Predictive Mean Matching (PMM)** and its recent extension, the **midastouch** algorithm.
+The framework provides:
 
-Thesis Abstract
----------------
+- **Flexible imputation methods**: PMM, MIDAS, CART, Random Forest, and random sampling approaches
+- **Comprehensive diagnostics**: Visualization tools for analyzing imputation quality and missing data patterns
+- **Professional logging**: Configurable logging system for monitoring imputation processes
+- **Research-ready**: Built for statistical research with full reproducibility support
 
-This thesis develops a modular Python framework for multiple imputation inspired by the R package ``mice``, with a particular focus on **Predictive Mean Matching (PMM)** and the **midastouch** algorithm. The implementation allows for full flexibility in defining:
-
-- Distance metrics
-- Donor selection rules
-- Imputation parameters
-
-To evaluate both imputation strategies, a comprehensive simulation study was conducted across three types of target variables:
-
-- **Continuous**
-- **Semi-continuous**
-- **Discrete**
-
-Each simulation varied by:
-
-- **Missingness mechanism**: MCAR (Missing Completely At Random), left-tailed MAR, and right-tailed MAR
-- **Proportion of missing data**
-- **Imputation configuration**
-
-In total, 675 configurations were simulated and evaluated using four key performance metrics:
-
-- Bias
-- Confidence interval coverage
-- Confidence interval width
-- Mean squared error (MSE)
-
-Simulation results are available as a CSV file under ``simulations/simulation_df.csv``.
-
-Key Findings
+Key Features
 ------------
 
-- **PMM** performs reliably under MCAR and mild MAR, particularly with symmetric distributions and large samples.
-- **PMM** struggles under skewed distributions or structured missingness, often yielding biased estimates and reduced coverage.
-- **midastouch** consistently matches or outperforms PMM in coverage and standard error estimation, especially under skewness or small sample sizes.
-- Unlike PMM, **midastouch** requires no manual tuning of donor size ``k`` and, when combined with **HowManyImputations (HMI)**, provides an efficient and automated solution.
+- **Multiple Imputation by Chained Equations (MICE)**: Full implementation with customizable parameters
+- **Predictive Mean Matching (PMM)**: Traditional and midastouch variants
+- **Tree-based Methods**: CART and Random Forest imputation
+- **Diagnostic Tools**: Comprehensive plotting and analysis utilities
 
 Getting Started
 ---------------
@@ -59,18 +31,44 @@ Clone this repository:
 
 .. code-block:: bash
 
-   git clone https://github.com/Theanh2/Implementation_of_PMM_by_MICE.git@detached
+   git clone https://github.com/Theanh2/Implementation_of_PMM_by_MICE.git
    cd Implementation_of_PMM_by_MICE
 
-Or directly install via pip:
+Basic Usage
+~~~~~~~~~~~
 
-.. code-block:: bash
+.. code-block:: python
 
-   pip install git+https://github.com/Theanh2/Implementation_of_PMM_by_MICE.git@detached
+   import imputation
+   import pandas as pd
+   
+   # Load your data with missing values
+   data = pd.read_csv('your_data.csv')
+   
+   # Configure logging (optional)
+   imputation.configure_logging()
+   
+   # Create MICE object and perform imputation
+   mice = imputation.MICE(data)
+   result = mice.impute(n_imputations=5, maxit=10)
+   
+   # Access imputed datasets
+   imputed_data = result.complete_data(0)  # First imputation
+   all_imputations = result.complete_data('all')  # All imputations
+
+Documentation
+-------------
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents
+   :caption: mice-py package
 
-   modules
+   imputation/index
+   plotting/index
 
+Indices and Tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
