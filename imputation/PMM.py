@@ -1,7 +1,11 @@
 import pandas as pd
+import numpy as np
 from .sampler import *
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.cross_decomposition import CCA
+from sklearn.neighbors import KDTree
+import random
+
 def pmm(y, id_obs, x, id_mis = None, donors = 5, matchtype = 1,
                     quantify = True, ridge = 1e-5, matcher = "NN", **kwargs):
     """
@@ -179,4 +183,61 @@ def quantify_cca(y, id_obs, x):
     ynum[id_obs] = y_t
     id = pd.DataFrame([y_t], columns=y[id_obs].values)
     return ynum, id
+def matcherid(d, t, matcher = "NN", k = 10, radius = 3):
+    """
+    Find donor indices matching missing values based on specified matching method.
 
+    Parameters
+    ----------
+    d : np.array
+        Numeric vector of observed values (donor pool).
+    t : np.array
+        Numeric vector of missing values to be matched.
+    matcher : str, optional
+        Matching method to use:
+        - "NN": Randomly selects one from the k nearest neighbors (default).
+        - "fixedNN": Randomly selects one donor within a fixed radius.
+    k : int, optional
+        Number of nearest neighbors to consider (only for "NN" matcher).
+    radius : float, optional
+        Radius threshold for fixedNN matcher (only for "fixedNN" matcher).
+
+    Returns
+    -------
+    list of int
+        List of indices corresponding to chosen donors in d for each element in t.
+
+    Raises
+    ------
+    ValueError
+        If an unknown matcher method is specified.
+
+    Examples
+    --------
+    >>> d = np.array([-5, 6, 0, 10, 12])
+    >>> t = np.array([-6])
+    >>> matcherid(d, t, matcher="NN", k=3)
+    [0]
+    >>> matcherid(d, t, matcher="fixedNN", radius=5)
+    [0]
+    """
+    if matcher == "NN": #random from n closest Donors
+        idx = []
+        tree = KDTree(d.reshape(-1, 1), leaf_size = 40)
+        #returns index k NN indices choose 1 on random
+        dist, ind = tree.query(t.reshape(-1, 1), k = k)
+        for list in ind:
+            idx.append(random.choice(list))
+        #returns indices of one random nearest neighbor for each t
+        return idx
+    elif matcher == "fixedNN": #fixed radius nearest neighbour
+        idx = []
+        tree = KDTree(d.reshape(-1, 1), leaf_size = 40)
+        #returns index k NN indices choose 1 on random
+        ind = tree.query_radius(t.reshape(-1, 1), radius)
+        for list in ind:
+            idx.append(random.choice(list))
+        #returns indices of one random nearest neighbor
+        return idx
+    else:
+        raise ValueError("unknown matcher")

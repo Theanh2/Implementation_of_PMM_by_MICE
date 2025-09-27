@@ -6,7 +6,7 @@ import logging
 
 # Get a logger for the current module.
 # This will automatically inherit the root logger configuration.
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('imputation.plotting.diagnostics')
 
 # Set random seed for reproducibility
 np.random.seed(42)
@@ -248,14 +248,11 @@ def bwplot(imputed_datasets, missing_pattern, columns=None, merge_imputations=Fa
             hue='type',
             ax=ax,
             palette={'Observed': observed_color, 'Imputed': imputed_color},
-            legend=False,
             width=0.8,
-            fill=False,
-            showfliers=False,  # Hide outliers to avoid cluttering
-            showbox=True,
+            showfliers=False,
             showcaps=True,
             showmeans=False,
-            medianprops={'visible': False},  # Hide the median line
+            medianprops={'visible': False},  
             boxprops={'alpha': 0.6},
             whiskerprops={'alpha': 0.6},
             capprops={'alpha': 0.6}
@@ -635,21 +632,28 @@ def plot_chain_stats(chain_mean, chain_var, columns=None, figsize=(10, 5), save_
         logger.warning("No columns specified or found to plot.")
         return
 
+    # Filter columns to only those that exist in both chain_mean and chain_var
+    valid_columns = []
     for col in columns:
         if col not in chain_mean or col not in chain_var:
-            logger.warning(f"Statistics for column '{col}' not found. Skipping.")
+            logger.warning(f"Statistics for column '{col}' not found in both chain_mean and chain_var. Skipping.")
             continue
+        valid_columns.append(col)
 
-    n_rows = len(columns)
+    if not valid_columns:
+        logger.warning("No valid columns found to plot.")
+        return
+
+    n_rows = len(valid_columns)
     fig, axes = plt.subplots(n_rows, 2,
                             figsize=(figsize[0], figsize[1] * n_rows),
                             squeeze=False)
 
-    # Number of chains determined from first column's matrix
-    n_chains = next(iter(chain_mean.values())).shape[1]
+    # Number of chains determined from first valid column's matrix
+    n_chains = chain_mean[valid_columns[0]].shape[1]
     palette = sns.color_palette("husl", n_colors=n_chains)
 
-    for row_idx, col in enumerate(columns):
+    for row_idx, col in enumerate(valid_columns):
         mean_mat = chain_mean[col]
         var_mat = chain_var[col]
 

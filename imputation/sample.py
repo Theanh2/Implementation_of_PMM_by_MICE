@@ -47,12 +47,11 @@ def sample(
     values of the target variable for imputation.
     
     Edge cases handled (matching R implementation):
-    - If no observed values: returns random normal values
+    - If no observed values: returns random normal values for numeric data,
+      None values for categorical data
     - If only one observed value: duplicates it to allow sampling
     """
-    # Convert inputs to numpy arrays for consistency
-    y = np.asarray(y)
-    x = np.asarray(x)
+    # Convert boolean masks to numpy arrays, but preserve y's original type
     id_obs = np.asarray(id_obs, dtype=bool)
     
     # Set default id_mis if not provided
@@ -68,14 +67,19 @@ def sample(
     
     # Handle edge cases (matching R implementation)
     if len(y_obs) < 1:
-        # If no observed values, return random normal values
+        # If no observed values, handle based on data type
         n_mis = np.sum(id_mis)
-        imputed_values = np.random.normal(0, 1, n_mis)
+        if hasattr(y, 'dtype') and y.dtype == 'object':
+            # For categorical/string data, we can't generate meaningful values
+            # Return None values that will need to be handled by the caller
+            imputed_values = np.full(n_mis, None, dtype=object)
+        else:
+            # For numeric data, return random normal values
+            imputed_values = np.random.normal(0, 1, n_mis)
     elif len(y_obs) == 1:
         # If only one observed value, duplicate it to allow sampling
-        y_obs = np.array([y_obs[0], y_obs[0]])
         n_mis = np.sum(id_mis)
-        imputed_values = np.random.choice(y_obs, size=n_mis, replace=True)
+        imputed_values = np.full(n_mis, y_obs[0])
     else:
         # Normal case: sample from observed values
         n_mis = np.sum(id_mis)

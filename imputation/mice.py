@@ -98,11 +98,10 @@ class MICE:
         _check_logging_configured()
         
         logger.info("Initializing MICE object")
-        logger.debug(f"Input data shape: {data.shape}")
-
         self.data = validate_dataframe(data)
         self.data = validate_columns(self.data)
         
+        logger.debug(f"Input data shape: {self.data.shape}")
         self.id_obs = {}
         self.id_mis = {}
         missing_stats = {}
@@ -232,7 +231,7 @@ class MICE:
         if method is not None:
             self.method = check_method(method, list(self.data.columns))
         else:
-            self.method = DEFAULT_METHOD
+            self.method = check_method(DEFAULT_METHOD, list(self.data.columns))
         logger.debug(f"Using imputation methods: {self.method}")
 
         # Store imputation parameters before using them
@@ -262,14 +261,18 @@ class MICE:
         self._set_visit_sequence(visit_sequence)
         logger.debug(f"Visit sequence set to: {self.visit_sequence}")
 
-        # Prepare chain statistics containers
+        # Prepare chain statistics containers 
+        # Only track statistics for numeric columns that will be imputed (i.e., have missing values)
+        numeric_cols = self.data.select_dtypes(include=[np.number]).columns
+        numeric_cols_to_impute = [col for col in self.visit_sequence if col in numeric_cols]
+        
         self.chain_mean = {
             col: np.full((self.maxit, self.n_imputations), np.nan, dtype=float)
-            for col in self.visit_sequence
+            for col in numeric_cols_to_impute
         }
         self.chain_var = {
             col: np.full((self.maxit, self.n_imputations), np.nan, dtype=float)
-            for col in self.visit_sequence
+            for col in numeric_cols_to_impute
         }
 
         self.imputed_datasets = []
@@ -299,6 +302,14 @@ class MICE:
         logger.debug(f"  - Method: {self.method}")
         logger.debug(f"  - Visit sequence: {self.visit_sequence}")
         logger.debug(f"  - Predictor matrix provided: {self.predictor_matrix is not None}")
+
+        # Create a simple result object to hold the imputed datasets for backward compatibility
+        class ImputationResult:
+            def __init__(self, imputed_datasets):
+                self.imputed_datasets = imputed_datasets
+        
+        self.result = ImputationResult(self.imputed_datasets)
+        logger.debug("Created result object with imputed datasets")
 
         return self.imputed_datasets
 
@@ -337,8 +348,9 @@ class MICE:
         
         predictor_matrix = pd.DataFrame(0, index=self.data.columns, columns=self.data.columns)
         
-        # Calculate correlation matrix
-        cor_matrix = self.data.corr(method=method)
+        # Calculate correlation matrix only for numeric columns
+        numeric_cols = self.data.select_dtypes(include=[np.number]).columns
+        cor_matrix = self.data[numeric_cols].corr(method=method)
 
         for target_col in self.data.columns:
             # Skip targets with no missing values
@@ -353,8 +365,13 @@ class MICE:
                 puc = self.data[[target_col, predictor_col]].notna().all(axis=1).mean()
 
                 if puc >= min_puc:
-                    correlation = cor_matrix.loc[target_col, predictor_col]
-                    if abs(correlation) >= min_cor:
+                    # Only use correlation if both columns are numeric
+                    if target_col in cor_matrix.index and predictor_col in cor_matrix.columns:
+                        correlation = cor_matrix.loc[target_col, predictor_col]
+                        if abs(correlation) >= min_cor:
+                            predictor_matrix.loc[target_col, predictor_col] = 1
+                    else:
+                        # For non-numeric columns, use them as predictors
                         predictor_matrix.loc[target_col, predictor_col] = 1
         
         # Handle include and exclude lists with validation for unknown columns
@@ -668,41 +685,6 @@ class MICE:
         
         return comprehensive_result
     
-    def plot_chain_stats(self, columns: Optional[List[str]] = None):
-        """
-        Plot convergence of chain mean and variance
-        
-        Parameters
-        ----------
-        columns : list, optional
-            List of column names to plot. If None, plots all columns
-        """
-        from plotting.diagnostics import plot_chain_stats
-        
-        if self.chain_mean is None or self.chain_var is None:
-            logger.warning("No chain statistics to plot. Run imputation first.")
-            return
-            
-        # Filter columns if specified
-        if columns is not None:
-            # Check that all specified columns exist in chain statistics
-            available_cols = list(self.chain_mean.keys())
-            columns = [col for col in columns if col in available_cols]
-            
-            if not columns:
-                logger.warning(f"None of the specified columns found in chain statistics. Available columns: {available_cols}")
-                return
-                
-            # Filter chain statistics to only include specified columns
-            filtered_chain_mean = {col: self.chain_mean[col] for col in columns}
-            filtered_chain_var = {col: self.chain_var[col] for col in columns}
-        else:
-            filtered_chain_mean = self.chain_mean
-            filtered_chain_var = self.chain_var
-        
-        plot_chain_stats(filtered_chain_mean, filtered_chain_var, columns)
-
-
     def _impute_once(self, chain_idx: int):
         """
         Perform one complete imputation cycle.
@@ -786,12 +768,12 @@ class MICE:
             # Assign imputed values
             updated_data.loc[id_mis_mask, col] = imputed_values
 
-            # Record chain statistics
-            if id_mis.sum() > 0:
+            # Record chain statistics (only for numeric columns)
+            if id_mis.sum() > 0 and col in self.chain_mean:
                 imputed_arr = np.asarray(imputed_values, dtype=float)
                 mean_val = np.nanmean(imputed_arr)
                 self.chain_mean[col][iter_idx, chain_idx] = mean_val
-                
+                    
                 if imputed_arr.size > 1:
                     var_val = np.nanvar(imputed_arr, ddof=1)
                     self.chain_var[col][iter_idx, chain_idx] = var_val

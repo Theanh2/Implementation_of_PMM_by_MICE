@@ -20,10 +20,10 @@ def check_n_imputations(n_imputations: int) -> None:
         If n_imputations is not a positive integer
     """
     if not isinstance(n_imputations, int):
-        raise ValueError("n_imputations must be an integer")
+        raise ValueError("n_imputations must be a positive integer")
     
     if n_imputations <= 0:
-        raise ValueError("n_imputations must be positive")
+        raise ValueError("n_imputations must be a positive integer")
         
     if n_imputations > 100:
         print(f"Warning: {n_imputations} imputations is a large number. This might take a while to compute.")
@@ -46,7 +46,7 @@ def check_maxit(maxit: int) -> None:
         raise ValueError("maxit must be an integer")
     
     if maxit <= 0:
-        raise ValueError("maxit must be positive")
+        raise ValueError("maxit must be a positive integer")
         
     if maxit > 50:
         warnings.warn("maxit is greater than 50, imputations will take a lot of time", UserWarning)
@@ -148,7 +148,7 @@ def check_visit_sequence(visit_sequence: Union[str, List[str]], columns: List[st
     if isinstance(visit_sequence, list):
         invalid_cols = [col for col in visit_sequence if col not in columns]
         if invalid_cols:
-            raise ValueError(f"Columns not found in data: {invalid_cols}")
+            raise ValueError(f"Visit sequence contains columns not in data: {invalid_cols}")
         
         missing_cols = [col for col in columns if col not in visit_sequence]
         if missing_cols:

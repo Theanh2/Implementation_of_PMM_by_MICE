@@ -179,5 +179,3 @@ def estimice(x, y, ls_meth="qr", ridge=1e-5):
             "ls_meth": ls_meth
         }
 
-
-
